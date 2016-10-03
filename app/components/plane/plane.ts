@@ -104,17 +104,26 @@ export class Plane {
 
         var squareMesh = new THREE.Mesh(squareGeometry, squareMaterial);
         squareMesh.position.set(0, 0.0, z);
-        //this.dummyRotate(this.scene.getObjectGroup(), new THREE.Vector3(0, 0 - halfW, z), -0.3);
         this.scene.addObject(squareMesh);
+        this.dummyRotate(this.scene.getObjectGroup(), new THREE.Vector3(0, 0 - halfW, z), -0.5);
     }
 
     private dummyRotate(object, axis, radians) {
-        var rotationMatrix = new THREE.Matrix4();
 
+        // if( object.children[0].geometry.boundingBox === undefined )
+        //     object.children[0].geometry.computeBoundingBox ();
+        var box = new THREE.Box3().setFromObject(object.children[0]);
+
+
+        let width = box.max['x'] - box.min['x'];
+        object.translateOnAxis(new THREE.Vector3(1, 0, 0), -width/2);
+        var rotationMatrix = new THREE.Matrix4();
         rotationMatrix.makeRotationAxis(axis.normalize(), radians);
         rotationMatrix.multiply(object.matrix);                       // pre-multiply
         object.matrix = rotationMatrix;
         object.rotation.setFromRotationMatrix(object.matrix);
+        object.translateOnAxis(new THREE.Vector3(1, 0, 0), width/2);
+
 
     }
 
