@@ -73,11 +73,6 @@ export class GraphLayoutFdl extends GraphLayoutAbstract {
                 y: 0
             };
 
-            // if (nodeV.getEdges().length === 0) {
-            //     nodeV.setColor(0xAAFFAA);
-            //     return;
-            // }
-
             /**
              * Go through all other nodes to calculate distances
              */
@@ -86,8 +81,6 @@ export class GraphLayoutFdl extends GraphLayoutAbstract {
                 if (nodeV.getDataEntity().getId() === nodeU.getDataEntity().getId())
                     return;
 
-                // if (nodeU.getEdges().length === 0)
-                //     return;
 
                 let distance = nodeV.getDistance(nodeU);
                 nodeV['force'].x += NODE_REPULSION_FACTOR * nodeV.getDistance(nodeU, 'x') / distance;
@@ -111,8 +104,8 @@ export class GraphLayoutFdl extends GraphLayoutAbstract {
              * Calculate wall repulsion
              *
              */
-            let canvWHalf = this.plane.getCanvasSize()['x'] / 2.0 - 30;
-            let canvHHalf = this.plane.getCanvasSize()['y'] / 2.0 - 30;
+            let canvWHalf = this.plane.getCanvasSize()['x'] / 2.0;
+            let canvHHalf = this.plane.getCanvasSize()['y'] / 2.0;
             let posX = nodeV.getPosition()['x'];
             let posY = nodeV.getPosition()['y'];
             let wallDistX = posX <= 0 ? 0 - (canvWHalf) - posX : (canvWHalf) - posX;

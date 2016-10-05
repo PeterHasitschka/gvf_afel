@@ -3,6 +3,8 @@ import {DataAbstract} from "../../data/abstract";
 import {GraphObject} from "../graphobjectinterface";
 import {Plane} from "../../../plane/plane";
 import {EdgeAbstract} from "../edges/abstract";
+import {WORKER_UI_STARTABLE_MESSAGING_SERVICE} from "@angular/platform-browser";
+import {UiService} from "../../../../services/ui.service";
 
 
 /**
@@ -170,5 +172,24 @@ export abstract class NodeAbstract extends THREE.Mesh implements GraphObject {
         if (dimension === 'y')
             return posVY - posUY;
         return Math.pow((posVX - posUX), 2) + Math.pow((posVY - posUY), 2);
+    }
+
+    /**
+     * Calculate the global position on the graph-Workspace
+     * Used for Inter-Graph-Connections
+     */
+    public getWorkspacePosition() {
+
+        let pos = this.getPosition();
+
+        let canvas = this.plane.getGraphScene().getThreeRenderer().domElement;
+        let canvasBounding = canvas.getBoundingClientRect();
+        let workspace = UiService.getInstance().getGraphWorkSpaceSvgElement();
+        let workspaceBounding = workspace.getBoundingClientRect();
+
+        let x = pos['x'] + canvasBounding.left - workspaceBounding.left + canvasBounding.width / 2;
+        let y = -pos['y'] + canvasBounding.top - workspaceBounding.top + canvasBounding.height / 2;
+
+        return ({x: x, y: y});
     }
 }

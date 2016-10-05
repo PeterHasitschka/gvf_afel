@@ -17,8 +17,9 @@ export abstract class GraphLayoutAbstract implements LayoutInterface {
     constructor(protected plane:Plane, protected nodes:NodeAbstract[], protected edges:EdgeAbstract[]) {
     }
 
+
     protected distributeRandom(onFinish):void{
-        let padding = 50;
+        let padding = 0;
         let dimensions = this.plane.getCanvasSize();
         let xRange = dimensions['x'] - padding;
         let yRange = dimensions['y'] - padding;

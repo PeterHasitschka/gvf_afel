@@ -1,7 +1,5 @@
 import {Injectable} from "@angular/core";
-import {SideInfoComponent} from "../components/app/sideinfo/sideinfo.component";
-import {SideInfoModel, SideInfoPositions} from "../components/app/sideinfo/sideinfomodel";
-import {BehaviorSubject} from "rxjs/Rx";
+import {SideInfoModel} from "../components/app/sideinfo/sideinfomodel";
 
 
 @Injectable()
@@ -14,10 +12,51 @@ export class UiService {
 
     public sideInfoElements:SideInfoModel[];
 
-    constructor() {
+    static instance:UiService;
+    static isCreating:Boolean = false;
 
+    private graphWorkSpaceSvgElement:HTMLElement = null;
+    public graphWorkSpaceSvgElementVisible = false;
+
+    public intergraphConnections = [];
+
+    constructor() {
         this.sideInfoElements = [];
         console.log("Created UI SERVICE");
+        if (!UiService.isCreating) {
+            return UiService.getInstance();
+        }
+    }
+
+
+    /**
+     * Getting the singleton instance of the Service
+     * @returns {UiService}
+     */
+    static getInstance() {
+        if (UiService.instance == null) {
+            UiService.isCreating = true;
+            UiService.instance = new UiService();
+            UiService.isCreating = false;
+        }
+        return UiService.instance;
+    }
+
+
+    public setGraphWorkSpaceSvgElement(el:HTMLElement) {
+        this.graphWorkSpaceSvgElement = el;
+    }
+
+    public getGraphWorkSpaceSvgElement():HTMLElement {
+        return this.graphWorkSpaceSvgElement;
+    }
+
+    public setGraphWorkSpaceSvgElementVisible(visible:boolean) {
+        this.graphWorkSpaceSvgElementVisible = visible;
+    }
+
+    public getGraphWorkSpaceSvgElementVisible():boolean {
+        return this.graphWorkSpaceSvgElementVisible;
     }
 
 
@@ -31,4 +70,13 @@ export class UiService {
         return this.sideInfoElements;
     }
 
+
+    addNodesToIntergraphConnection(node1, node2) {
+        if (this.getGraphWorkSpaceSvgElementVisible())
+            this.intergraphConnections.push([node1, node2]);
+    }
+
+    clearIntergraphConnections(){
+        this.intergraphConnections = [];
+    }
 }

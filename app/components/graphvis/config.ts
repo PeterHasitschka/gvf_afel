@@ -15,7 +15,7 @@ export class GraphVisConfig {
         far: 10000,
 
         camera: {
-            z: 300
+            z: 330
         },
 
         backplane: {
@@ -60,6 +60,11 @@ export class GraphVisConfig {
         md: 2,
         lg: 2
     };
+
+    public static intergraph_connections = {
+        width : 0.1,
+        color : "grey"
+    }
 
 
     public static active_graphs = {

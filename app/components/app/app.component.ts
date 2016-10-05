@@ -25,20 +25,12 @@ export class AppComponent implements OnInit {
     @ViewChild(GraphworkspaceComponent) graphworkspace:GraphworkspaceComponent;
 
     private posEnum;
-    // private sideInfoElements;
-    // private sideInfoSubscription:Subscription;
+
 
     /**
      * Constructor
      */
     constructor(private dataService:DataService, private uiService:UiService) {
-
-        //this.sideInfoElements = this.uiService.sideInfoElements;
-
-        // this.sideInfoSubscription = this.uiService.sideInfoEvent.subscribe((data)=> {
-        //     console.log(data);
-        //     this.sideInfoElements = data;
-        // });
 
         this.posEnum = SideInfoPositions;
     }
@@ -70,5 +62,11 @@ export class AppComponent implements OnInit {
      * @todo: Remove if not necessary anymore
      */
     showData():void {
+    }
+
+
+    onShowInterConnectionsClick(evt){
+        //console.log(evt);
+        this.uiService.setGraphWorkSpaceSvgElementVisible(evt.target.checked);
     }
 }
