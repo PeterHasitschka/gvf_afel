@@ -1,6 +1,15 @@
-<p>Plane Workspace</p>
 <div class="container-fluid">
     <div class="row">
+        <svg [ngClass]="{hidden: !uiService.graphWorkSpaceSvgElementVisible}" #graphworkspace_svgoverlay
+             id="graphworkspace_svgoverlay" viewPort="0 0 1000 500"
+             xmlns="http://www.w3.org/2000/svg">
+
+            <line *ngFor="let nodePair of uiService.intergraphConnections"
+                 [nodePair]="nodePair" intergraphconnection></line>
+        </svg>
+
+
         <graph-plane [class]="getGridClasses()" *ngFor="let p of getPlanes()" [plane]="p">
-    </graph-plane>
+        </graph-plane>
+    </div>
 </div>

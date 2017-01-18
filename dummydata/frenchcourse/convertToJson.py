@@ -14,8 +14,9 @@ class Converter:
     ACTION_TYPE_ATTEMPT = 'ATTEMPT'
 
     MAX_LINES = None
-    MAX_RESOURCES = 200
-    MAX_LEARNERS = 500
+    MAX_RESOURCES = 100
+    MAX_LEARNERS = 100
+    MAX_ACTIVITIES = 50000
 
     def __init__(self):
         self.csvFile = './ds74_tx_All_Data_65_2015_0729_175736.txt.csv'
@@ -121,7 +122,8 @@ class Converter:
             self.alreadyRegisteredPairs[student.get('id')] = []
         self.alreadyRegisteredPairs[student.get('id')].append(resource.get('id'))
 
-        activities.append(action)
+        if len(activities) < Converter.MAX_ACTIVITIES:
+            activities.append(action)
         return True
 
     def getLearner(self, learnername):

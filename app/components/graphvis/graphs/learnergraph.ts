@@ -37,9 +37,21 @@ export class LearnerGraph extends GraphAbstract {
     }
 
     /**
-     * Adding event listeners for hovered and un-hovered resource(!) nodes
+     * Adding event listeners for hovered and un-hovered resource(!) nodes but also for same nodes
      */
     private addEventListeners() {
+        InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.LEARNER_NODE_HOVERED, function (e) {
+            let node:NodeLearner = e.detail;
+            node.highlightNode();
+            this.plane.getGraphScene().render();
+        }.bind(this));
+
+        InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.LEARNER_NODE_LEFT, function (e) {
+            let node:NodeLearner = e.detail;
+            node.deHighlightNode();
+            this.plane.getGraphScene().render();
+        }.bind(this));
+
         InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.RESOURCE_NODE_HOVERED, function (e) {
 
             let node:NodeResource = e.detail;
@@ -96,6 +108,8 @@ export class LearnerGraph extends GraphAbstract {
             }
         });
 
+        let existingResourceEdgeList = {};
+
         for (let rId in resources) {
             let learners = resources[rId];
 
@@ -111,12 +125,31 @@ export class LearnerGraph extends GraphAbstract {
                 let lId2 = learners[lKey + 1];
                 let n1:NodeAbstract = this.getNodeByDataId(lId1);
                 let n2:NodeAbstract = this.getNodeByDataId(lId2);
+
+                /**
+                 * Prevent same connection again.
+                 */
+                let min = Math.min(n1.getDataEntity().getId(), n2.getDataEntity().getId());
+                let max = Math.max(n1.getDataEntity().getId(), n2.getDataEntity().getId());
+                if (typeof existingResourceEdgeList[min] === "undefined")
+                    existingResourceEdgeList[min] = [];
+                if (existingResourceEdgeList[min].indexOf(max) !== -1) {
+                    //console.log("L", min, max);
+                    continue;
+                }
+                existingResourceEdgeList[min].push(max);
+
+
                 let learningConnection = new EdgeColored(n1, n2, this.plane, 0xaa00aa);
                 n1.addEdge(learningConnection);
                 n2.addEdge(learningConnection);
                 edges.push(learningConnection);
+
             }
         }
+
+        // Reset, since different type of connections may exist on same node pairs
+        existingResourceEdgeList = {};
 
         for (let l1Id in communications) {
             let l1Communicators = communications[l1Id];
@@ -127,12 +160,27 @@ export class LearnerGraph extends GraphAbstract {
                 let n1:NodeAbstract = this.getNodeByDataId(parseInt(l1Id));
                 let n2:NodeAbstract = this.getNodeByDataId(l2Id);
 
+                /**
+                 * Prevent same connection again.
+                 */
+                let min = Math.min(n1.getDataEntity().getId(), n2.getDataEntity().getId());
+                let max = Math.max(n1.getDataEntity().getId(), n2.getDataEntity().getId());
+                if (typeof existingResourceEdgeList[min] === "undefined")
+                    existingResourceEdgeList[min] = [];
+                if (existingResourceEdgeList[min].indexOf(max) !== -1) {
+                    //console.log("C", min, max);
+                    continue;
+                }
+                existingResourceEdgeList[min].push(max);
+
+
                 let communicationConnection = new EdgeColored(n1, n2, this.plane, 0xaaaa00);
                 n1.addEdge(communicationConnection);
                 n2.addEdge(communicationConnection);
                 edges.push(communicationConnection);
             }
         }
+        console.log("# of edges in learner graph:" + edges.length);
 
         return edges;
     }

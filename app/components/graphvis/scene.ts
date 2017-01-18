@@ -1,5 +1,5 @@
 import {GraphVisConfig} from './config';
-import {MouseInteractions} from "./mouseinteractions";
+import {SceneMouseInteractions} from "./scenemouseinteractions";
 
 
 //const THREE = require('../../../node_modules/three/build/three.js');
@@ -15,7 +15,7 @@ export class GraphScene {
     private threeRenderer:THREE.WebGLRenderer;
     private threeCamera:THREE.Camera;
     private threeRaycaster:THREE.Raycaster;
-    private mouseInteractions:MouseInteractions;
+    private SceneMouseInteractions:SceneMouseInteractions;
     private objectGroup:THREE.Object3D;
 
 
@@ -54,7 +54,7 @@ export class GraphScene {
 
         this.container.appendChild(this.threeRenderer.domElement);
 
-        this.mouseInteractions = new MouseInteractions(this);
+        this.SceneMouseInteractions = new SceneMouseInteractions(this);
         this.threeRaycaster = new THREE.Raycaster();
 
         this.objectGroup = new THREE.Object3D();

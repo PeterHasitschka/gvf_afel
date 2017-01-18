@@ -21,6 +21,9 @@
             <button (click)="addDummyPlane()" type="button" class="btn btn-success">Add new Dummy Plane</button>
             <br/>
             <button (click)="showData()" type="button" class="btn btn-success">Show Data</button>
+            <br/>
+            <input id="show_interconnections_checkbox" type="checkbox" (change)="onShowInterConnectionsClick($event)"/>
+            <label for="show_interconnections_checkbox">Show the Inter-Graph-Connection-Canvas</label>
         </div>
     </div>
     <div class="row footerrow" style="">

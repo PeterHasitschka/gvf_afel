@@ -1,0 +1,82 @@
+{
+  "resources": {
+    "r0": {
+      "title": "How to cook Milhouse",
+      "url": "http://anything",
+      "time": {
+        "created": "20120412",
+        "deleted": null
+      }
+    },
+    "r1": {
+      "title": "Something else",
+      "url": "http://anything"
+      "time": {
+        "created": "20140312",
+        "deleted": null
+      }
+    }
+  },
+  "users": {
+    "u0": {
+      "name": "Peter",
+      "meta": {
+        "lang": "de",
+        "origin": "austria"
+      },
+      "time": {
+        "joined": "20151212",
+        "left": null
+      }
+    },
+    "u1": {
+      "name": "Matthieu",
+      "meta": {
+        "lang": "fr",
+        "origin": "france"
+      },
+      "time": {
+        "joined": "20140312",
+        "left": null
+      }
+    }
+  },
+  "activities": {
+    "a0": {
+      "type": "communication",
+      "entities": [
+        "u1",
+        "u2"
+      ],
+      "timestamp": "20160811"
+    },
+    "a1": {
+      "type": "resource_consumption",
+      "entities": [
+        "u1",
+        "r1"
+      ],
+      "timestamp": "20160312"
+    }
+  },
+  "communities": {
+    "c1": [
+      {
+        "c": [
+          "u1",
+          "u2"
+        ],
+        "timestamp": "20160202"
+      },
+      {
+        "c": [
+          "u1",
+          "u2",
+          "u3"
+        ],
+        "timestamp": "20160802"
+      }
+    ]
+  }
+}
+

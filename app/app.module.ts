@@ -8,9 +8,10 @@ import {PlaneComponent}  from './components/plane/plane.component';
 
 import {HttpModule} from '@angular/http'
 import {SideInfoContentGraphsettingsComponent} from "./components/app/sideinfo/contentmodels/graphsettings.component";
+import {InterGraphConnectionDirective} from "./components/graphworkspace/intergraphconnections/intergraphconnection.directive";
 @NgModule({
     imports: [BrowserModule, HttpModule],
-    declarations: [AppComponent, GraphworkspaceComponent, PlaneComponent, SideInfoComponent, SideInfoContentGraphsettingsComponent],
+    declarations: [AppComponent, GraphworkspaceComponent, PlaneComponent, SideInfoComponent, SideInfoContentGraphsettingsComponent, InterGraphConnectionDirective],
     bootstrap: [AppComponent]
 })
 /**

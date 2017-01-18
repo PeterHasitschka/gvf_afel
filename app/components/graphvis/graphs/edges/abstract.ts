@@ -22,6 +22,7 @@ export abstract class EdgeAbstract extends THREE.Line implements GraphObject {
     protected plane:Plane;
     protected sourceNode:NodeAbstract;
     protected destNode:NodeAbstract;
+    protected addRandom;
 
     /**
      * Creating an edge by taking the nodes and the plane
@@ -39,6 +40,9 @@ export abstract class EdgeAbstract extends THREE.Line implements GraphObject {
 
         let config = GraphVisConfig.edges;
         let color = config.abstractedge.color;
+
+        // if (this.addRandom)
+        //     color = this.addRandomColorValue(color);
 
         let material = new THREE.LineBasicMaterial({
             color: color,
@@ -60,6 +64,28 @@ export abstract class EdgeAbstract extends THREE.Line implements GraphObject {
         this.threeMaterial = material;
         this.zPos = config.abstractedge.z_pos;
     }
+
+    private addRandomColorValue(color:number):number {
+
+        let variableColVal = 100;
+
+        let colR = color >> 16;
+        let colG = (color >> 8) - (colR << 8);
+        let colB = color - ((color >> 8) << 8);
+
+        console.log(color.toString(16), colR.toString(16), colG.toString(16), colB.toString(16));
+
+        let randDiff = (variableColVal / 2) - Math.floor(Math.random() * variableColVal + 0.5);
+        colR = Math.max(0x00, Math.min(0xff, colR + randDiff));
+        colG = Math.max(0x00, Math.min(0xff, colG + randDiff));
+        colB = Math.max(0x00, Math.min(0xff, colB + randDiff));
+
+        color = (colR << 16) + (colG << 8) + colB;
+        console.log((colR << 16).toString(16), (colG << 8).toString(16), colB.toString(16), color.toString(16), randDiff);
+
+        return color;
+    }
+
 
     /**
      * Setting a (hexadecimal) color

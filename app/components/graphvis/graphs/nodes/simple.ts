@@ -14,11 +14,4 @@ export class NodeSimple extends NodeAbstract {
     constructor(x:number, y:number, protected dataEntity:DataAbstract, plane:Plane) {
         super(x, y, plane);
     }
-
-    /**
-     * Setting the color of the simple node (e.g. 0xffffff)
-     */
-    public setColor(color:number):void {
-        this.threeMaterial.color.setHex(color);
-    }
 }

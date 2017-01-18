@@ -19,46 +19,39 @@ export class GraphLayoutRandom extends GraphLayoutAbstract {
     }
 
     public setInitPositions(onFinish):void {
-
-        let padding = 50;
-        let dimensions = this.plane.calculateCanvasSize();
-        let xRange = dimensions['x'] - padding;
-        let yRange = dimensions['y'] - padding;
-        this.nodes.forEach(function (node:NodeAbstract, idx:number) {
-            var posX = Math.random() * xRange - xRange / 2;
-            var posY = Math.random() * yRange - yRange / 2;
-            node.setPosition(posX, posY);
-        });
-        onFinish();
+        this.distributeRandom(onFinish);
     }
 
 
     public calculateLayout(onFinish):void {
 
-        onFinish();
+        let DEMOANIMATE = false;
 
-        // let i = 0;
-        // var calcFct = function () {
-        //     if (i >= 40) {
-        //         this.plane.getGraphScene().render();
-        //         onFinish();
-        //         return;
-        //     }
-        //     requestAnimationFrame(calcFct);
-        //
-        //     i++;
-        //     nodes.forEach((node:NodeAbstract) => {
-        //         let pos = node.getPosition();
-        //
-        //
-        //         let x = pos['x'] / 100;
-        //         let y = pos['y'] / 100;
-        //         node.setPosition(pos['x'] - x, pos['y'] + y);
-        //     });
-        //     if (i % 10 == 0)
-        //         this.plane.getGraphScene().render();
-        // }.bind(this);
-        // calcFct();
+        if (DEMOANIMATE) {
+            let i = 0;
+            var calcFct = function () {
+                if (i >= 100) {
+                    this.plane.getGraphScene().render();
+                    onFinish();
+                    return;
+                }
+                requestAnimationFrame(calcFct);
+
+                i++;
+                this.nodes.forEach((node:NodeAbstract) => {
+                    let pos = node.getPosition();
+
+
+                    let x = Math.sin(pos['x']) * 6.0;
+                    let y = Math.cos(pos['y']) * 6.0;
+                    node.setPosition(pos['x'] - x, pos['y'] + y);
+                });
+                if (i % 1 == 0)
+                    this.plane.getGraphScene().render();
+            }.bind(this);
+            calcFct();
+        } else
+            onFinish();
 
 
     }

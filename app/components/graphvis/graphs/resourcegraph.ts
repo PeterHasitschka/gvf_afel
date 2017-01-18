@@ -13,6 +13,8 @@ import {NodeAbstract} from "./nodes/abstract";
 import {InterGraphEventService, INTERGRAPH_EVENTS} from "../../../services/intergraphevents.service";
 import {NodeLearner} from "./nodes/learner";
 import {Learner} from "../data/learner";
+import {GraphLayoutFdl} from "./layouts/fdl";
+import {UiService} from "../../../services/ui.service";
 
 
 /**
@@ -31,15 +33,27 @@ export class ResourceGraph extends GraphAbstract {
         this.dataGetterMethod = DataService.getInstance().getResources.bind(DataService.getInstance());
 
         this.nodetype = NodeResource;
-        this.layoutClass = GraphLayoutRandom;
+        this.layoutClass = GraphLayoutFdl;
 
         this.addEventListeners();
     }
 
     /**
-     * Adding event listeners for hovered and un-hovered learner(!) nodes
+     * Adding event listeners for hovered and un-hovered learner(!) nodes but also for same nodes
      */
     private addEventListeners() {
+        InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.RESOURCE_NODE_HOVERED, function (e) {
+            let node:NodeResource = e.detail;
+            node.highlightNode();
+            this.plane.getGraphScene().render();
+        }.bind(this));
+
+        InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.RESOURCE_NODE_LEFT, function (e) {
+            let node:NodeResource = e.detail;
+            node.deHighlightNode();
+            this.plane.getGraphScene().render();
+        }.bind(this));
+
         InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.LEARNER_NODE_HOVERED, function (e) {
 
             let node:NodeLearner = e.detail;
@@ -48,6 +62,9 @@ export class ResourceGraph extends GraphAbstract {
                 let affectedResourceNodes = this.getNodeByDataEntity(r);
                 affectedResourceNodes.forEach((n:NodeResource) => {
                     n.highlightNode();
+
+                    // Add to integraph connections
+                    UiService.getInstance().addNodesToIntergraphConnection(node, n);
                 });
             });
             this.plane.getGraphScene().render();
@@ -60,6 +77,8 @@ export class ResourceGraph extends GraphAbstract {
                 n.deHighlightNode();
             });
             this.plane.getGraphScene().render();
+
+            UiService.getInstance().clearIntergraphConnections();
         }.bind(this));
     }
 
@@ -87,6 +106,8 @@ export class ResourceGraph extends GraphAbstract {
             learnings[lId].push(rId);
         });
 
+        let existingEdgeList = {};
+
         for (let lKey in learnings) {
             if (learnings[lKey].length < 2)
                 continue;
@@ -97,15 +118,27 @@ export class ResourceGraph extends GraphAbstract {
                     let n1:NodeAbstract = this.getNodeByDataId(rKey);
                     let n2:NodeAbstract = this.getNodeByDataId(learnings[lKey][i + 1]);
 
+                    /**
+                     * Prevent same connection again.
+                     */
+                    let min = Math.min(n1.getDataEntity().getId(), n2.getDataEntity().getId());
+                    let max = Math.max(n1.getDataEntity().getId(), n2.getDataEntity().getId());
+                    if (typeof existingEdgeList[min] === "undefined")
+                        existingEdgeList[min] = [];
+                    if (existingEdgeList[min].indexOf(max) !== -1) {
+                        return;
+                    }
+                    existingEdgeList[min].push(max);
+
+
                     let resourceConnection = new EdgeBasic(n1, n2, this.plane);
                     n1.addEdge(resourceConnection);
                     n2.addEdge(resourceConnection);
                     edges.push(resourceConnection);
                 }
             });
-
         }
-
+        console.log("# of edges in resource graph:" + edges.length);
         return edges;
     }
 }

@@ -70,9 +70,13 @@ export class Plane {
     /**
      * Calculating the width and height of the defined container
      */
-    public calculateCanvasSize():Object {
+    private calculateCanvasSize():Object {
         var container = document.getElementById(Plane.containerPrefix + this.containerId);
         return {x: container.clientWidth - 10, y: container.clientHeight - 30};
+    }
+
+    public getCanvasSize():Object {
+        return this.canvasDimensions;
     }
 
     /**
@@ -129,7 +133,7 @@ export class Plane {
         return this.scene;
     }
 
-    public getGraph():GraphAbstract{
+    public getGraph():GraphAbstract {
         return this.graph;
     }
 
