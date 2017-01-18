@@ -96,9 +96,6 @@ export class GraphScene {
     public getContainer():HTMLElement {
         return this.container;
     }
-    public getContainer():HTMLElement {
-        return this.container;
-    }
 
     /**
      * Returning the container that holds all the scene's objects

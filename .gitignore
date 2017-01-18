@@ -5,3 +5,5 @@ nbproject/
 /build/
 /.idea
 /dummydata/frenchcourse/.idea/
+npm-debug.log
+/dummydata/frenchcourse/ds74_tx_All_Data_65_2015_0729_175736.txt.csv
