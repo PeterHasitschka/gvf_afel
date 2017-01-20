@@ -6,6 +6,7 @@ import 'rxjs/add/operator/toPromise'
 import {Learner} from "./graph/data/learner";
 import {Resource} from "./graph/data/resource";
 import {Activity} from "./graph/data/activity";
+import {DataService} from "../gvfcore/services/data.service";
 
 
 /**
@@ -17,7 +18,7 @@ export class AfelData {
 
     static instance:AfelData;
     static isCreating:Boolean = false;
-
+    private http;
     private data;
 
     /**
@@ -27,39 +28,36 @@ export class AfelData {
      */
     static USE_SERVER_DATA = true;
     static DUMMYDATA = {
-        learners: 'data/frenchcourse/learners.json',
-        resources: 'data/frenchcourse/resources.json',
-        activities: 'data/frenchcourse/activities.json',
+        learners: 'afel/data/frenchcourse/learners.json',
+        resources: 'afel/data/frenchcourse/resources.json',
+        activities: 'afel/data/frenchcourse/activities.json',
     };
 
     /**
      * Creating the singleton instance
-     * @param http
      * @returns {AfelData}
      */
-    constructor(private http:Http) {
+    constructor() {
 
-        http = new Http();
-
+        this.http = DataService.getInstance().getHttp();
         this.data = {
             learners: [],
             resources: [],
             activities: []
         };
         if (!AfelData.isCreating) {
-            return AfelData.getInstance(http);
+            return AfelData.getInstance();
         }
     }
 
     /**
      * Getting the singleton instance of the AfelData
-     * @param http
      * @returns {AfelData}
      */
-    static getInstance(http?) {
+    static getInstance() {
         if (AfelData.instance == null) {
             AfelData.isCreating = true;
-            AfelData.instance = new AfelData(http);
+            AfelData.instance = new AfelData();
             AfelData.isCreating = false;
         }
         return AfelData.instance;
