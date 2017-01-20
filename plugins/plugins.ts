@@ -1,6 +1,4 @@
-
-
-import {MyDemoApi} from "../mydemoapp/mydemoapi";
+import {AfelApi} from "../afel/afelapi";
 
 
 
@@ -11,7 +9,7 @@ export class GvfPlugins {
      */
     static plugins = {
         onInit : [
-            MyDemoApi
+            AfelApi
         ]
     }
 }
