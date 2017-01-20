@@ -1,0 +1,3 @@
+[submodule "gvfcore"]
+	path = gvfcore
+	url = git@github.com:PeterHasitschka/gvf_core.git

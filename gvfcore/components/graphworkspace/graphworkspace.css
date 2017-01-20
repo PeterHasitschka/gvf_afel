@@ -1,8 +1,0 @@
-#graphworkspace_svgoverlay {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    opacity: 1;
-    z-index: 100;
-    margin-left: -15px;
-}
