@@ -13,7 +13,7 @@ export class NodeLearner extends NodeSimple {
     constructor(x:number, y:number, protected dataEntity:Learner, plane:Plane) {
         super(x, y, dataEntity, plane);
 
-        this.color = GraphVisConfig.nodes['learnernode'].color;
+        this.color = GraphVisConfig.graphelements['learnernode'].color;
         this.setColor(this.color);
     }
 

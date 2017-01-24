@@ -35,7 +35,7 @@ export class ResourceGraph extends GraphAbstract {
     }
 
     /**
-     * Adding event listeners for hovered and un-hovered learner(!) nodes but also for same nodes
+     * Adding event listeners for hovered and un-hovered learner(!) graphelements but also for same graphelements
      */
     private addEventListeners() {
         InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.RESOURCE_NODE_HOVERED, function (e) {
@@ -166,7 +166,7 @@ export class ResourceGraph extends GraphAbstract {
                 let n2 = <NodeResource>this.getNodeByDataId(otherRes.getId());
 
                 if (n1 === null || n2 === null) {
-                    console.warn("One of the nodes for creating an edge is null!", n1, n2, res, otherRes);
+                    console.warn("One of the graphelements for creating an edge is null!", n1, n2, res, otherRes);
                     return;
                 }
 

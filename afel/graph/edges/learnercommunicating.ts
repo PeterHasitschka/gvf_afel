@@ -1,9 +1,9 @@
 import {EdgeColored} from "../../../gvfcore/components/graphvis/graphs/edges/colored";
-import {NodeAbstract} from "../../../gvfcore/components/graphvis/graphs/nodes/abstract";
 import {Plane} from "../../../gvfcore/components/plane/plane";
+import {NodeAbstract} from "../../../gvfcore/components/graphvis/graphs/nodes/nodeabstract";
 export class EdgeLearnersCommunicating extends EdgeColored {
 
-    protected static color = 0xffaaaa;
+    protected static color = 0x33cc33;
     constructor(learner1:NodeAbstract, learner2:NodeAbstract, plane:Plane) {
         super(learner1, learner2, plane, EdgeLearnersCommunicating.color);
     }

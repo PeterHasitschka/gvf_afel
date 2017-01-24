@@ -13,7 +13,7 @@ export class NodeResource extends NodeSimple {
     constructor(x:number, y:number, protected dataEntity:DataAbstract, plane:Plane) {
         super(x, y, dataEntity, plane);
 
-        this.color = GraphVisConfig.nodes['resourcenode'].color;
+        this.color = GraphVisConfig.graphelements['resourcenode'].color;
         this.setColor(this.color);
     }
 

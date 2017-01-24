@@ -10,10 +10,10 @@ export class AfelApi implements GvfPluginInterface {
     constructor() {
         console.log("AFEL API created")
 
-        GraphVisConfig.nodes['resourcenode'] = {
+        GraphVisConfig.graphelements['resourcenode'] = {
             color: 0x5555bb
         }
-        GraphVisConfig.nodes['learnernode'] = {
+        GraphVisConfig.graphelements['learnernode'] = {
             color: 0x008800
         }
 

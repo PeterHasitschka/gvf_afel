@@ -37,7 +37,7 @@ export class LearnerGraph extends GraphAbstract {
     }
 
     /**
-     * Adding event listeners for hovered and un-hovered resource(!) nodes but also for same nodes
+     * Adding event listeners for hovered and un-hovered resource(!) graphelements but also for same graphelements
      */
     private addEventListeners() {
         InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.LEARNER_NODE_HOVERED, function (e) {
@@ -119,7 +119,7 @@ export class LearnerGraph extends GraphAbstract {
             let n2 = <NodeLearner>this.getNodeByDataId(l2.getId());
 
             if (n1 === null || n2 === null) {
-                console.warn("One of the nodes for creating an edge is null!", n1, n2, l1, l2);
+                console.warn("One of the graphelements for creating an edge is null!", n1, n2, l1, l2);
                 return;
             }
             let communicationConnection = new EdgeLearnersCommunicating(n1, n2, this.plane);
@@ -201,7 +201,7 @@ export class LearnerGraph extends GraphAbstract {
                 let n2 = <NodeLearner>this.getNodeByDataId(otherLearner.getId());
 
                 if (n1 === null || n2 === null) {
-                    console.warn("One of the nodes for creating an edge is null!", n1, n2, learner, otherLearner);
+                    console.warn("One of the graphelements for creating an edge is null!", n1, n2, learner, otherLearner);
                     return;
                 }
 
