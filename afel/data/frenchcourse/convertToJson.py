@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import json
+import random
 from json.decoder import JSONArray
 
 print("Converter")
@@ -9,6 +10,7 @@ class Converter:
     STUDENT_ID = '_studentId'
     RESOURCE_ID = '_resourceId'
     ACTION_TYPE = '_actionType'
+    OUTCOME = "_outcome"
 
     ACTION_TYPE_ANSWER = 'ANSWER'
     ACTION_TYPE_ATTEMPT = 'ATTEMPT'
@@ -16,7 +18,8 @@ class Converter:
     MAX_LINES = None
     MAX_RESOURCES = 100
     MAX_LEARNERS = 100
-    MAX_ACTIVITIES = 50000
+    MAX_ACTIVITIES = 10000
+    MAX_RANDOM_COMMUNICATION = 100
 
     def __init__(self):
         self.csvFile = './ds74_tx_All_Data_65_2015_0729_175736.txt.csv'
@@ -27,7 +30,8 @@ class Converter:
         self.fieldKeys = {
             Converter.STUDENT_ID: 'Anon Student Id',
             Converter.ACTION_TYPE: 'Student Response Type',
-            Converter.RESOURCE_ID: 'Problem Name'
+            Converter.RESOURCE_ID: 'Problem Name',
+            Converter.OUTCOME: "Outcome"
         }
 
         self.alreadyRegisteredPairs = {}
@@ -67,6 +71,8 @@ class Converter:
 
             linesgonethrough += 1
 
+        self.createRandomCommunication()
+
         learners = self.data.get('learners')
         resources = self.data.get('resources')
         activities = self.data.get('activities')
@@ -90,6 +96,31 @@ class Converter:
             if self.fieldKeys[key] == fieldHeader:
                 return fields[i]
             i += 1
+
+    def createRandomCommunication(self):
+
+        learners = self.data.get('learners')
+        l1 = None
+        l2 = None
+        for i in range(0, self.MAX_RANDOM_COMMUNICATION):
+            id1 = random.randint(0, len(learners) - 1)
+            id2 = random.randint(0, len(learners) - 1)
+
+            for learnerIt in learners:
+                if learnerIt.get("id") == id1:
+                    l1 = learnerIt
+                if learnerIt.get("id") == id2:
+                    l2 = learnerIt
+
+            action = {
+                'id': len(self.data.get("activities")),
+                'type': 'communicating',
+                'learner1_id': l1.get("id"),
+                'learner2_id': l2.get("id"),
+            }
+            self.data.get("activities").append(action)
+            print(action)
+
 
     def registerAction(self, fields):
 
@@ -117,6 +148,8 @@ class Converter:
             'learner_id': student.get('id'),
             'resource_id': resource.get('id'),
         }
+
+        # print("SELECTION: ", self.getField(fields, Converter.OUTCOME))
 
         if student.get('id') not in self.alreadyRegisteredPairs:
             self.alreadyRegisteredPairs[student.get('id')] = []

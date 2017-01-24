@@ -6,12 +6,14 @@ import {GraphLayoutFdl} from "../../../gvfcore/components/graphvis/graphs/layout
 import {InterGraphEventService, INTERGRAPH_EVENTS} from "../../../gvfcore/services/intergraphevents.service";
 import {NodeResource} from "../nodes/resource";
 import {EdgeAbstract} from "../../../gvfcore/components/graphvis/graphs/edges/abstract";
-import {Activity} from "../data/activity";
 import {Learner} from "../data/learner";
 import {Resource} from "../data/resource";
-import {NodeAbstract} from "../../../gvfcore/components/graphvis/graphs/nodes/abstract";
-import {EdgeColored} from "../../../gvfcore/components/graphvis/graphs/edges/colored";
 import {AfelData} from "../../afeldata";
+import {LearningActivity} from "../data/learningactivity";
+import {CommunicationActivity} from "../data/communicationactivity";
+import {EdgeLearnersLearning} from "../edges/learnerlearning";
+import {EdgeLearnersCommunicating} from "../edges/learnercommunicating";
+import {GraphVisConfig} from "../../../gvfcore/components/graphvis/config";
 
 
 /**
@@ -83,104 +85,135 @@ export class LearnerGraph extends GraphAbstract {
      * @returns {EdgeAbstract[]}
      */
     protected createEdges():EdgeAbstract[] {
-        let activities = AfelData.getInstance().getActivities();
-        let edges:EdgeAbstract[] = [];
-
-        let resources = {};
-        let communications = {};
-        activities.forEach((activity:Activity) => {
-            if (activity.getType() === Activity.TYPE_LEARNING) {
-                let rId = activity.getData(Activity.RESOURCE_ID);
-                let lId = activity.getData(Activity.LEARNER_ID);
-                if (typeof resources[rId] == 'undefined')
-                    resources[rId] = [];
-                resources[rId].push(lId);
-            }
-            else if (activity.getType() === Activity.TYPE_COMMUNICATING) {
-                let l1Id = activity.getData(Activity.LEARNER1_ID);
-                let l2Id = activity.getData(Activity.LEARNER2_ID);
-
-                if (typeof communications[l1Id] === "undefined")
-                    communications[l1Id] = [];
-                communications[l1Id].push(l2Id);
-            }
-        });
-
-        let existingResourceEdgeList = {};
-
-        for (let rId in resources) {
-            let learners = resources[rId];
-
-            if (learners.length < 2)
-                continue;
-
-            for (let i in learners) {
-                let lKey = parseInt(i);
-                if (lKey >= learners.length - 1)
-                    continue;
-
-                let lId1 = learners[lKey];
-                let lId2 = learners[lKey + 1];
-                let n1:NodeAbstract = this.getNodeByDataId(lId1);
-                let n2:NodeAbstract = this.getNodeByDataId(lId2);
-
-                /**
-                 * Prevent same connection again.
-                 */
-                let min = Math.min(n1.getDataEntity().getId(), n2.getDataEntity().getId());
-                let max = Math.max(n1.getDataEntity().getId(), n2.getDataEntity().getId());
-                if (typeof existingResourceEdgeList[min] === "undefined")
-                    existingResourceEdgeList[min] = [];
-                if (existingResourceEdgeList[min].indexOf(max) !== -1) {
-                    //console.log("L", min, max);
-                    continue;
-                }
-                existingResourceEdgeList[min].push(max);
 
 
-                let learningConnection = new EdgeColored(n1, n2, this.plane, 0xaa00aa);
-                n1.addEdge(learningConnection);
-                n2.addEdge(learningConnection);
-                edges.push(learningConnection);
-
-            }
-        }
-
-        // Reset, since different type of connections may exist on same node pairs
-        existingResourceEdgeList = {};
-
-        for (let l1Id in communications) {
-            let l1Communicators = communications[l1Id];
-
-            for (let l2Key in l1Communicators) {
-                let l2Id = l1Communicators[l2Key];
-
-                let n1:NodeAbstract = this.getNodeByDataId(parseInt(l1Id));
-                let n2:NodeAbstract = this.getNodeByDataId(l2Id);
-
-                /**
-                 * Prevent same connection again.
-                 */
-                let min = Math.min(n1.getDataEntity().getId(), n2.getDataEntity().getId());
-                let max = Math.max(n1.getDataEntity().getId(), n2.getDataEntity().getId());
-                if (typeof existingResourceEdgeList[min] === "undefined")
-                    existingResourceEdgeList[min] = [];
-                if (existingResourceEdgeList[min].indexOf(max) !== -1) {
-                    //console.log("C", min, max);
-                    continue;
-                }
-                existingResourceEdgeList[min].push(max);
-
-
-                let communicationConnection = new EdgeColored(n1, n2, this.plane, 0xaaaa00);
-                n1.addEdge(communicationConnection);
-                n2.addEdge(communicationConnection);
-                edges.push(communicationConnection);
-            }
-        }
-        console.log("# of edges in learner graph:" + edges.length);
-
+        let edges:EdgeAbstract[] = this.calculateSameLearningEdges();
+        edges = edges.concat(this.createCommunicationEdges());
         return edges;
     }
 
+    /**
+     * Connecting learners which communicate
+     * @returns {EdgeAbstract[]}
+     */
+    private createCommunicationEdges() {
+        let edges:EdgeAbstract[] = [];
+        let existingLearnersCommunicationEdgeList = [];
+        CommunicationActivity.getDataList().forEach((ca:CommunicationActivity) => {
+
+            let communicators = ca.getEntities();
+            let l1 = communicators.src;
+            let l2 = communicators.dst;
+
+            // Prevent creating existing edges
+            let min = Math.min(l1.getId(), l2.getId());
+            let max = Math.max(l1.getId(), l1.getId());
+            if (typeof existingLearnersCommunicationEdgeList[min] === "undefined")
+                existingLearnersCommunicationEdgeList[min] = [];
+            if (existingLearnersCommunicationEdgeList[min].indexOf(max) !== -1)
+                return;
+            existingLearnersCommunicationEdgeList[min].push(max);
+
+            // Create edge finally
+            let n1 = <NodeLearner>this.getNodeByDataId(l1.getId());
+            let n2 = <NodeLearner>this.getNodeByDataId(l2.getId());
+
+            if (n1 === null || n2 === null) {
+                console.warn("One of the nodes for creating an edge is null!", n1, n2, l1, l2);
+                return;
+            }
+            let communicationConnection = new EdgeLearnersCommunicating(n1, n2, this.plane);
+            n1.addEdge(communicationConnection);
+            n2.addEdge(communicationConnection);
+            edges.push(communicationConnection);
+        });
+        console.log("Communication Edges: ", edges.length);
+        return edges;
+    }
+
+    /**
+     * Creates edges for each pair of learner who LEARN THE SAME RESOURCES up to a specific tolerance (0<=t<=1)
+     * @returns {EdgeAbstract[]}
+     */
+    private calculateSameLearningEdges() {
+
+        let edges:EdgeAbstract[] = [];
+        let existingLearnersLearningEdgeList = [];
+        let resourceIdsOfLearners = [];
+
+        let tolerance = GraphVisConfig['afel'].samelearning_tolerance;
+
+        // Store simple Ids of each learner's resources first for faster calculation
+        Learner.getDataList().forEach((learner:Learner) => {
+            let learnersResourceids = [];
+            learner.getLearningActivities().forEach((la:LearningActivity)=> {
+                learnersResourceids.push(la.getResource().getId());
+            });
+            resourceIdsOfLearners.push({l: learner, r: learnersResourceids});
+        });
+
+        // Go through those data and check if similar to other learners' resources
+        resourceIdsOfLearners.forEach((learnersResources) => {
+            let learner = learnersResources.l;
+            let rs = learnersResources.r;
+
+            if (!rs.length)
+                return;
+
+            // Iterate through all Resource Ids of every other learner and compare
+            resourceIdsOfLearners.forEach((otherLearnersResources) => {
+                let otherLearner = otherLearnersResources.l;
+                let otherRs = otherLearnersResources.r;
+                if (learner.getId() === otherLearner.getId())
+                    return;
+
+                // Check mutually if the learned resources match up to a tolerance
+                let found1 = 0;
+                rs.forEach((rId) => {
+                    otherRs.indexOf(rId) > -1 ? found1++ : null;
+                });
+                let factorFound1 = found1 / rs.length;
+                if (factorFound1 < tolerance)
+                    return;
+
+                // Do the same again vice versa
+                let found2 = 0;
+                otherRs.forEach((rId) => {
+                    rs.indexOf(rId) > -1 ? found2++ : null;
+                });
+                let factorFound2 = found2 / otherRs.length;
+                if (factorFound2 < tolerance)
+                    return;
+
+
+                // Prevent creating existing edges
+                let min = Math.min(learner.getId(), otherLearner.getId());
+                let max = Math.max(learner.getId(), otherLearner.getId());
+                if (typeof existingLearnersLearningEdgeList[min] === "undefined")
+                    existingLearnersLearningEdgeList[min] = [];
+                if (existingLearnersLearningEdgeList[min].indexOf(max) !== -1)
+                    return;
+                existingLearnersLearningEdgeList[min].push(max);
+
+
+                // Create edge finally
+                let n1 = <NodeLearner>this.getNodeByDataId(learner.getId());
+                let n2 = <NodeLearner>this.getNodeByDataId(otherLearner.getId());
+
+                if (n1 === null || n2 === null) {
+                    console.warn("One of the nodes for creating an edge is null!", n1, n2, learner, otherLearner);
+                    return;
+                }
+
+                let learningConnection = new EdgeLearnersLearning(n1, n2, this.plane);
+                n1.addEdge(learningConnection);
+                n2.addEdge(learningConnection);
+                edges.push(learningConnection);
+            });
+        });
+
+
+        console.log("Learning Edges: ", edges.length);
+        return edges;
+    }
 }

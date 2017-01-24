@@ -7,6 +7,8 @@ import {Learner} from "./graph/data/learner";
 import {Resource} from "./graph/data/resource";
 import {Activity} from "./graph/data/activity";
 import {DataService} from "../gvfcore/services/data.service";
+import {LearningActivity} from "./graph/data/learningactivity";
+import {CommunicationActivity} from "./graph/data/communicationactivity";
 
 
 /**
@@ -92,25 +94,25 @@ export class AfelData {
         let ACTIVITY_COMMUNICATE_LENGTH = 100;
 
         for (let i = 0; i < USER_LENGTH; i++) {
-            this.data.learners.push(new Learner({id: i, name: "Your mum"}));
+            let learnersData = {id: i, name: "Your mum"};
+            this.data.learners.push(new Learner(learnersData.id, learnersData));
         }
         for (let i = 0; i < RESOURCE_LENGTH; i++) {
-            this.data.resources.push(new Resource({id: i, title: "Soemthing", compexity: Math.random()}));
+            let resourceData = {id: i, title: "Soemthing", compexity: Math.random()};
+            this.data.resources.push(new Resource(resourceData.id, resourceData));
         }
         for (let i = 0; i < ACTIVITY_LEARN_LENGTH; i++) {
-            this.data.activities.push(new Activity({
-                id: i, type: "learning",
-                learner_id: Math.floor(Math.random() * USER_LENGTH),
-                resource_id: Math.floor(Math.random() * RESOURCE_LENGTH),
-            }));
+            let learner = Learner.getObject(Math.floor(Math.random() * USER_LENGTH));
+            let resource = Resource.getObject(Math.floor(Math.random() * RESOURCE_LENGTH));
+            this.data.activities.push(new LearningActivity(i, learner, resource, {}));
         }
-        for (let i = 0; i < ACTIVITY_COMMUNICATE_LENGTH; i++) {
-            this.data.activities.push(new Activity({
-                id: i, type: "communicating",
-                learner1_id: Math.floor(Math.random() * USER_LENGTH),
-                learner2_id: Math.floor(Math.random() * USER_LENGTH),
-            }));
-        }
+        // for (let i = 0; i < ACTIVITY_COMMUNICATE_LENGTH; i++) {
+        //     this.data.activities.push(new Activity({
+        //         id: i, type: "communicating",
+        //         learner1_id: Math.floor(Math.random() * USER_LENGTH),
+        //         learner2_id: Math.floor(Math.random() * USER_LENGTH),
+        //     }));
+        // }
         return Promise.resolve(true);
     }
 
@@ -142,7 +144,7 @@ export class AfelData {
             .toPromise()
             .then((r) => {
                 r.forEach((resultdata) => {
-                    let learner = new Learner(resultdata);
+                    let learner = new Learner(resultdata["id"], resultdata);
                     this.data.learners.push(learner);
                 });
                 console.log("Fetched Learners:", this.data.learners);
@@ -160,7 +162,7 @@ export class AfelData {
             .toPromise()
             .then((r) => {
                 r.forEach((resultdata) => {
-                    let resource = new Resource(resultdata);
+                    let resource = new Resource(resultdata["id"], resultdata);
                     this.data.resources.push(resource);
                 });
                 console.log("Fetched Resources:", this.data.resources);
@@ -178,7 +180,34 @@ export class AfelData {
             .toPromise()
             .then((r) => {
                 r.forEach((resultdata) => {
-                    let act = new Activity(resultdata);
+                    let act:Activity = null;
+                    switch (resultdata["type"]) {
+                        case "learning" :
+
+                            let resource = Resource.getObject(resultdata["resource_id"]);
+                            let learner = Learner.getObject(resultdata["learner_id"]);
+                            act = new LearningActivity(resultdata["id"],
+                                learner,
+                                resource,
+                                resultdata);
+
+                            resource.addLearningActivity(act);
+                            learner.addLearningActivity(act);
+
+                            break;
+                        case "communicating" :
+                            let learner1 = <Learner>Learner.getObject(resultdata["learner1_id"]);
+                            let learner2 = <Learner>Learner.getObject(resultdata["learner2_id"]);
+                            act = new CommunicationActivity(resultdata["id"],
+                                learner1,
+                                learner2,
+                                resultdata);
+
+                            learner1.addCommunicationActivity(act);
+                            learner2.addCommunicationActivity(act);
+
+                            break;
+                    }
                     this.data.activities.push(act);
                 });
                 console.log("Fetched Activties:", this.data.activities);

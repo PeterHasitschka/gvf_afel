@@ -1,5 +1,3 @@
-
-
 import {GraphAbstract} from "../../../gvfcore/components/graphvis/graphs/abstract";
 import {Resource} from "../data/resource";
 import {EdgeAbstract} from "../../../gvfcore/components/graphvis/graphs/edges/abstract";
@@ -11,9 +9,9 @@ import {InterGraphEventService, INTERGRAPH_EVENTS} from "../../../gvfcore/servic
 import {NodeLearner} from "../nodes/learner";
 import {Learner} from "../data/learner";
 import {UiService} from "../../../gvfcore/services/ui.service";
-import {Activity} from "../data/activity";
-import {NodeAbstract} from "../../../gvfcore/components/graphvis/graphs/nodes/abstract";
-import {EdgeBasic} from "../../../gvfcore/components/graphvis/graphs/edges/basic";
+import {LearningActivity} from "../data/learningactivity";
+import {GraphVisConfig} from "../../../gvfcore/components/graphvis/config";
+import {EdgeResource} from "../edges/resource";
 
 /**
  * The resource graph shows relations between Learning-Resources
@@ -90,53 +88,96 @@ export class ResourceGraph extends GraphAbstract {
      * @returns {EdgeAbstract[]}
      */
     protected createEdges():EdgeAbstract[] {
-        let activities = AfelData.getInstance().getActivities();
+
+        let edges = this.createLearningEdges();
+        console.log("# of edges in resource graph:" + edges.length);
+        return edges;
+    }
+
+    /**
+     * Creates edges for each pair of resources who SHARE SAME LEARNERS up to a specific tolerance (0<=t<=1)
+     * @returns {EdgeAbstract[]}
+     */
+    private createLearningEdges() {
+
+
         let edges:EdgeAbstract[] = [];
 
-        let learnings = {};
-        activities.forEach((activity:Activity) => {
-            if (activity.getType() !== Activity.TYPE_LEARNING)
-                return;
-            let rId = activity.getData(Activity.RESOURCE_ID);
-            let lId = activity.getData(Activity.LEARNER_ID);
-            if (typeof learnings[lId] == 'undefined')
-                learnings[lId] = [];
-            learnings[lId].push(rId);
+        let existingResResEdgeList = [];
+        let learnerIdsOfResources = [];
+
+        let tolerance = GraphVisConfig['afel'].samelearning_tolerance;
+
+        // Store simple Ids of each res's learners first for faster calculation
+        Resource.getDataList().forEach((res:Resource) => {
+            let resLearnerIds = [];
+            res.getLearningActivities().forEach((la:LearningActivity)=> {
+                resLearnerIds.push(la.getLearner().getId());
+            });
+            learnerIdsOfResources.push({r: res, ls: resLearnerIds});
         });
 
-        let existingEdgeList = {};
+        // Go through those data and check if similar to other res'
+        learnerIdsOfResources.forEach((data) => {
+            let res = data.r;
+            let ls = data.ls;
 
-        for (let lKey in learnings) {
-            if (learnings[lKey].length < 2)
-                continue;
+            if (!ls.length)
+                return;
 
-            learnings[lKey].forEach((rKey:number, i) => {
+            // Iterate through all learner Ids of every other res and compare
+            learnerIdsOfResources.forEach((otherResLearner) => {
+                let otherRes = otherResLearner.r;
+                let otherLs = otherResLearner.ls;
+                if (res.getId() === otherRes.getId())
+                    return;
 
-                if (i < learnings[lKey].length - 1) {
-                    let n1:NodeAbstract = this.getNodeByDataId(rKey);
-                    let n2:NodeAbstract = this.getNodeByDataId(learnings[lKey][i + 1]);
+                // Check mutually if the the learners match up to a tolerance
+                let found1 = 0;
+                ls.forEach((rId) => {
+                    otherLs.indexOf(rId) > -1 ? found1++ : null;
+                });
+                let factorFound1 = found1 / ls.length;
+                if (factorFound1 < tolerance)
+                    return;
 
-                    /**
-                     * Prevent same connection again.
-                     */
-                    let min = Math.min(n1.getDataEntity().getId(), n2.getDataEntity().getId());
-                    let max = Math.max(n1.getDataEntity().getId(), n2.getDataEntity().getId());
-                    if (typeof existingEdgeList[min] === "undefined")
-                        existingEdgeList[min] = [];
-                    if (existingEdgeList[min].indexOf(max) !== -1) {
-                        return;
-                    }
-                    existingEdgeList[min].push(max);
+                // Do the same again vice versa
+                let found2 = 0;
+                otherLs.forEach((rId) => {
+                    ls.indexOf(rId) > -1 ? found2++ : null;
+                });
+                let factorFound2 = found2 / otherLs.length;
+                if (factorFound2 < tolerance)
+                    return;
 
 
-                    let resourceConnection = new EdgeBasic(n1, n2, this.plane);
-                    n1.addEdge(resourceConnection);
-                    n2.addEdge(resourceConnection);
-                    edges.push(resourceConnection);
+                // Prevent creating existing edges
+                let min = Math.min(res.getId(), otherRes.getId());
+                let max = Math.max(res.getId(), otherRes.getId());
+                if (typeof existingResResEdgeList[min] === "undefined")
+                    existingResResEdgeList[min] = [];
+                if (existingResResEdgeList[min].indexOf(max) !== -1)
+                    return;
+                existingResResEdgeList[min].push(max);
+
+
+                // Create edge finally
+                let n1 = <NodeResource>this.getNodeByDataId(res.getId());
+                let n2 = <NodeResource>this.getNodeByDataId(otherRes.getId());
+
+                if (n1 === null || n2 === null) {
+                    console.warn("One of the nodes for creating an edge is null!", n1, n2, res, otherRes);
+                    return;
                 }
+
+                let learningConnection = new EdgeResource(n1, n2, this.plane);
+                n1.addEdge(learningConnection);
+                n2.addEdge(learningConnection);
+                edges.push(learningConnection);
             });
-        }
-        console.log("# of edges in resource graph:" + edges.length);
+        });
+
+        console.log("Resource Edges: ", edges.length);
         return edges;
     }
 }

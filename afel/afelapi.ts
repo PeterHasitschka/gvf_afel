@@ -14,12 +14,17 @@ export class AfelApi implements GvfPluginInterface {
             color: 0x5555bb
         }
         GraphVisConfig.nodes['learnernode'] = {
-            color: 0x00aa00
+            color: 0x008800
         }
 
 
         GraphVisConfig.active_graphs['resource'] = ResourceGraph;
         GraphVisConfig.active_graphs['learner'] = LearnerGraph;
+
+
+        GraphVisConfig["afel"] = {
+            samelearning_tolerance : 0.9
+        }
 
     }
 

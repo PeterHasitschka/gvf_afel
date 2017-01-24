@@ -1,23 +1,28 @@
-
 import {Resource} from "./resource";
 import {Activity} from "./activity";
 import {DataAbstract} from "../../../gvfcore/components/graphvis/data/abstract";
+import {BasicEntity} from "../../../gvfcore/components/graphvis/data/basicentity";
+import {LearningActivity} from "./learningactivity";
+import {CommunicationActivity} from "./communicationactivity";
 
 /**
  * Learner Data object
  * Holding data of a single Learner
  * @author Peter Hasitschka
  */
-export class Learner extends DataAbstract {
+export class Learner extends BasicEntity {
 
     protected static dataList:Learner[] = [];
+
+    private learningActivities:LearningActivity[] = [];
+    private communicationActivities:CommunicationActivity[] = [];
 
     /**
      * Learner constructor
      * @param data Holds an id and at least a 'name' property by current definition
      */
-    constructor(protected data: Object) {
-        super(data);
+    constructor(id:number, protected data:Object) {
+        super(id, data);
         Learner.dataList.push(this);
     }
 
@@ -26,24 +31,39 @@ export class Learner extends DataAbstract {
      * @param resource {Resource}
      * @returns {Learner[]}
      */
-    public static getLearnersByResource(resource:Resource):Learner[]{
+    public static getLearnersByResource(resource:Resource):Learner[] {
 
         let outList:Learner[] = [];
-        Activity.getDataList().forEach((activitiy:Activity) => {
-            if (activitiy.getType() !== Activity.TYPE_LEARNING)
-                return;
-            if(activitiy.getData(Activity.RESOURCE_ID) === resource.getId())
-                outList.push(<Learner>Learner.getObject(activitiy.getData(Activity.LEARNER_ID)));
+        LearningActivity.getDataList().forEach((activity:LearningActivity) => {
+            if (activity.getResource().getId() === resource.getId())
+                outList.push(activity.getLearner());
         });
 
         return outList;
     }
 
+    public getCommunicationActivities(){
+        return this.communicationActivities;
+    }
+
+    public addCommunicationActivity(activity:CommunicationActivity){
+        this.communicationActivities.push(activity);
+    }
+
+    public getLearningActivities(){
+        return this.learningActivities;
+    }
+
+    public addLearningActivity(activity:LearningActivity){
+        this.learningActivities.push(activity);
+    }
+
+
     /**
      * Get all Learners
      * @returns {Learner[]}
      */
-    public static getDataList():Learner[]{
+    public static getDataList():Learner[] {
         return Learner.dataList;
     }
 }

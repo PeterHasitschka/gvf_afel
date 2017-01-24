@@ -1,23 +1,25 @@
-
 import {Learner} from "./learner";
 import {Activity} from "./activity";
 import {DataAbstract} from "../../../gvfcore/components/graphvis/data/abstract";
+import {BasicEntity} from "../../../gvfcore/components/graphvis/data/basicentity";
+import {LearningActivity} from "./learningactivity";
 
 /**
  * Resource Data object
  * Holding data of a single Learning-Resource
  * @author Peter Hasitschka
  */
-export class Resource extends DataAbstract {
+export class Resource extends BasicEntity {
 
     protected static dataList:Resource[] = [];
 
+    private learningActivities:LearningActivity[] = [];
     /**
      * Resource constructor
      * @param data Holds an ID, and at least a 'title' property by current definition
      */
-    constructor(protected data:Object) {
-        super(data);
+    constructor(id:number, protected data:Object) {
+        super(id, data);
         Resource.dataList.push(this);
     }
 
@@ -30,15 +32,26 @@ export class Resource extends DataAbstract {
     public static getResourcesByLearner(learner:Learner):Resource[] {
 
         let outList:Resource[] = [];
-        Activity.getDataList().forEach((activitiy:Activity) => {
-            if (activitiy.getType() !== Activity.TYPE_LEARNING)
-                return;
-            if (activitiy.getData(Activity.LEARNER_ID) === learner.getId())
-                outList.push(<Resource>Resource.getObject(activitiy.getData(Activity.RESOURCE_ID)));
+        LearningActivity.getDataList().forEach((activity:LearningActivity) => {
+
+            if (activity.getLearner().getId() === learner.getId())
+                outList.push(activity.getResource());
         });
 
         return outList;
     }
+
+
+
+    public getLearningActivities(){
+        return this.learningActivities;
+    }
+
+    public addLearningActivity(activity:LearningActivity){
+        this.learningActivities.push(activity);
+    }
+
+
 
     /**
      * Get all resources
