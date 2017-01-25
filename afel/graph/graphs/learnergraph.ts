@@ -68,7 +68,7 @@ export class LearnerGraph extends GraphAbstract {
 
 
         InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.RESOURCE_NODE_LEFT, function (e) {
-            this.nodes.forEach((n:NodeLearner) => {
+            this.graphElements.forEach((n:NodeLearner) => {
                 n.deHighlight();
             });
             this.plane.getGraphScene().render();

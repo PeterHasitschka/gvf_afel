@@ -69,7 +69,7 @@ export class ResourceGraph extends GraphAbstract {
 
         InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.LEARNER_NODE_LEFT, function (e) {
 
-            this.nodes.forEach((n:NodeResource) => {
+            this.graphElements.forEach((n:NodeResource) => {
                 n.deHighlight();
             });
             this.plane.getGraphScene().render();
