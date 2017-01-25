@@ -4,6 +4,7 @@ import {ResourceGraph} from "./graph/graphs/resourcegraph";
 import {LearnerGraph} from "./graph/graphs/learnergraph";
 import {AfelData} from "./afeldata";
 import {GvfApi} from "../gvfcore/api/gvfapi";
+import {INTERGRAPH_EVENTS} from "../gvfcore/services/intergraphevents.service";
 
 
 export class AfelApi implements GvfPluginInterface {
@@ -25,6 +26,8 @@ export class AfelApi implements GvfPluginInterface {
         GraphVisConfig["afel"] = {
             samelearning_tolerance : 0.9
         }
+
+
 
     }
 

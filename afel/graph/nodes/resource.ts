@@ -10,28 +10,15 @@ import {DataAbstract} from "../../../gvfcore/components/graphvis/data/dataabstra
  */
 export class NodeResource extends NodeSimple {
 
+    public static IDENTIFIER = "NODE RESOURCE";
+
     constructor(x:number, y:number, protected dataEntity:DataAbstract, plane:Plane) {
         super(x, y, dataEntity, plane);
 
         this.color = GraphVisConfig.graphelements['resourcenode'].color;
         this.setColor(this.color);
+        this.name = NodeResource.IDENTIFIER;
     }
 
-    /**
-     * On Mouse-Hover
-     * Sending an Event for notifying that node was intersected
-     */
-    public onIntersectStart():void {
-        InterGraphEventService.getInstance().send(INTERGRAPH_EVENTS.RESOURCE_NODE_HOVERED, this);
-        super.onIntersectStart();
-    }
 
-    /**
-     * On Mouse-Leave
-     * Sending an Event for notifying that node was left
-     */
-    public onIntersectLeave():void {
-        InterGraphEventService.getInstance().send(INTERGRAPH_EVENTS.RESOURCE_NODE_LEFT, this);
-        super.onIntersectLeave();
-    }
 }

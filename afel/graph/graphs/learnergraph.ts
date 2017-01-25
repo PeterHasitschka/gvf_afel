@@ -40,21 +40,29 @@ export class LearnerGraph extends GraphAbstract {
      * Adding event listeners for hovered and un-hovered resource(!) graphelements but also for same graphelements
      */
     private addEventListeners() {
-        InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.LEARNER_NODE_HOVERED, function (e) {
+        InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.NODE_HOVERED, function (e) {
             let node:NodeLearner = e.detail;
+            if (node.name !== NodeLearner.IDENTIFIER)
+                return;
+
             node.highlight();
             this.plane.getGraphScene().render();
         }.bind(this));
 
-        InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.LEARNER_NODE_LEFT, function (e) {
+        InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.NODE_LEFT, function (e) {
             let node:NodeLearner = e.detail;
+            if (node.name !== NodeLearner.IDENTIFIER)
+                return;
+
             node.deHighlight();
             this.plane.getGraphScene().render();
         }.bind(this));
 
-        InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.RESOURCE_NODE_HOVERED, function (e) {
-
+        InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.NODE_HOVERED, function (e) {
             let node:NodeResource = e.detail;
+            if (node.name !== NodeResource.IDENTIFIER)
+                return;
+
             let affectedLearners:Learner[] = Learner.getLearnersByResource(<Resource>node.getDataEntity());
             affectedLearners.forEach((l:Learner) => {
                 let affectedLearnerNodes = this.getNodeByDataEntity(l);
@@ -67,7 +75,11 @@ export class LearnerGraph extends GraphAbstract {
         }.bind(this));
 
 
-        InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.RESOURCE_NODE_LEFT, function (e) {
+        InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.NODE_LEFT, function (e) {
+            let node:NodeResource = e.detail;
+            if (node.name !== NodeResource.IDENTIFIER)
+                return;
+
             this.graphElements.forEach((n:NodeLearner) => {
                 n.deHighlight();
             });
