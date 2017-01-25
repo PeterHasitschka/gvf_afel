@@ -1,7 +1,7 @@
 import {Learner} from "./learner";
 import {Activity} from "./activity";
-import {DataAbstract} from "../../../gvfcore/components/graphvis/data/abstract";
-import {BasicEntity} from "../../../gvfcore/components/graphvis/data/basicentity";
+import {DataAbstract} from "../../../gvfcore/components/graphvis/data/dataabstract";
+import {BasicEntity} from "../../../gvfcore/components/graphvis/data/databasicentity";
 import {LearningActivity} from "./learningactivity";
 
 /**

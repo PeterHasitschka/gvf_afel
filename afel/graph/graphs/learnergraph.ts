@@ -1,11 +1,11 @@
 import log1p = require("core-js/fn/math/log1p");
-import {GraphAbstract} from "../../../gvfcore/components/graphvis/graphs/abstract";
+import {GraphAbstract} from "../../../gvfcore/components/graphvis/graphs/graphabstract";
 import {Plane} from "../../../gvfcore/components/plane/plane";
 import {NodeLearner} from "../nodes/learner";
-import {GraphLayoutFdl} from "../../../gvfcore/components/graphvis/graphs/layouts/fdl";
+import {GraphLayoutFdl} from "../../../gvfcore/components/graphvis/graphs/layouts/graphlayoutfdl";
 import {InterGraphEventService, INTERGRAPH_EVENTS} from "../../../gvfcore/services/intergraphevents.service";
 import {NodeResource} from "../nodes/resource";
-import {EdgeAbstract} from "../../../gvfcore/components/graphvis/graphs/edges/abstract";
+import {EdgeAbstract} from "../../../gvfcore/components/graphvis/graphs/edges/edgeelementabstract";
 import {Learner} from "../data/learner";
 import {Resource} from "../data/resource";
 import {AfelData} from "../../afeldata";

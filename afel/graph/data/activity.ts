@@ -1,6 +1,5 @@
-import {DataAbstract} from "../../../gvfcore/components/graphvis/data/abstract";
-import {BasicConnection} from "../../../gvfcore/components/graphvis/data/basicconnection";
-import {BasicEntity} from "../../../gvfcore/components/graphvis/data/basicentity";
+import {BasicConnection} from "../../../gvfcore/components/graphvis/data/databasicconnection";
+import {BasicEntity} from "../../../gvfcore/components/graphvis/data/databasicentity";
 
 /**
  * Activity Data object

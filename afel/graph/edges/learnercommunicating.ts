@@ -1,6 +1,6 @@
-import {EdgeColored} from "../../../gvfcore/components/graphvis/graphs/edges/colored";
+import {EdgeColored} from "../../../gvfcore/components/graphvis/graphs/edges/edgeelementcolored";
 import {Plane} from "../../../gvfcore/components/plane/plane";
-import {NodeAbstract} from "../../../gvfcore/components/graphvis/graphs/nodes/nodeabstract";
+import {NodeAbstract} from "../../../gvfcore/components/graphvis/graphs/nodes/nodeelementabstract";
 export class EdgeLearnersCommunicating extends EdgeColored {
 
     protected static color = 0x33cc33;

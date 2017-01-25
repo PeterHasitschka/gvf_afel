@@ -1,10 +1,10 @@
-import {GraphAbstract} from "../../../gvfcore/components/graphvis/graphs/abstract";
+import {GraphAbstract} from "../../../gvfcore/components/graphvis/graphs/graphabstract";
 import {Resource} from "../data/resource";
-import {EdgeAbstract} from "../../../gvfcore/components/graphvis/graphs/edges/abstract";
+import {EdgeAbstract} from "../../../gvfcore/components/graphvis/graphs/edges/edgeelementabstract";
 import {Plane} from "../../../gvfcore/components/plane/plane";
 import {AfelData} from "../../afeldata";
 import {NodeResource} from "../nodes/resource";
-import {GraphLayoutFdl} from "../../../gvfcore/components/graphvis/graphs/layouts/fdl";
+import {GraphLayoutFdl} from "../../../gvfcore/components/graphvis/graphs/layouts/graphlayoutfdl";
 import {InterGraphEventService, INTERGRAPH_EVENTS} from "../../../gvfcore/services/intergraphevents.service";
 import {NodeLearner} from "../nodes/learner";
 import {Learner} from "../data/learner";

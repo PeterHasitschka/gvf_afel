@@ -1,5 +1,5 @@
-import {NodeSimple} from "../../../gvfcore/components/graphvis/graphs/nodes/simple";
-import {DataAbstract} from "../../../gvfcore/components/graphvis/data/abstract";
+import {NodeSimple} from "../../../gvfcore/components/graphvis/graphs/nodes/nodelementsimple";
+import {DataAbstract} from "../../../gvfcore/components/graphvis/data/dataabstract";
 import {Plane} from "../../../gvfcore/components/plane/plane";
 import {GraphVisConfig} from "../../../gvfcore/components/graphvis/config";
 import {INTERGRAPH_EVENTS, InterGraphEventService} from "../../../gvfcore/services/intergraphevents.service";
