@@ -40,13 +40,13 @@ export class ResourceGraph extends GraphAbstract {
     private addEventListeners() {
         InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.RESOURCE_NODE_HOVERED, function (e) {
             let node:NodeResource = e.detail;
-            node.highlightNode();
+            node.highlight();
             this.plane.getGraphScene().render();
         }.bind(this));
 
         InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.RESOURCE_NODE_LEFT, function (e) {
             let node:NodeResource = e.detail;
-            node.deHighlightNode();
+            node.deHighlight();
             this.plane.getGraphScene().render();
         }.bind(this));
 
@@ -57,7 +57,7 @@ export class ResourceGraph extends GraphAbstract {
             affectedResources.forEach((r:Resource) => {
                 let affectedResourceNodes = this.getNodeByDataEntity(r);
                 affectedResourceNodes.forEach((n:NodeResource) => {
-                    n.highlightNode();
+                    n.highlight();
 
                     // Add to integraph connections
                     UiService.getInstance().addNodesToIntergraphConnection(node, n);
@@ -70,7 +70,7 @@ export class ResourceGraph extends GraphAbstract {
         InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.LEARNER_NODE_LEFT, function (e) {
 
             this.nodes.forEach((n:NodeResource) => {
-                n.deHighlightNode();
+                n.deHighlight();
             });
             this.plane.getGraphScene().render();
 
