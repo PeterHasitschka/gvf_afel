@@ -24,9 +24,8 @@ export class AfelApi implements GvfPluginInterface {
 
 
         GraphVisConfig["afel"] = {
-            samelearning_tolerance : 0.9
+            samelearning_tolerance: 0.95
         }
-
 
 
     }
@@ -34,13 +33,12 @@ export class AfelApi implements GvfPluginInterface {
 
     public runAfterInit() {
 
-        console.log("AFEL API: Ready to do something funny");
-
-
         AfelData.getInstance().fetchData().then(() => {
-            console.log("Creating two basic planes");
-            GvfApi.addPlane("ResourceGraph", "resource");
-            GvfApi.addPlane("Learner Graph", "learner");
+            console.log("Creating two AFEL planes");
+            GvfApi.addPlane("Resource Graph - Connecting resources with same learners (tolerance: " +
+                Math.round((1 - GraphVisConfig["afel"].samelearning_tolerance) * 100) + "%)", "resource");
+            GvfApi.addPlane("Learner Graph - Connecting learners who learn the same (tolerance: " +
+                Math.round((1 - GraphVisConfig["afel"].samelearning_tolerance) * 100) + "%)", "learner");
         });
 
     }

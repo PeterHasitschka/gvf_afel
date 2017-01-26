@@ -10,7 +10,7 @@ import {DataAbstract} from "../../../gvfcore/components/graphvis/data/dataabstra
  */
 export class NodeResource extends NodeSimple {
 
-    public static IDENTIFIER = "NODE RESOURCE";
+    public static IDENTIFIER = "Node Resource";
 
     constructor(x:number, y:number, protected dataEntity:DataAbstract, plane:Plane) {
         super(x, y, dataEntity, plane);

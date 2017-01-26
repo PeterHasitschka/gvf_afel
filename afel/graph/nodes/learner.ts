@@ -10,7 +10,7 @@ import {Learner} from "../data/learner";
  */
 export class NodeLearner extends NodeSimple {
 
-    public static IDENTIFIER = "NODE LEARNER";
+    public static IDENTIFIER = "Node Resource";
 
     constructor(x:number, y:number, protected dataEntity:Learner, plane:Plane) {
         super(x, y, dataEntity, plane);
