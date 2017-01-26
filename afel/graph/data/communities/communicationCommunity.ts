@@ -1,17 +1,17 @@
 import {Community} from "./community";
 import {Learner} from "../learner";
-export class LearningCommunity extends Community {
+export class CommunicationCommunity extends Community {
 
-    protected static dataList:LearningCommunity[] = [];
+    protected static dataList:CommunicationCommunity[] = [];
     //protected entities:Learner[] = [];
 
     constructor(id:number, learner:Learner[], data:Object) {
         super(id, learner, data);
-        LearningCommunity.dataList.push(this);
+        CommunicationCommunity.dataList.push(this);
     }
 
-    public static getDataList():LearningCommunity[] {
-        return LearningCommunity.dataList;
+    public static getDataList():CommunicationCommunity[] {
+        return CommunicationCommunity.dataList;
     }
 
     public getEntities():Learner[] {

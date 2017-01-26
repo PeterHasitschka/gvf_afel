@@ -14,8 +14,10 @@ import {CommunicationActivity} from "../data/communicationactivity";
 import {EdgeLearnersLearning} from "./edges/learnerlearning";
 import {EdgeLearnersCommunicating} from "./edges/learnercommunicating";
 import {GraphVisConfig} from "../../../gvfcore/components/graphvis/config";
+import {LearningCommunity} from "../data/communities/learningCommunity";
+import {CommunicationCommunity} from "../data/communities/communicationCommunity";
 
-
+declare var jLouvain:any;
 /**
  * The resource graph shows relations between Learning-Resources
  * Thus its Data consists of @see{Resource} data objects.
@@ -23,7 +25,6 @@ import {GraphVisConfig} from "../../../gvfcore/components/graphvis/config";
  */
 export class LearnerGraph extends GraphAbstract {
 
-    protected data:Resource[];
 
     constructor(plane:Plane) {
         super(plane);
@@ -75,7 +76,74 @@ export class LearnerGraph extends GraphAbstract {
 
     public init():void {
         super.init();
+
+        this.extractCommunities();
     }
+
+
+    protected extractCommunities() {
+        let louvainNodes = [];
+        let louvainEdgesComm = [];
+        let louvainEdgesLearn = [];
+        this.graphElements.forEach((ln:NodeLearner) => {
+            louvainNodes.push(ln.getDataEntity().getId());
+
+            ln.getEdges().forEach((e:EdgeAbstract) => {
+
+                if (e.constructor === EdgeLearnersCommunicating) {
+                    louvainEdgesComm.push({
+                        source: e.getSourceNode().getDataEntity().getId(),
+                        target: e.getDestNode().getDataEntity().getId(),
+                        weight: 1.0
+                    });
+                } else if (e.constructor === EdgeLearnersLearning) {
+                    louvainEdgesLearn.push({
+                        source: e.getSourceNode().getDataEntity().getId(),
+                        target: e.getDestNode().getDataEntity().getId(),
+                        weight: 1.0
+                    });
+                }
+            });
+        });
+
+        let createCommunities = function(nodes, edges, communityClass){
+            let c = jLouvain().nodes(nodes).edges(edges);
+            let communityMapping = c();
+
+            let communityEntities = {}
+            for (var lId in communityMapping) {
+                let cId =communityMapping[lId];
+
+                if (typeof communityEntities[cId] === "undefined")
+                    communityEntities[cId] = [];
+                let lEntity = Learner.getObject(parseInt(lId));
+                communityEntities[cId].push(lEntity);
+            }
+
+            let communities=[];
+            for (let cKey in communityEntities) {
+                if (communityEntities[cKey].length < 3)
+                    continue;
+                let community = new communityClass(communityClass.getDataList().length, communityEntities[cKey], {});
+                communities.push(community);
+            }
+            return communities;
+        }
+
+        let lcs = createCommunities(louvainNodes, louvainEdgesLearn, LearningCommunity);
+        let ccs = createCommunities(louvainNodes, louvainEdgesComm, CommunicationCommunity);
+        AfelData.getInstance().setLearningCommunities(lcs);
+        AfelData.getInstance().setCommunicationCommunities(ccs);
+
+        // this.data.learners.forEach((l:Learner)=>{
+        //     louvainNodes.push(l.getId());
+        // });
+        //
+        // this.data.activities.forEach((a:Activity) => {
+        //     console.log(a);
+        // });
+    }
+
 
     /**
      * Creating edges that connect learners with others that share resources and those who communicate

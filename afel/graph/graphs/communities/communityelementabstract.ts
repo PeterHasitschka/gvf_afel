@@ -12,6 +12,7 @@ export abstract class CommunityElementAbstract extends GroupAbstract {
 
     constructor(x:number, y:number, protected dataEntity:Community, plane:Plane) {
         super(x, y, dataEntity, plane);
+
     }
 }
 

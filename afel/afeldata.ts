@@ -11,6 +11,7 @@ import {LearningActivity} from "./graph/data/learningactivity";
 import {CommunicationActivity} from "./graph/data/communicationactivity";
 import {Community} from "./graph/data/communities/community";
 import {LearningCommunity} from "./graph/data/communities/learningCommunity";
+import {CommunicationCommunity} from "./graph/data/communities/communicationCommunity";
 
 
 /**
@@ -24,6 +25,7 @@ export class AfelData {
     static isCreating:Boolean = false;
     private http;
     private data;
+
 
     /**
      * If true, the server is used for retrieving data (also dummy data).
@@ -49,12 +51,14 @@ export class AfelData {
             resources: [],
             activities: [],
             communities: {
-                learning: []
+                learning: [],
+                communicating: []
             }
         };
         if (!AfelData.isCreating) {
             return AfelData.getInstance();
         }
+
     }
 
     /**
@@ -132,7 +136,8 @@ export class AfelData {
             .then(() => {
                 return this.fetchResources().then(() => {
                     return this.fetchActivities().then(() => {
-                        return this.createDummyDemoCommunities();
+                        //return this.createDummyDemoCommunities();
+                        return this.extractCommunities();
                     })
                 })
             })
@@ -140,6 +145,10 @@ export class AfelData {
 
     }
 
+    extractCommunities() {
+
+
+    }
 
     createDummyDemoCommunities() {
         console.log("Creating Demo Groups out of data from server...");
@@ -281,5 +290,17 @@ export class AfelData {
      */
     getLearningCommunities():LearningCommunity[] {
         return this.data.communities.learning;
+    }
+
+    setLearningCommunities(lcs:LearningCommunity[]) {
+        this.data.communities.learning = lcs;
+    }
+
+    getCommunicationCommunities():CommunicationCommunity[] {
+        return this.data.communities.communicating;
+    }
+
+    setCommunicationCommunities(ccs:CommunicationCommunity[]) {
+        this.data.communities.communicating = ccs;
     }
 }
