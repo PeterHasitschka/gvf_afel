@@ -5,6 +5,7 @@ import {LearnerGraph} from "./graph/graphs/learnergraph";
 import {AfelData} from "./afeldata";
 import {GvfApi} from "../gvfcore/api/gvfapi";
 import {INTERGRAPH_EVENTS} from "../gvfcore/services/intergraphevents.service";
+import {LearningCommunityGraph} from "./graph/graphs/learningcommunitygraph";
 
 
 export class AfelApi implements GvfPluginInterface {
@@ -13,14 +14,23 @@ export class AfelApi implements GvfPluginInterface {
 
         GraphVisConfig.graphelements['resourcenode'] = {
             color: 0x5555bb
-        }
+        };
         GraphVisConfig.graphelements['learnernode'] = {
             color: 0x008800
+        };
+
+        GraphVisConfig.graphelements['learningcommunity'] = {
+            segments: 128,
+            size: 50,
+            color: 0x3333aa,
+            highlight_color: 0xff3333,
+            z_pos: 0.0
         }
 
 
         GraphVisConfig.active_graphs['resource'] = ResourceGraph;
         GraphVisConfig.active_graphs['learner'] = LearnerGraph;
+        GraphVisConfig.active_graphs['learningcommunity'] = LearningCommunityGraph;
 
 
         GraphVisConfig["afel"] = {
@@ -39,6 +49,8 @@ export class AfelApi implements GvfPluginInterface {
                 Math.round((1 - GraphVisConfig["afel"].samelearning_tolerance) * 100) + "%)", "resource");
             GvfApi.addPlane("Learner Graph - Connecting learners who learn the same (tolerance: " +
                 Math.round((1 - GraphVisConfig["afel"].samelearning_tolerance) * 100) + "%)", "learner");
+
+            GvfApi.addPlane("Learning Communities (Dummy created)", "learningcommunity");
         });
 
     }

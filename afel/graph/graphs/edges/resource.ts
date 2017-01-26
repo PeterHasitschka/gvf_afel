@@ -1,5 +1,5 @@
-import {EdgeColored} from "../../../gvfcore/components/graphvis/graphs/edges/edgeelementcolored";
-import {Plane} from "../../../gvfcore/components/plane/plane";
+import {EdgeColored} from "../../../../gvfcore/components/graphvis/graphs/edges/edgeelementcolored";
+import {Plane} from "../../../../gvfcore/components/plane/plane";
 import {NodeLearner} from "../nodes/learner";
 import {NodeResource} from "../nodes/resource";
 export class EdgeResource extends EdgeColored {

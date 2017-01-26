@@ -9,6 +9,8 @@ import {Activity} from "./graph/data/activity";
 import {DataService} from "../gvfcore/services/data.service";
 import {LearningActivity} from "./graph/data/learningactivity";
 import {CommunicationActivity} from "./graph/data/communicationactivity";
+import {Community} from "./graph/data/communities/community";
+import {LearningCommunity} from "./graph/data/communities/learningCommunity";
 
 
 /**
@@ -45,7 +47,10 @@ export class AfelData {
         this.data = {
             learners: [],
             resources: [],
-            activities: []
+            activities: [],
+            communities: {
+                learning: []
+            }
         };
         if (!AfelData.isCreating) {
             return AfelData.getInstance();
@@ -125,13 +130,45 @@ export class AfelData {
         console.log("Fetching learning-platform data from server...");
         return this.fetchLearners()
             .then(() => {
-                return this.fetchResources()
+                return this.fetchResources().then(() => {
+                    return this.fetchActivities().then(() => {
+                        return this.createDummyDemoCommunities();
+                    })
+                })
             })
-            .then(() => {
-                return this.fetchActivities()
-            })
+
+
     }
 
+
+    createDummyDemoCommunities() {
+        console.log("Creating Demo Groups out of data from server...");
+
+
+        let alreadyChosenIds = [];
+        let learnerFetcher = function (maxnum:number):Learner[] {
+            let randomLearners:Learner[] = [];
+            for (let i = 0; i < maxnum; i++) {
+                let someLearnerId = Math.floor(Math.random() * Learner.getDataList().length);
+                while (alreadyChosenIds.indexOf(someLearnerId) >= 0)
+                    someLearnerId = Math.floor(Math.random() * Learner.getDataList().length);
+                alreadyChosenIds.push(someLearnerId);
+                let someRandomLearner = Learner.getObject(someLearnerId);
+                randomLearners.push(someRandomLearner);
+            }
+            console.log("Fetched learners: ", randomLearners);
+            return randomLearners;
+        };
+
+        let c1 = new LearningCommunity(LearningCommunity.getDataList().length, learnerFetcher(10), {});
+        let c2 = new LearningCommunity(LearningCommunity.getDataList().length, learnerFetcher(5), {});
+        let c3 = new LearningCommunity(LearningCommunity.getDataList().length, learnerFetcher(20), {});
+
+
+        this.data.communities.learning = [c1, c2, c3];
+
+        return true;
+    }
 
     /**
      * Fetching the learners from server, returning as promise
@@ -236,5 +273,13 @@ export class AfelData {
      */
     getActivities():Activity[] {
         return this.data.activities;
+    }
+
+    /**
+     * Return the (stored) learning communities
+     * @returns {Array}
+     */
+    getLearningCommunities():LearningCommunity[] {
+        return this.data.communities.learning;
     }
 }

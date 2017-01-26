@@ -1,18 +1,18 @@
 import log1p = require("core-js/fn/math/log1p");
 import {GraphAbstract} from "../../../gvfcore/components/graphvis/graphs/graphabstract";
 import {Plane} from "../../../gvfcore/components/plane/plane";
-import {NodeLearner} from "../nodes/learner";
+import {NodeLearner} from "./nodes/learner";
 import {GraphLayoutFdl} from "../../../gvfcore/components/graphvis/graphs/layouts/graphlayoutfdl";
 import {InterGraphEventService, INTERGRAPH_EVENTS} from "../../../gvfcore/services/intergraphevents.service";
-import {NodeResource} from "../nodes/resource";
+import {NodeResource} from "./nodes/resource";
 import {EdgeAbstract} from "../../../gvfcore/components/graphvis/graphs/edges/edgeelementabstract";
 import {Learner} from "../data/learner";
 import {Resource} from "../data/resource";
 import {AfelData} from "../../afeldata";
 import {LearningActivity} from "../data/learningactivity";
 import {CommunicationActivity} from "../data/communicationactivity";
-import {EdgeLearnersLearning} from "../edges/learnerlearning";
-import {EdgeLearnersCommunicating} from "../edges/learnercommunicating";
+import {EdgeLearnersLearning} from "./edges/learnerlearning";
+import {EdgeLearnersCommunicating} from "./edges/learnercommunicating";
 import {GraphVisConfig} from "../../../gvfcore/components/graphvis/config";
 
 
@@ -39,24 +39,9 @@ export class LearnerGraph extends GraphAbstract {
     /**
      * Adding event listeners for hovered and un-hovered resource(!) graphelements but also for same graphelements
      */
-    private addEventListeners() {
-        InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.NODE_HOVERED, function (e) {
-            let node:NodeLearner = e.detail;
-            if (node.name !== NodeLearner.IDENTIFIER)
-                return;
+    protected addEventListeners() {
 
-            node.highlight();
-            this.plane.getGraphScene().render();
-        }.bind(this));
-
-        InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.NODE_LEFT, function (e) {
-            let node:NodeLearner = e.detail;
-            if (node.name !== NodeLearner.IDENTIFIER)
-                return;
-
-            node.deHighlight();
-            this.plane.getGraphScene().render();
-        }.bind(this));
+        super.addEventListeners();
 
         InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.NODE_HOVERED, function (e) {
             let node:NodeResource = e.detail;
@@ -74,7 +59,6 @@ export class LearnerGraph extends GraphAbstract {
             this.plane.getGraphScene().render();
         }.bind(this));
 
-
         InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.NODE_LEFT, function (e) {
             let node:NodeResource = e.detail;
             if (node.name !== NodeResource.IDENTIFIER)
@@ -85,6 +69,7 @@ export class LearnerGraph extends GraphAbstract {
             });
             this.plane.getGraphScene().render();
         }.bind(this));
+
     }
 
 

@@ -3,15 +3,15 @@ import {Resource} from "../data/resource";
 import {EdgeAbstract} from "../../../gvfcore/components/graphvis/graphs/edges/edgeelementabstract";
 import {Plane} from "../../../gvfcore/components/plane/plane";
 import {AfelData} from "../../afeldata";
-import {NodeResource} from "../nodes/resource";
+import {NodeResource} from "./nodes/resource";
 import {GraphLayoutFdl} from "../../../gvfcore/components/graphvis/graphs/layouts/graphlayoutfdl";
 import {InterGraphEventService, INTERGRAPH_EVENTS} from "../../../gvfcore/services/intergraphevents.service";
-import {NodeLearner} from "../nodes/learner";
+import {NodeLearner} from "./nodes/learner";
 import {Learner} from "../data/learner";
 import {UiService} from "../../../gvfcore/services/ui.service";
 import {LearningActivity} from "../data/learningactivity";
 import {GraphVisConfig} from "../../../gvfcore/components/graphvis/config";
-import {EdgeResource} from "../edges/resource";
+import {EdgeResource} from "./edges/resource";
 
 /**
  * The resource graph shows relations between Learning-Resources
@@ -31,30 +31,15 @@ export class ResourceGraph extends GraphAbstract {
         this.nodetype = NodeResource;
         this.layoutClass = GraphLayoutFdl;
 
-        this.addEventListeners();
+
     }
 
     /**
      * Adding event listeners for hovered and un-hovered learner(!) graphelements but also for same graphelements
      */
-    private addEventListeners() {
-        InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.NODE_HOVERED, function (e) {
-            let node:NodeResource = e.detail;
-            if (node.name !== NodeResource.IDENTIFIER)
-                return;
+    protected addEventListeners() {
 
-            node.highlight();
-            this.plane.getGraphScene().render();
-        }.bind(this));
-
-        InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.NODE_LEFT, function (e) {
-            let node:NodeResource = e.detail;
-            if (node.name !== NodeResource.IDENTIFIER)
-                return;
-
-            node.deHighlight();
-            this.plane.getGraphScene().render();
-        }.bind(this));
+        super.addEventListeners();
 
         InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.NODE_HOVERED, function (e) {
             let node:NodeLearner = e.detail;
