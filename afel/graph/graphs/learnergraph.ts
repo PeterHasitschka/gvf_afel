@@ -128,20 +128,13 @@ export class LearnerGraph extends GraphAbstract {
                 communities.push(community);
             }
             return communities;
-        }
+        };
 
         let lcs = createCommunities(louvainNodes, louvainEdgesLearn, LearningCommunity);
         let ccs = createCommunities(louvainNodes, louvainEdgesComm, CommunicationCommunity);
         AfelData.getInstance().setLearningCommunities(lcs);
         AfelData.getInstance().setCommunicationCommunities(ccs);
 
-        // this.data.learners.forEach((l:Learner)=>{
-        //     louvainNodes.push(l.getId());
-        // });
-        //
-        // this.data.activities.forEach((a:Activity) => {
-        //     console.log(a);
-        // });
     }
 
 

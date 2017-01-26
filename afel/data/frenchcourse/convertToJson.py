@@ -104,23 +104,26 @@ class Converter:
         l2 = None
         for i in range(0, self.MAX_RANDOM_COMMUNICATION):
             id1 = random.randint(0, len(learners) - 1)
-            id2 = random.randint(0, len(learners) - 1)
 
-            for learnerIt in learners:
-                if learnerIt.get("id") == id1:
-                    l1 = learnerIt
-                if learnerIt.get("id") == id2:
-                    l2 = learnerIt
+            numCommunicationsForId1 = round(pow(random.random(), -1.5) / 4)
 
-            action = {
-                'id': len(self.data.get("activities")),
-                'type': 'communicating',
-                'learner1_id': l1.get("id"),
-                'learner2_id': l2.get("id"),
-            }
-            self.data.get("activities").append(action)
-            print(action)
+            for j in range(0, numCommunicationsForId1): 
+                id2 = random.randint(0, len(learners) - 1)
 
+                for learnerIt in learners:
+                    if learnerIt.get("id") == id1:
+                        l1 = learnerIt
+                    if learnerIt.get("id") == id2:
+                        l2 = learnerIt
+
+                action = {
+                    'id': len(self.data.get("activities")),
+                    'type': 'communicating',
+                    'learner1_id': l1.get("id"),
+                    'learner2_id': l2.get("id"),
+                }
+                self.data.get("activities").append(action)
+                print(action)
 
     def registerAction(self, fields):
 
