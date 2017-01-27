@@ -7,6 +7,8 @@ import {GvfApi} from "../gvfcore/api/gvfapi";
 import {INTERGRAPH_EVENTS} from "../gvfcore/services/intergraphevents.service";
 import {LearningCommunityGraph} from "./graph/graphs/learningcommunitygraph";
 import {CommunicationCommunityGraph} from "./graph/graphs/communicationcommunitygraph";
+import {UiService} from "../gvfcore/services/ui.service";
+import {SideInfoPositions, SideInfoContentType, SideInfoModel} from "../gvfcore/components/app/sideinfo/sideinfomodel";
 
 
 export class AfelApi implements GvfPluginInterface {
@@ -14,7 +16,8 @@ export class AfelApi implements GvfPluginInterface {
         console.log("AFEL API created")
 
         GraphVisConfig.graphelements['resourcenode'] = {
-            color: 0xffffcc
+            color: 0xffffcc,
+            highlightcolor: 0xff4422
         };
         GraphVisConfig.graphelements['learnernode'] = {
             color: 0x008800
@@ -43,7 +46,7 @@ export class AfelApi implements GvfPluginInterface {
 
         GraphVisConfig["afel"] = {
             samelearning_tolerance: 0.95,
-            resourcegraph_background : 0x8888aa
+            resourcegraph_background: 0x8888aa
         }
 
 
@@ -54,14 +57,27 @@ export class AfelApi implements GvfPluginInterface {
 
         AfelData.getInstance().fetchData().then(() => {
             console.log("Creating two AFEL planes");
-            GvfApi.addPlane("Resource Graph - Connecting resources with same learners (tolerance: " +
-                Math.round((1 - GraphVisConfig["afel"].samelearning_tolerance) * 100) + "%)", "resource");
-            GvfApi.addPlane("Learner Graph - Connecting learners who learn the same (tolerance: " +
-                Math.round((1 - GraphVisConfig["afel"].samelearning_tolerance) * 100) + "%)", "learner");
+            GvfApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Resource</strong> Graph - Connecting resources with same learners (tolerance: ' +
+                Math.round((1 - GraphVisConfig["afel"].samelearning_tolerance) * 100) + '%)', 'resource');
+            GvfApi.addPlane('<i class="fa fa-user" aria-hidden="true"></i> <strong>Learner</strong> Graph - Connecting learners who learn the same (tolerance: ' +
+                Math.round((1 - GraphVisConfig["afel"].samelearning_tolerance) * 100) + '%)', 'learner');
 
-            GvfApi.addPlane("Learning Communities", "learningcommunity");
-            GvfApi.addPlane("Communication Communities", "communicationcommunity");
+            GvfApi.addPlane('<i class="fa fa-users" aria-hidden="true"></i> <strong>Learning</strong> Communities', 'learningcommunity');
+            GvfApi.addPlane('<i class="fa fa-users" aria-hidden="true"></i> <strong>Communication</strong> Communities', 'communicationcommunity');
         });
+
+
+        UiService.getInstance().addSideInfoElement(new SideInfoModel(
+            '<i class="fa fa-info-circle" aria-hidden="true"></i> AFEL',
+            SideInfoPositions.Left,
+            SideInfoContentType.Text,
+            {
+                text: 'Demo Application with GVF included as IFrame. ' +
+                'The data here is <a href="http://afel-project.eu/" target="_blank">AFEL</a> specific.<br>' +
+                'More Details about this visualization can be found <a href="https://github.com/PeterHasitschka/gvf_afel" target="_blank">here</a>.'
+            }
+            )
+        );
 
     }
 

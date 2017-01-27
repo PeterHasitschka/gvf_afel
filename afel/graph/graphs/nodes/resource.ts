@@ -16,6 +16,7 @@ export class NodeResource extends NodeSimple {
         super(x, y, dataEntity, plane);
 
         this.color = GraphVisConfig.graphelements['resourcenode'].color;
+        this.highlightColor = GraphVisConfig.graphelements['resourcenode'].highlightcolor;
         this.setColor(this.color);
         this.name = NodeResource.IDENTIFIER;
     }
