@@ -165,7 +165,7 @@ export class AfelData {
                 let someRandomLearner = Learner.getObject(someLearnerId);
                 randomLearners.push(someRandomLearner);
             }
-            console.log("Fetched learners: ", randomLearners);
+            //console.log("Fetched learners: ", randomLearners);
             return randomLearners;
         };
 
@@ -184,7 +184,7 @@ export class AfelData {
      * @returns {Promise<TResult>}
      */
     fetchLearners() {
-        console.log("Fetching learners data from server...", this.http);
+        console.log("Fetching learners data from server...");
         return this.http.get(AfelData.DUMMYDATA.learners)
             .map(res => res.json())
             .toPromise()
@@ -193,7 +193,7 @@ export class AfelData {
                     let learner = new Learner(resultdata["id"], resultdata);
                     this.data.learners.push(learner);
                 });
-                console.log("Fetched Learners:", this.data.learners);
+                //console.log("Fetched Learners:", this.data.learners);
             });
     }
 
@@ -211,7 +211,7 @@ export class AfelData {
                     let resource = new Resource(resultdata["id"], resultdata);
                     this.data.resources.push(resource);
                 });
-                console.log("Fetched Resources:", this.data.resources);
+                //console.log("Fetched Resources:", this.data.resources);
             });
     }
 
@@ -256,7 +256,7 @@ export class AfelData {
                     }
                     this.data.activities.push(act);
                 });
-                console.log("Fetched Activties:", this.data.activities);
+                //console.log("Fetched Activties:", this.data.activities);
             });
     }
 
