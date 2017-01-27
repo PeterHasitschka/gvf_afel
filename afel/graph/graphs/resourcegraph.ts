@@ -12,6 +12,7 @@ import {UiService} from "../../../gvfcore/services/ui.service";
 import {LearningActivity} from "../data/learningactivity";
 import {GraphVisConfig} from "../../../gvfcore/components/graphvis/config";
 import {EdgeResource} from "./edges/resource";
+import {GvfCoreModule} from "../../../gvfcore/gvfcore.module";
 
 /**
  * The resource graph shows relations between Learning-Resources
@@ -31,7 +32,7 @@ export class ResourceGraph extends GraphAbstract {
         this.nodetype = NodeResource;
         this.layoutClass = GraphLayoutFdl;
 
-
+        this.plane.setBackgroundColor(GraphVisConfig["afel"].resourcegraph_background);
     }
 
     /**

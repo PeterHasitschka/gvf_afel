@@ -14,7 +14,7 @@ export class AfelApi implements GvfPluginInterface {
         console.log("AFEL API created")
 
         GraphVisConfig.graphelements['resourcenode'] = {
-            color: 0x5555bb
+            color: 0xffffcc
         };
         GraphVisConfig.graphelements['learnernode'] = {
             color: 0x008800
@@ -35,7 +35,6 @@ export class AfelApi implements GvfPluginInterface {
             z_pos: 0.0
         };
 
-
         GraphVisConfig.active_graphs['resource'] = ResourceGraph;
         GraphVisConfig.active_graphs['learner'] = LearnerGraph;
         GraphVisConfig.active_graphs['learningcommunity'] = LearningCommunityGraph;
@@ -43,7 +42,8 @@ export class AfelApi implements GvfPluginInterface {
 
 
         GraphVisConfig["afel"] = {
-            samelearning_tolerance: 0.95
+            samelearning_tolerance: 0.95,
+            resourcegraph_background : 0x4444aa
         }
 
 
