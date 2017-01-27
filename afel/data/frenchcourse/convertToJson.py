@@ -107,7 +107,7 @@ class Converter:
 
             numCommunicationsForId1 = round(pow(random.random(), -1.5) / 4)
 
-            for j in range(0, numCommunicationsForId1): 
+            for j in range(0, numCommunicationsForId1):
                 id2 = random.randint(0, len(learners) - 1)
 
                 for learnerIt in learners:

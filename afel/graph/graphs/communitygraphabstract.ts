@@ -20,7 +20,6 @@ export abstract class CommunityGraphAbstract extends GroupGraphAbstract {
         this.nodetype = CommunityElementAbstract;
 
         //this.layoutClass = GraphLayoutRandom;
-        this.layoutClass = GraphLayoutFdl;
     }
 
 
