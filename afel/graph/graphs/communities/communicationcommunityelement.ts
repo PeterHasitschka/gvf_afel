@@ -2,6 +2,7 @@ import {Plane} from "../../../../gvfcore/components/plane/plane";
 import {CommunityElementAbstract} from "./communityelementabstract";
 import {LearningCommunity} from "../../data/communities/learningCommunity";
 import {GraphVisConfig} from "../../../../gvfcore/components/graphvis/config";
+import {NodeLearner} from "../nodes/learner";
 /**
  * A learning community vis element
  * @author Peter Hasitschka
