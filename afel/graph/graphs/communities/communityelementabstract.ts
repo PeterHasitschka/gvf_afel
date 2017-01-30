@@ -11,8 +11,8 @@ export abstract class CommunityElementAbstract extends GroupAbstract {
 
     public static dataType = Community;
 
-    constructor(x:number, y:number, protected dataEntity:Community, plane:Plane) {
-        super(x, y, dataEntity, plane, NodeLearner);
+    constructor(x:number, y:number, protected dataEntity:Community, plane:Plane, options:Object) {
+        super(x, y, dataEntity, plane, NodeLearner, options);
 
     }
 }

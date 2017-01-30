@@ -12,8 +12,8 @@ export class CommunicationCommunityElement extends CommunityElementAbstract {
     protected color = GraphVisConfig.graphelements['communicationcommunity'].color;
     public static dataType = LearningCommunity;
 
-    constructor(x:number, y:number, protected dataEntity:LearningCommunity, plane:Plane) {
-        super(x, y, dataEntity, plane);
+    constructor(x:number, y:number, protected dataEntity:LearningCommunity, plane:Plane, options:Object) {
+        super(x, y, dataEntity, plane, options);
         this.setColor(this.color);
     }
 }

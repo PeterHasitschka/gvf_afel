@@ -10,8 +10,8 @@ export class NodeLearner extends NodeSimple {
 
     public static IDENTIFIER = "Node Learner";
 
-    constructor(x:number, y:number, protected dataEntity:Learner, plane:Plane) {
-        super(x, y, dataEntity, plane);
+    constructor(x:number, y:number, protected dataEntity:Learner, plane:Plane, options:Object) {
+        super(x, y, dataEntity, plane, options);
 
         this.color = GraphVisConfig.graphelements['learnernode'].color;
         this.setColor(this.color);

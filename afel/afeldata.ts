@@ -12,7 +12,14 @@ import {CommunicationActivity} from "./graph/data/communicationactivity";
 import {Community} from "./graph/data/communities/community";
 import {LearningCommunity} from "./graph/data/communities/learningCommunity";
 import {CommunicationCommunity} from "./graph/data/communities/communicationCommunity";
+import {NodeLearner} from "./graph/graphs/nodes/learner";
+import {EdgeAbstract} from "../gvfcore/components/graphvis/graphs/edges/edgeelementabstract";
+import {EdgeLearnersCommunicating} from "./graph/graphs/edges/learnercommunicating";
+import {EdgeLearnersLearning} from "./graph/graphs/edges/learnerlearning";
 
+
+
+declare var jLouvain:any;
 
 /**
  * Service for loading resource, learner, and activity data.
@@ -137,7 +144,7 @@ export class AfelData {
                 return this.fetchResources().then(() => {
                     return this.fetchActivities().then(() => {
                         //return this.createDummyDemoCommunities();
-                        return this.extractCommunities();
+                        //return this.extractCommunities();
                     })
                 })
             })
@@ -145,10 +152,71 @@ export class AfelData {
 
     }
 
-    extractCommunities() {
 
+    /**
+     * Creating learning- and communication communication communities.
+     * Must be called after the learner graph was created and connected,
+     * since the data-activities do not describe the connections between the nodes,
+     * which are created in the learner graph.
+     * @see{LearnerGraph.init()}
+     * @param connectedLearnerGraphNodes
+     */
+    public extractCommunitiesFromExistingLearnerGraph(connectedLearnerGraphNodes:NodeLearner[]) {
+        let louvainNodes = [];
+        let louvainEdgesComm = [];
+        let louvainEdgesLearn = [];
+        connectedLearnerGraphNodes.forEach((ln:NodeLearner) => {
+            louvainNodes.push(ln.getDataEntity().getId());
 
+            ln.getEdges().forEach((e:EdgeAbstract) => {
+
+                if (e.constructor === EdgeLearnersCommunicating) {
+                    louvainEdgesComm.push({
+                        source: e.getSourceNode().getDataEntity().getId(),
+                        target: e.getDestNode().getDataEntity().getId(),
+                        weight: 1.0
+                    });
+                } else if (e.constructor === EdgeLearnersLearning) {
+                    louvainEdgesLearn.push({
+                        source: e.getSourceNode().getDataEntity().getId(),
+                        target: e.getDestNode().getDataEntity().getId(),
+                        weight: 1.0
+                    });
+                }
+            });
+        });
+
+        let createCommunities = function(nodes, edges, communityClass){
+            let c = jLouvain().nodes(nodes).edges(edges);
+            let communityMapping = c();
+
+            let communityEntities = {};
+            for (var lId in communityMapping) {
+                let cId =communityMapping[lId];
+
+                if (typeof communityEntities[cId] === "undefined")
+                    communityEntities[cId] = [];
+                let lEntity = Learner.getObject(parseInt(lId));
+                communityEntities[cId].push(lEntity);
+            }
+
+            let communities=[];
+            for (let cKey in communityEntities) {
+                if (communityEntities[cKey].length < 3)
+                    continue;
+                let community = new communityClass(communityClass.getDataList().length, communityEntities[cKey], {});
+                communities.push(community);
+            }
+            return communities;
+        };
+
+        let lcs = createCommunities(louvainNodes, louvainEdgesLearn, LearningCommunity);
+        let ccs = createCommunities(louvainNodes, louvainEdgesComm, CommunicationCommunity);
+        this.setLearningCommunities(lcs);
+        this.setCommunicationCommunities(ccs);
     }
+
+
 
     createDummyDemoCommunities() {
         console.log("Creating Demo Groups out of data from server...");

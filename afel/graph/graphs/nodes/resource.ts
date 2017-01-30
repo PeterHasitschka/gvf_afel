@@ -12,8 +12,8 @@ export class NodeResource extends NodeSimple {
 
     public static IDENTIFIER = "Node Resource";
 
-    constructor(x:number, y:number, protected dataEntity:Resource, plane:Plane) {
-        super(x, y, dataEntity, plane);
+    constructor(x:number, y:number, protected dataEntity:Resource, plane:Plane, options:Object) {
+        super(x, y, dataEntity, plane, options);
 
         this.color = GraphVisConfig.graphelements['resourcenode'].color;
         this.highlightColor = GraphVisConfig.graphelements['resourcenode'].highlightcolor;
