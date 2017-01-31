@@ -54,7 +54,7 @@ export class ResourceGraph extends GraphAbstract {
                     n.highlight();
 
                     // Add to integraph connections
-                    UiService.getInstance().addNodesToIntergraphConnection(node, n);
+                    UiService.getInstance().addNodesToIntergraphConnection(node, n, "blue");
                 });
             });
             this.plane.getGraphScene().render();
