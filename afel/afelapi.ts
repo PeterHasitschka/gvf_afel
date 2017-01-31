@@ -27,14 +27,14 @@ export class AfelApi implements GvfPluginInterface {
             segments: 128,
             size: 50,
             color: 0x3333aa,
-            highlight_color: 0xff3333,
+            highlight_color: 0xFF5555,
             z_pos: 0.0
         };
         GraphVisConfig.graphelements['communicationcommunity'] = {
             segments: 128,
             size: 50,
             color: 0x33aa33,
-            highlight_color: 0xff3333,
+            highlight_color: 0xFF5555,
             z_pos: 0.0
         };
 
