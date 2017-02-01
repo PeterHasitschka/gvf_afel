@@ -88,7 +88,7 @@ export class ResourceGraph extends GraphAbstract {
     protected createEdges():EdgeAbstract[] {
 
         let edges = this.createLearningEdges();
-        console.log("# of edges in resource graph:" + edges.length);
+        UiService.consolelog("# of edges in resource graph:" + edges.length,this,null, 3);
         return edges;
     }
 
@@ -175,7 +175,7 @@ export class ResourceGraph extends GraphAbstract {
             });
         });
 
-        console.log("Resource Edges: ", edges.length);
+        UiService.consolelog("Resource Edges: " + edges.length,this,null, 3);
         return edges;
     }
 }

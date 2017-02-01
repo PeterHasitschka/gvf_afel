@@ -13,8 +13,7 @@ import {SideInfoPositions, SideInfoContentType, SideInfoModel} from "../gvfcore/
 
 export class AfelApi implements GvfPluginInterface {
     constructor() {
-        console.log("AFEL API created")
-
+        UiService.consolelog("Created AFEL API Plugin", this, null, 4);
         GraphVisConfig.graphelements['resourcenode'] = {
             color: 0xffffcc,
             highlightcolor: 0xff4422
@@ -38,17 +37,10 @@ export class AfelApi implements GvfPluginInterface {
             z_pos: 0.0
         };
 
-        GraphVisConfig.active_graphs['resource'] = ResourceGraph;
-        GraphVisConfig.active_graphs['learner'] = LearnerGraph;
-        GraphVisConfig.active_graphs['learningcommunity'] = LearningCommunityGraph;
-        GraphVisConfig.active_graphs['communicationcommunity'] = CommunicationCommunityGraph;
-
-
         GraphVisConfig["afel"] = {
             samelearning_tolerance: 0.95,
             resourcegraph_background: 0x8888aa
         }
-
 
     }
 
@@ -56,14 +48,17 @@ export class AfelApi implements GvfPluginInterface {
     public runAfterInit() {
 
         AfelData.getInstance().fetchData().then(() => {
-            console.log("Creating two AFEL planes");
-            GvfApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Resource</strong> Graph - Connecting resources with same learners (tolerance: ' +
-                Math.round((1 - GraphVisConfig["afel"].samelearning_tolerance) * 100) + '%)', 'resource');
-            GvfApi.addPlane('<i class="fa fa-user" aria-hidden="true"></i> <strong>Learner</strong> Graph - Connecting learners who learn the same (tolerance: ' +
-                Math.round((1 - GraphVisConfig["afel"].samelearning_tolerance) * 100) + '%)', 'learner');
+            GvfApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Resource</strong> ' +
+                'Graph - Connecting resources with same learners (tolerance: ' +
+                Math.round((1 - GraphVisConfig["afel"].samelearning_tolerance) * 100) + '%)', ResourceGraph);
+            GvfApi.addPlane('<i class="fa fa-user" aria-hidden="true"></i> <strong>Learner</strong> ' +
+                'Graph - Connecting learners who learn the same (tolerance: ' +
+                Math.round((1 - GraphVisConfig["afel"].samelearning_tolerance) * 100) + '%)', LearnerGraph);
 
-            GvfApi.addPlane('<i class="fa fa-users" aria-hidden="true"></i> <strong>Learning</strong> Communities', 'learningcommunity');
-            GvfApi.addPlane('<i class="fa fa-users" aria-hidden="true"></i> <strong>Communication</strong> Communities', 'communicationcommunity');
+            GvfApi.addPlane('<i class="fa fa-users" aria-hidden="true"></i> <strong>Learning</strong> Communities',
+                LearningCommunityGraph);
+            GvfApi.addPlane('<i class="fa fa-users" aria-hidden="true"></i> <strong>Communication</strong> Communities',
+                CommunicationCommunityGraph);
         });
 
 

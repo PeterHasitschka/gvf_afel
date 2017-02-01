@@ -14,6 +14,7 @@ import {CommunicationActivity} from "../data/communicationactivity";
 import {EdgeLearnersLearning} from "./edges/learnerlearning";
 import {EdgeLearnersCommunicating} from "./edges/learnercommunicating";
 import {GraphVisConfig} from "../../../gvfcore/components/graphvis/config";
+import {UiService} from "../../../gvfcore/services/ui.service";
 
 
 /**
@@ -128,7 +129,7 @@ export class LearnerGraph extends GraphAbstract {
             n2.addEdge(communicationConnection);
             edges.push(communicationConnection);
         });
-        console.log("Communication Edges: ", edges.length);
+        UiService.consolelog("Communication Edges: " + edges.length,this,null, 3);
         return edges;
     }
 
@@ -214,7 +215,7 @@ export class LearnerGraph extends GraphAbstract {
         });
 
 
-        console.log("Learning Edges: ", edges.length);
+        UiService.consolelog("Learning Edges: " + edges.length,this,null, 3);
         return edges;
     }
 }

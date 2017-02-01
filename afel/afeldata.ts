@@ -16,6 +16,7 @@ import {NodeLearner} from "./graph/graphs/nodes/learner";
 import {EdgeAbstract} from "../gvfcore/components/graphvis/graphs/edges/edgeelementabstract";
 import {EdgeLearnersCommunicating} from "./graph/graphs/edges/learnercommunicating";
 import {EdgeLearnersLearning} from "./graph/graphs/edges/learnerlearning";
+import {UiService} from "../gvfcore/services/ui.service";
 
 
 
@@ -138,7 +139,8 @@ export class AfelData {
      * @returns {Promise<TResult>}
      */
     fetchDataFromServer() {
-        console.log("Fetching learning-platform data from server...");
+
+        UiService.consolelog("Fetching learning-platform data from server...",this,null, 5);
         return this.fetchLearners()
             .then(() => {
                 return this.fetchResources().then(() => {
@@ -219,8 +221,7 @@ export class AfelData {
 
 
     createDummyDemoCommunities() {
-        console.log("Creating Demo Groups out of data from server...");
-
+        UiService.consolelog("Creating Demo Groups out of data from server...",this,null, 5);
 
         let alreadyChosenIds = [];
         let learnerFetcher = function (maxnum:number):Learner[] {
@@ -252,7 +253,7 @@ export class AfelData {
      * @returns {Promise<TResult>}
      */
     fetchLearners() {
-        console.log("Fetching learners data from server...");
+        UiService.consolelog("Fetching learners data from server...",this,null, 5);
         return this.http.get(AfelData.DUMMYDATA.learners)
             .map(res => res.json())
             .toPromise()
@@ -270,7 +271,7 @@ export class AfelData {
      * @returns {Promise<TResult>}
      */
     fetchResources() {
-        console.log("Fetching resource data from server...");
+        UiService.consolelog("Fetching resource data from server...",this,null, 5);
         return this.http.get(AfelData.DUMMYDATA.resources)
             .map(res => res.json())
             .toPromise()
@@ -288,7 +289,7 @@ export class AfelData {
      * @returns {Promise<TResult>}
      */
     fetchActivities() {
-        console.log("Fetching activities data from server...");
+        UiService.consolelog("Fetching activities data from server...",this,null, 5);
         return this.http.get(AfelData.DUMMYDATA.activities)
             .map(res => res.json())
             .toPromise()
