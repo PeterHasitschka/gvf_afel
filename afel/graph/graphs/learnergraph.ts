@@ -15,6 +15,7 @@ import {EdgeLearnersLearning} from "./edges/learnerlearning";
 import {EdgeLearnersCommunicating} from "./edges/learnercommunicating";
 import {GraphVisConfig} from "../../../gvfcore/components/graphvis/config";
 import {UiService} from "../../../gvfcore/services/ui.service";
+import {GraphAutoCreateAbstract} from "../../../gvfcore/components/graphvis/graphs/graphautocreateabstract";
 
 
 /**
@@ -22,7 +23,7 @@ import {UiService} from "../../../gvfcore/services/ui.service";
  * Thus its Data consists of @see{Resource} data objects.
  * @author Peter Hasitschka
  */
-export class LearnerGraph extends GraphAbstract {
+export class LearnerGraph extends GraphAutoCreateAbstract {
 
 
     constructor(plane:Plane) {

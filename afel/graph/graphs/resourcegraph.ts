@@ -13,13 +13,14 @@ import {LearningActivity} from "../data/learningactivity";
 import {GraphVisConfig} from "../../../gvfcore/components/graphvis/config";
 import {EdgeResource} from "./edges/resource";
 import {GvfCoreModule} from "../../../gvfcore/gvfcore.module";
+import {GraphAutoCreateAbstract} from "../../../gvfcore/components/graphvis/graphs/graphautocreateabstract";
 
 /**
  * The resource graph shows relations between Learning-Resources
  * Thus its Data consists of @see{Resource} data objects.
  * @author Peter Hasitschka
  */
-export class ResourceGraph extends GraphAbstract {
+export class ResourceGraph extends GraphAutoCreateAbstract {
 
     protected data:Resource[];
     protected edges:EdgeAbstract[];

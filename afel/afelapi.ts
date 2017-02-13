@@ -9,6 +9,7 @@ import {LearningCommunityGraph} from "./graph/graphs/learningcommunitygraph";
 import {CommunicationCommunityGraph} from "./graph/graphs/communicationcommunitygraph";
 import {UiService} from "../gvfcore/services/ui.service";
 import {SideInfoPositions, SideInfoContentType, SideInfoModel} from "../gvfcore/components/app/sideinfo/sideinfomodel";
+import {ResourceGraphBPProj} from "./graph/graphs/resourcegraph_bipartite";
 
 
 export class AfelApi implements GvfPluginInterface {
@@ -47,18 +48,22 @@ export class AfelApi implements GvfPluginInterface {
 
     public runAfterInit() {
 
+        let toleranceStr = '(tolerance: ' + Math.round((1 - GraphVisConfig["afel"].samelearning_tolerance) * 100) + '%)';
+
         AfelData.getInstance().fetchData().then(() => {
             GvfApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Resource</strong> ' +
-                'Graph - Connecting resources with same learners (tolerance: ' +
-                Math.round((1 - GraphVisConfig["afel"].samelearning_tolerance) * 100) + '%)', ResourceGraph);
+                'Graph - Connecting resources with same learners ' + toleranceStr, ResourceGraph);
             GvfApi.addPlane('<i class="fa fa-user" aria-hidden="true"></i> <strong>Learner</strong> ' +
-                'Graph - Connecting learners who learn the same (tolerance: ' +
-                Math.round((1 - GraphVisConfig["afel"].samelearning_tolerance) * 100) + '%)', LearnerGraph);
+                'Graph - Connecting learners who learn the same ' + toleranceStr, LearnerGraph);
 
             GvfApi.addPlane('<i class="fa fa-users" aria-hidden="true"></i> <strong>Learning</strong> Communities',
                 LearningCommunityGraph);
             GvfApi.addPlane('<i class="fa fa-users" aria-hidden="true"></i> <strong>Communication</strong> Communities',
                 CommunicationCommunityGraph);
+
+            GvfApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Resource</strong> ' +
+                'Graph - <strong>BIPARTITE PROJECTION</strong>', ResourceGraphBPProj);
+
         });
 
 
@@ -70,6 +75,19 @@ export class AfelApi implements GvfPluginInterface {
                 text: 'Demo Application with GVF included as IFrame. ' +
                 'The data here is <a href="http://afel-project.eu/" target="_blank">AFEL</a> specific.<br>' +
                 'More Details about this visualization can be found <a href="https://github.com/PeterHasitschka/gvf_afel" target="_blank">here</a>.'
+            }
+            )
+        );
+
+
+        UiService.getInstance().addSideInfoElement(new SideInfoModel(
+            'ATTENTION!',
+            SideInfoPositions.Right,
+            SideInfoContentType.Text,
+            {
+                text: '<div class="alert alert-danger">' +
+                '<strong>BIPARTITE PROJECTION branch</strong>' +
+                '</div>'
             }
             )
         );
