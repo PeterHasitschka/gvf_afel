@@ -52,14 +52,14 @@ export class AfelApi implements GvfPluginInterface {
         let toleranceStr = '(tolerance: ' + Math.round((1 - GraphVisConfig["afel"].samelearning_tolerance) * 100) + '%)';
 
         AfelData.getInstance().fetchData().then(() => {
-            // GvfApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Resource</strong> ' +
-            //     'Graph - Connecting resources with same learners ' + toleranceStr, ResourceGraph);
             GvfApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Resource</strong> ' +
-                'Graph - <strong>BIPARTITE PROJECTION</strong>', ResourceGraphBPProj);
+                'Graph - Connecting resources with same learners ' + toleranceStr, ResourceGraph);
+            // GvfApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Resource</strong> ' +
+            //     'Graph - <strong>BIPARTITE PROJECTION</strong>', ResourceGraphBPProj);
             GvfApi.addPlane('<i class="fa fa-user" aria-hidden="true"></i> <strong>Learner</strong> ' +
                 'Graph - Connecting learners who learn the same ' + toleranceStr, LearnerGraph);
-            GvfApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Learner</strong> ' +
-                'Graph - <strong>BIPARTITE PROJECTION</strong>', LearnerGraphBPProj);
+            // GvfApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Learner</strong> ' +
+            //     'Graph - <strong>BIPARTITE PROJECTION</strong>', LearnerGraphBPProj);
             GvfApi.addPlane('<i class="fa fa-users" aria-hidden="true"></i> <strong>Learning</strong> Communities',
                 LearningCommunityGraph);
             GvfApi.addPlane('<i class="fa fa-users" aria-hidden="true"></i> <strong>Communication</strong> Communities',
@@ -78,19 +78,6 @@ export class AfelApi implements GvfPluginInterface {
                 text: 'Demo Application with GVF included as IFrame. ' +
                 'The data here is <a href="http://afel-project.eu/" target="_blank">AFEL</a> specific.<br>' +
                 'More Details about this visualization can be found <a href="https://github.com/PeterHasitschka/gvf_afel" target="_blank">here</a>.'
-            }
-            )
-        );
-
-
-        UiService.getInstance().addSideInfoElement(new SideInfoModel(
-            'ATTENTION!',
-            SideInfoPositions.Right,
-            SideInfoContentType.Text,
-            {
-                text: '<div class="alert alert-danger">' +
-                '<strong>BIPARTITE PROJECTION branch</strong>' +
-                '</div>'
             }
             )
         );
