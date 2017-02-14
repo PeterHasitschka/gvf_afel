@@ -10,6 +10,7 @@ import {CommunicationCommunityGraph} from "./graph/graphs/communicationcommunity
 import {UiService} from "../gvfcore/services/ui.service";
 import {SideInfoPositions, SideInfoContentType, SideInfoModel} from "../gvfcore/components/app/sideinfo/sideinfomodel";
 import {ResourceGraphBPProj} from "./graph/graphs/resourcegraph_bipartite";
+import {LearnerGraphBPProj} from "./graph/graphs/learnergraph_bipartite";
 
 
 export class AfelApi implements GvfPluginInterface {
@@ -57,7 +58,8 @@ export class AfelApi implements GvfPluginInterface {
                 'Graph - <strong>BIPARTITE PROJECTION</strong>', ResourceGraphBPProj);
             GvfApi.addPlane('<i class="fa fa-user" aria-hidden="true"></i> <strong>Learner</strong> ' +
                 'Graph - Connecting learners who learn the same ' + toleranceStr, LearnerGraph);
-
+            GvfApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Learner</strong> ' +
+                'Graph - <strong>BIPARTITE PROJECTION</strong>', LearnerGraphBPProj);
             GvfApi.addPlane('<i class="fa fa-users" aria-hidden="true"></i> <strong>Learning</strong> Communities',
                 LearningCommunityGraph);
             GvfApi.addPlane('<i class="fa fa-users" aria-hidden="true"></i> <strong>Communication</strong> Communities',
