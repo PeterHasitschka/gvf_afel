@@ -17,7 +17,8 @@ import {EdgeAbstract} from "../gvfcore/components/graphvis/graphs/edges/edgeelem
 import {EdgeLearnersCommunicating} from "./graph/graphs/edges/learnercommunicating";
 import {EdgeLearnersLearning} from "./graph/graphs/edges/learnerlearning";
 import {UiService} from "../gvfcore/services/ui.service";
-
+import {AfelDataSourceInterace} from "./data/datasource_interface";
+import {AfelDataSourceFrenchCourse} from "./data/frenchcourse/datasource";
 
 
 declare var jLouvain:any;
@@ -31,6 +32,7 @@ export class AfelData {
 
     static instance:AfelData;
     static isCreating:Boolean = false;
+    private dataSource:AfelDataSourceInterace;
     private http;
     private data;
 
@@ -41,17 +43,13 @@ export class AfelData {
      * @type {boolean}
      */
     static USE_SERVER_DATA = true;
-    static DUMMYDATA = {
-        learners: 'afel/data/frenchcourse/learners.json',
-        resources: 'afel/data/frenchcourse/resources.json',
-        activities: 'afel/data/frenchcourse/activities.json',
-    };
 
     /**
      * Creating the singleton instance
      * @returns {AfelData}
      */
     constructor() {
+
 
         this.http = DataService.getInstance().getHttp();
         this.data = {
@@ -63,6 +61,8 @@ export class AfelData {
                 communicating: []
             }
         };
+        this.dataSource = new AfelDataSourceFrenchCourse(this.data);
+
         if (!AfelData.isCreating) {
             return AfelData.getInstance();
         }
@@ -88,71 +88,44 @@ export class AfelData {
      * @returns {null}
      */
     fetchData(cb?:Function) {
-        var ret = null;
-        if (AfelData.USE_SERVER_DATA)
-            ret = this.fetchDataFromServer();
-        else
-            ret = this.fetchGeneratedDummyData().then(()=> {
-                if (cb)
-                    cb();
-            });
+        let ret = this.dataSource.fetchDataFromServer();
+        console.log(this.data);
         return ret;
     }
 
-    /**
-     * Generating and retrieving Dummy-Data
-     * @returns {Promise<boolean>}
-     */
-    fetchGeneratedDummyData() {
-
-        let USER_LENGTH = 500;
-        let RESOURCE_LENGTH = 100;
-        let ACTIVITY_LEARN_LENGTH = 100;
-        let ACTIVITY_COMMUNICATE_LENGTH = 100;
-
-        for (let i = 0; i < USER_LENGTH; i++) {
-            let learnersData = {id: i, name: "Your mum"};
-            this.data.learners.push(new Learner(learnersData.id, learnersData));
-        }
-        for (let i = 0; i < RESOURCE_LENGTH; i++) {
-            let resourceData = {id: i, title: "Soemthing", compexity: Math.random()};
-            this.data.resources.push(new Resource(resourceData.id, resourceData));
-        }
-        for (let i = 0; i < ACTIVITY_LEARN_LENGTH; i++) {
-            let learner = Learner.getObject(Math.floor(Math.random() * USER_LENGTH));
-            let resource = Resource.getObject(Math.floor(Math.random() * RESOURCE_LENGTH));
-            this.data.activities.push(new LearningActivity(i, learner, resource, {}));
-        }
-        // for (let i = 0; i < ACTIVITY_COMMUNICATE_LENGTH; i++) {
-        //     this.data.activities.push(new Activity({
-        //         id: i, type: "communicating",
-        //         learner1_id: Math.floor(Math.random() * USER_LENGTH),
-        //         learner2_id: Math.floor(Math.random() * USER_LENGTH),
-        //     }));
-        // }
-        return Promise.resolve(true);
-    }
-
-    /**
-     * Fetching and returning learners, resources, and activities from the server.
-     * Returned as Promise.
-     * @returns {Promise<TResult>}
-     */
-    fetchDataFromServer() {
-
-        UiService.consolelog("Fetching learning-platform data from server...",this,null, 5);
-        return this.fetchLearners()
-            .then(() => {
-                return this.fetchResources().then(() => {
-                    return this.fetchActivities().then(() => {
-                        //return this.createDummyDemoCommunities();
-                        //return this.extractCommunities();
-                    })
-                })
-            })
-
-
-    }
+    // /**
+    //  * Generating and retrieving Dummy-Data
+    //  * @returns {Promise<boolean>}
+    //  */
+    // fetchGeneratedDummyData() {
+    //
+    //     let USER_LENGTH = 500;
+    //     let RESOURCE_LENGTH = 100;
+    //     let ACTIVITY_LEARN_LENGTH = 100;
+    //     let ACTIVITY_COMMUNICATE_LENGTH = 100;
+    //
+    //     for (let i = 0; i < USER_LENGTH; i++) {
+    //         let learnersData = {id: i, name: "Your mum"};
+    //         this.data.learners.push(new Learner(learnersData.id, learnersData));
+    //     }
+    //     for (let i = 0; i < RESOURCE_LENGTH; i++) {
+    //         let resourceData = {id: i, title: "Soemthing", compexity: Math.random()};
+    //         this.data.resources.push(new Resource(resourceData.id, resourceData));
+    //     }
+    //     for (let i = 0; i < ACTIVITY_LEARN_LENGTH; i++) {
+    //         let learner = Learner.getObject(Math.floor(Math.random() * USER_LENGTH));
+    //         let resource = Resource.getObject(Math.floor(Math.random() * RESOURCE_LENGTH));
+    //         this.data.activities.push(new LearningActivity(i, learner, resource, {}));
+    //     }
+    //     // for (let i = 0; i < ACTIVITY_COMMUNICATE_LENGTH; i++) {
+    //     //     this.data.activities.push(new Activity({
+    //     //         id: i, type: "communicating",
+    //     //         learner1_id: Math.floor(Math.random() * USER_LENGTH),
+    //     //         learner2_id: Math.floor(Math.random() * USER_LENGTH),
+    //     //     }));
+    //     // }
+    //     return Promise.resolve(true);
+    // }
 
 
     /**
@@ -188,13 +161,13 @@ export class AfelData {
             });
         });
 
-        let createCommunities = function(nodes, edges, communityClass){
+        let createCommunities = function (nodes, edges, communityClass) {
             let c = jLouvain().nodes(nodes).edges(edges);
             let communityMapping = c();
 
             let communityEntities = {};
             for (var lId in communityMapping) {
-                let cId =communityMapping[lId];
+                let cId = communityMapping[lId];
 
                 if (typeof communityEntities[cId] === "undefined")
                     communityEntities[cId] = [];
@@ -202,7 +175,7 @@ export class AfelData {
                 communityEntities[cId].push(lEntity);
             }
 
-            let communities=[];
+            let communities = [];
             for (let cKey in communityEntities) {
                 if (communityEntities[cKey].length < 3)
                     continue;
@@ -218,116 +191,6 @@ export class AfelData {
         this.setCommunicationCommunities(ccs);
     }
 
-
-
-    createDummyDemoCommunities() {
-        UiService.consolelog("Creating Demo Groups out of data from server...",this,null, 5);
-
-        let alreadyChosenIds = [];
-        let learnerFetcher = function (maxnum:number):Learner[] {
-            let randomLearners:Learner[] = [];
-            for (let i = 0; i < maxnum; i++) {
-                let someLearnerId = Math.floor(Math.random() * Learner.getDataList().length);
-                while (alreadyChosenIds.indexOf(someLearnerId) >= 0)
-                    someLearnerId = Math.floor(Math.random() * Learner.getDataList().length);
-                alreadyChosenIds.push(someLearnerId);
-                let someRandomLearner = Learner.getObject(someLearnerId);
-                randomLearners.push(someRandomLearner);
-            }
-            //console.log("Fetched learners: ", randomLearners);
-            return randomLearners;
-        };
-
-        let c1 = new LearningCommunity(LearningCommunity.getDataList().length, learnerFetcher(10), {});
-        let c2 = new LearningCommunity(LearningCommunity.getDataList().length, learnerFetcher(5), {});
-        let c3 = new LearningCommunity(LearningCommunity.getDataList().length, learnerFetcher(20), {});
-
-
-        this.data.communities.learning = [c1, c2, c3];
-
-        return true;
-    }
-
-    /**
-     * Fetching the learners from server, returning as promise
-     * @returns {Promise<TResult>}
-     */
-    fetchLearners() {
-        UiService.consolelog("Fetching learners data from server...",this,null, 5);
-        return this.http.get(AfelData.DUMMYDATA.learners)
-            .map(res => res.json())
-            .toPromise()
-            .then((r) => {
-                r.forEach((resultdata) => {
-                    let learner = new Learner(resultdata["id"], resultdata);
-                    this.data.learners.push(learner);
-                });
-                //console.log("Fetched Learners:", this.data.learners);
-            });
-    }
-
-    /**
-     * Fetching the resources from server, returning as promise
-     * @returns {Promise<TResult>}
-     */
-    fetchResources() {
-        UiService.consolelog("Fetching resource data from server...",this,null, 5);
-        return this.http.get(AfelData.DUMMYDATA.resources)
-            .map(res => res.json())
-            .toPromise()
-            .then((r) => {
-                r.forEach((resultdata) => {
-                    let resource = new Resource(resultdata["id"], resultdata);
-                    this.data.resources.push(resource);
-                });
-                //console.log("Fetched Resources:", this.data.resources);
-            });
-    }
-
-    /**
-     * Fetching the activities from server, returning as promise
-     * @returns {Promise<TResult>}
-     */
-    fetchActivities() {
-        UiService.consolelog("Fetching activities data from server...",this,null, 5);
-        return this.http.get(AfelData.DUMMYDATA.activities)
-            .map(res => res.json())
-            .toPromise()
-            .then((r) => {
-                r.forEach((resultdata) => {
-                    let act:Activity = null;
-                    switch (resultdata["type"]) {
-                        case "learning" :
-
-                            let resource = Resource.getObject(resultdata["resource_id"]);
-                            let learner = Learner.getObject(resultdata["learner_id"]);
-                            act = new LearningActivity(resultdata["id"],
-                                learner,
-                                resource,
-                                resultdata);
-
-                            resource.addLearningActivity(act);
-                            learner.addLearningActivity(act);
-
-                            break;
-                        case "communicating" :
-                            let learner1 = <Learner>Learner.getObject(resultdata["learner1_id"]);
-                            let learner2 = <Learner>Learner.getObject(resultdata["learner2_id"]);
-                            act = new CommunicationActivity(resultdata["id"],
-                                learner1,
-                                learner2,
-                                resultdata);
-
-                            learner1.addCommunicationActivity(act);
-                            learner2.addCommunicationActivity(act);
-
-                            break;
-                    }
-                    this.data.activities.push(act);
-                });
-                //console.log("Fetched Activties:", this.data.activities);
-            });
-    }
 
     /**
      * Return the (stored) learners

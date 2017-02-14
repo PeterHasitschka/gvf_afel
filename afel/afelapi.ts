@@ -64,9 +64,6 @@ export class AfelApi implements GvfPluginInterface {
                 LearningCommunityGraph);
             GvfApi.addPlane('<i class="fa fa-users" aria-hidden="true"></i> <strong>Communication</strong> Communities',
                 CommunicationCommunityGraph);
-
-
-
         });
 
 
