@@ -11,6 +11,9 @@ import {UiService} from "../gvfcore/services/ui.service";
 import {SideInfoPositions, SideInfoContentType, SideInfoModel} from "../gvfcore/components/app/sideinfo/sideinfomodel";
 import {ResourceGraphBPProj} from "./graph/graphs/resourcegraph_bipartite";
 import {LearnerGraphBPProj} from "./graph/graphs/learnergraph_bipartite";
+import {Plane} from "../gvfcore/components/plane/plane";
+import {CombinedCommunityGraph} from "./graph/graphs/combinedcommunitygraph";
+import {GroupGraphAbstract} from "../gvfcore/components/graphvis/graphs/graphgroupabstract";
 
 
 export class AfelApi implements GvfPluginInterface {
@@ -46,8 +49,21 @@ export class AfelApi implements GvfPluginInterface {
 
     }
 
+    private compareCommunityPlanes() {
+        let planes = Plane.getPlanes();
+        let p1 = planes[2];
+        let p2 = planes[3];
+
+        CombinedCommunityGraph.generateComparedGraph(
+            <GroupGraphAbstract>p1.getGraph(),
+            <GroupGraphAbstract>p2.getGraph()
+        );
+    }
+
 
     public runAfterInit() {
+
+        window['compare'] = this.compareCommunityPlanes;
 
         let toleranceStr = '(tolerance: ' + Math.round((1 - GraphVisConfig["afel"].samelearning_tolerance) * 100) + '%)';
 
@@ -78,6 +94,17 @@ export class AfelApi implements GvfPluginInterface {
             }
             )
         );
+
+        UiService.getInstance().addSideInfoElement(new SideInfoModel(
+            'Experimental',
+            SideInfoPositions.Left,
+            SideInfoContentType.Text,
+            {
+                text: 'Compare Commmunities: Call "window.compare()" on gvf.html'
+            }
+            )
+        );
+
 
     }
 

@@ -19,6 +19,7 @@ import {EdgeLearnersLearning} from "./graph/graphs/edges/learnerlearning";
 import {UiService} from "../gvfcore/services/ui.service";
 import {AfelDataSourceInterace} from "./data/datasource_interface";
 import {AfelDataSourceFrenchCourse} from "./data/frenchcourse/datasource";
+import {AfelDataSourceBibsonomy} from "./data/bibsonomy/datasource";
 
 
 declare var jLouvain:any;
@@ -32,7 +33,7 @@ export class AfelData {
 
     static instance:AfelData;
     static isCreating:Boolean = false;
-    private dataSource:AfelDataSourceInterace;
+    private dataSource;
     private http;
     private data;
 
@@ -62,6 +63,7 @@ export class AfelData {
             }
         };
         this.dataSource = new AfelDataSourceFrenchCourse(this.data);
+        //this.dataSource = new AfelDataSourceBibsonomy(this.data);
 
         if (!AfelData.isCreating) {
             return AfelData.getInstance();
@@ -92,40 +94,6 @@ export class AfelData {
         console.log(this.data);
         return ret;
     }
-
-    // /**
-    //  * Generating and retrieving Dummy-Data
-    //  * @returns {Promise<boolean>}
-    //  */
-    // fetchGeneratedDummyData() {
-    //
-    //     let USER_LENGTH = 500;
-    //     let RESOURCE_LENGTH = 100;
-    //     let ACTIVITY_LEARN_LENGTH = 100;
-    //     let ACTIVITY_COMMUNICATE_LENGTH = 100;
-    //
-    //     for (let i = 0; i < USER_LENGTH; i++) {
-    //         let learnersData = {id: i, name: "Your mum"};
-    //         this.data.learners.push(new Learner(learnersData.id, learnersData));
-    //     }
-    //     for (let i = 0; i < RESOURCE_LENGTH; i++) {
-    //         let resourceData = {id: i, title: "Soemthing", compexity: Math.random()};
-    //         this.data.resources.push(new Resource(resourceData.id, resourceData));
-    //     }
-    //     for (let i = 0; i < ACTIVITY_LEARN_LENGTH; i++) {
-    //         let learner = Learner.getObject(Math.floor(Math.random() * USER_LENGTH));
-    //         let resource = Resource.getObject(Math.floor(Math.random() * RESOURCE_LENGTH));
-    //         this.data.activities.push(new LearningActivity(i, learner, resource, {}));
-    //     }
-    //     // for (let i = 0; i < ACTIVITY_COMMUNICATE_LENGTH; i++) {
-    //     //     this.data.activities.push(new Activity({
-    //     //         id: i, type: "communicating",
-    //     //         learner1_id: Math.floor(Math.random() * USER_LENGTH),
-    //     //         learner2_id: Math.floor(Math.random() * USER_LENGTH),
-    //     //     }));
-    //     // }
-    //     return Promise.resolve(true);
-    // }
 
 
     /**
