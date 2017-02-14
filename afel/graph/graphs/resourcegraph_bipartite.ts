@@ -26,12 +26,14 @@ export class ResourceGraphBPProj extends GraphBipartiteProjectionAbstract {
 
     protected data:Resource[];
     protected edges:EdgeAbstract[];
+    protected weightLimit = 20;
 
     constructor(protected plane:Plane) {
         super(plane);
 
 
         this.nodetype = NodeResource;
+        this.bipartiteEdgeType = EdgeResource;
         this.layoutClass = GraphLayoutFdl;
 
         this.plane.setBackgroundColor(GraphVisConfig["afel"].resourcegraph_background);
