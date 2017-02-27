@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# Add right user and server here
+SERVER=XXX.XXX.XXX.XXX
+USER=XXXXXXXXXXXXXXXXX
+
+./pack.sh
+cd packed
+zip -r ../packed.zip *
+cd ../
+rm -rf packed/
+scp -rp packed.zip $USER@$SERVER:gvf-afel-packed.zip
+ssh $USER@$SERVER 'rm -rf /vhosts/gvf/afel/* && unzip -q gvf-afel-packed.zip -d /vhosts/gvf/afel/ && rm gvf-afel-packed.zip'
+rm packed.zip

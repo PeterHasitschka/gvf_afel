@@ -44,7 +44,7 @@ export class AfelApi implements GvfPluginInterface {
 
         GraphVisConfig["afel"] = {
             samelearning_tolerance: 0.95,
-            resourcegraph_background: 0x8888aa
+            resourcegraph_background: '#8888aa'
         }
 
     }
