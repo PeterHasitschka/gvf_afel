@@ -3,7 +3,7 @@ import {GraphVisConfig} from "../gvfcore/components/graphvis/config";
 import {ResourceGraph} from "./graph/graphs/resourcegraph";
 import {LearnerGraph} from "./graph/graphs/learnergraph";
 import {AfelData} from "./afeldata";
-import {GvfApi} from "../gvfcore/api/gvfapi";
+import {PluginApi} from "../gvfcore/api/gvfpluginapi";
 import {INTERGRAPH_EVENTS} from "../gvfcore/services/intergraphevents.service";
 import {LearningCommunityGraph} from "./graph/graphs/learningcommunitygraph";
 import {CommunicationCommunityGraph} from "./graph/graphs/communicationcommunitygraph";
@@ -68,17 +68,17 @@ export class AfelApi implements GvfPluginInterface {
         let toleranceStr = '(tolerance: ' + Math.round((1 - GraphVisConfig["afel"].samelearning_tolerance) * 100) + '%)';
 
         AfelData.getInstance().fetchData().then(() => {
-            GvfApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Resource</strong> ' +
+            PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Resource</strong> ' +
                 'Graph - Connecting resources with same learners ' + toleranceStr, ResourceGraph);
             // GvfApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Resource</strong> ' +
             //     'Graph - <strong>BIPARTITE PROJECTION</strong>', ResourceGraphBPProj);
-            GvfApi.addPlane('<i class="fa fa-user" aria-hidden="true"></i> <strong>Learner</strong> ' +
+            PluginApi.addPlane('<i class="fa fa-user" aria-hidden="true"></i> <strong>Learner</strong> ' +
                 'Graph - Connecting learners who learn the same ' + toleranceStr, LearnerGraph);
             // GvfApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Learner</strong> ' +
             //     'Graph - <strong>BIPARTITE PROJECTION</strong>', LearnerGraphBPProj);
-            GvfApi.addPlane('<i class="fa fa-users" aria-hidden="true"></i> <strong>Learning</strong> Communities',
+            PluginApi.addPlane('<i class="fa fa-users" aria-hidden="true"></i> <strong>Learning</strong> Communities',
                 LearningCommunityGraph);
-            GvfApi.addPlane('<i class="fa fa-users" aria-hidden="true"></i> <strong>Communication</strong> Communities',
+            PluginApi.addPlane('<i class="fa fa-users" aria-hidden="true"></i> <strong>Communication</strong> Communities',
                 CommunicationCommunityGraph);
         });
 
