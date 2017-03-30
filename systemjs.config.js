@@ -8,13 +8,17 @@
         'gvfcore': 'build', // 'dist',
         '@angular': 'node_modules/@angular',
         'angular2-in-memory-web-api': 'node_modules/angular2-in-memory-web-api',
-        'rxjs': 'node_modules/rxjs'
+        'rxjs': 'node_modules/rxjs',
+        'point-in-polygon': 'node_modules/point-in-polygon'
     };
     // packages tells the System loader how to load when no filename and/or no extension
     var packages = {
         'gvfcore': {main: 'main.js', defaultExtension: 'js'},
         'rxjs': {defaultExtension: 'js'},
-        'angular2-in-memory-web-api': {main: 'index.js', defaultExtension: 'js'}
+        'angular2-in-memory-web-api': {main: 'index.js', defaultExtension: 'js'},
+        'point-in-polygon': {
+            main: 'index.js', defaultExtension: 'js'
+        }
     };
     var ngPackageNames = [
         'common',
