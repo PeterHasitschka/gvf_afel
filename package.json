@@ -30,7 +30,8 @@
     "three": "*",
     "zone.js": "^0.6.12",
     "font-awesome": "~4.7.0",
-    "point-in-polygon": "1.0.1"
+    "point-in-polygon": "1.0.1",
+    "node-dijkstra": "2.4.1"
   },
   "devDependencies": {
     "concurrently": "^2.0.0",

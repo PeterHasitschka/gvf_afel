@@ -9,7 +9,8 @@
         '@angular': 'node_modules/@angular',
         'angular2-in-memory-web-api': 'node_modules/angular2-in-memory-web-api',
         'rxjs': 'node_modules/rxjs',
-        'point-in-polygon': 'node_modules/point-in-polygon'
+        'point-in-polygon': 'node_modules/point-in-polygon',
+        'node-dijkstra': 'node_modules/node-dijkstra'
     };
     // packages tells the System loader how to load when no filename and/or no extension
     var packages = {
@@ -18,6 +19,9 @@
         'angular2-in-memory-web-api': {main: 'index.js', defaultExtension: 'js'},
         'point-in-polygon': {
             main: 'index.js', defaultExtension: 'js'
+        },
+        'node-dijkstra': {
+            main: 'libs/Graph.js', defaultExtension: 'js'
         }
     };
     var ngPackageNames = [
