@@ -31,7 +31,10 @@
     "zone.js": "^0.6.12",
     "font-awesome": "~4.7.0",
     "point-in-polygon": "1.0.1",
-    "node-dijkstra": "2.4.1"
+    "node-dijkstra": "2.4.1",
+    "ngraph.graph": "0.0.12",
+    "ngraph.physics.simulator": "0.1.1",
+    "ngraph.forcelayout": "0.1.2"
   },
   "devDependencies": {
     "concurrently": "^2.0.0",

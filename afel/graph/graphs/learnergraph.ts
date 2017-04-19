@@ -16,6 +16,7 @@ import {EdgeLearnersCommunicating} from "./edges/learnercommunicating";
 import {GraphVisConfig} from "../../../gvfcore/components/graphvis/config";
 import {UiService} from "../../../gvfcore/services/ui.service";
 import {GraphAutoCreateAbstract} from "../../../gvfcore/components/graphvis/graphs/graphautocreateabstract";
+import {GraphLayoutFdlQuadtree} from "../../../gvfcore/components/graphvis/graphs/layouts/graphlayoutfdlquadtree";
 
 
 /**
@@ -32,7 +33,7 @@ export class LearnerGraph extends GraphAutoCreateAbstract {
         this.dataGetterMethod = AfelData.getInstance().getLearners.bind(AfelData.getInstance());
 
         this.nodetype = NodeLearner;
-        this.layoutClass = GraphLayoutFdl;
+        this.layoutClass = GraphLayoutFdlQuadtree;
 
         this.addEventListeners();
     }
