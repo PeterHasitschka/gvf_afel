@@ -3,9 +3,13 @@ import {GraphVisConfig} from "../gvfcore/components/graphvis/config";
 import {UiService} from "../gvfcore/services/ui.service";
 import {SideInfoPositions, SideInfoContentType, SideInfoModel} from "../gvfcore/components/app/sideinfo/sideinfomodel";
 import {Plane} from "../gvfcore/components/plane/plane";
-import {CombinedCommunityGraph} from "./graph/graphs/combinedcommunitygraph";
 import {GroupGraphAbstract} from "../gvfcore/components/graphvis/graphs/graphgroupabstract";
 import {AfelDataService} from "./data/afeldata.service";
+import {PluginApi} from "../gvfcore/api/gvfpluginapi";
+import {AfelAutoCompleteGraph} from "./graph/graphs/afelautocomplete";
+import {CombinedCommunityGraph} from "./graph/graphs/combinedcommunitygraph";
+import {AfelAutoResourceGraph} from "./graph/graphs/afelautoresources";
+import {AfelAutoLearnersGraph} from "./graph/graphs/afelautolearners";
 
 
 export class AfelApi implements GvfPluginInterface {
@@ -15,8 +19,8 @@ export class AfelApi implements GvfPluginInterface {
         GraphVisConfig.environment.showleftcol = false;
 
         GraphVisConfig.graphelements['resourcenode'] = {
-            color: 0xffffcc,
-            highlightcolor: 0xff4422
+            color: 0x8888ff,
+            highlightcolor: 0xaaaaff
         };
         GraphVisConfig.graphelements['learnernode'] = {
             color: 0x008800
@@ -39,7 +43,7 @@ export class AfelApi implements GvfPluginInterface {
 
         GraphVisConfig["afel"] = {
             samelearning_tolerance: 0.95,
-            resourcegraph_background: '#8888aa'
+            resourcegraph_background: '#ffffff'
         }
 
     }
@@ -63,25 +67,18 @@ export class AfelApi implements GvfPluginInterface {
         AfelDataService.getInstance().getDataSource().fetchDataFromServer(function(data){
             AfelDataService.getInstance().getDataSource().setData(data);
             console.log("finished fetching data from afel data source");
+
+            PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Complete</strong> ' +
+                'Graph', AfelAutoCompleteGraph, false);
+
+            PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Resources</strong> ' +
+                'Graph', AfelAutoResourceGraph, false);
+
+            PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Learners</strong> ' +
+                'Graph', AfelAutoLearnersGraph, false);
+
+
         }.bind(this));
-
-
-        // let toleranceStr = '(tolerance: ' + Math.round((1 - GraphVisConfig["afel"].samelearning_tolerance) * 100) + '%)';
-        //
-        // AfelData.getInstance().fetchData().then(() => {
-        //     PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Resource</strong> ' +
-        //         'Graph - Connecting resources with same learners ' + toleranceStr, ResourceGraph);
-        //     // GvfApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Resource</strong> ' +
-        //     //     'Graph - <strong>BIPARTITE PROJECTION</strong>', ResourceGraphBPProj);
-        //     PluginApi.addPlane('<i class="fa fa-user" aria-hidden="true"></i> <strong>Learner</strong> ' +
-        //         'Graph - Connecting learners who learn the same ' + toleranceStr, LearnerGraph);
-        //     // GvfApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Learner</strong> ' +
-        //     //     'Graph - <strong>BIPARTITE PROJECTION</strong>', LearnerGraphBPProj);
-        //     PluginApi.addPlane('<i class="fa fa-users" aria-hidden="true"></i> <strong>Learning</strong> Communities',
-        //         LearningCommunityGraph);
-        //     PluginApi.addPlane('<i class="fa fa-users" aria-hidden="true"></i> <strong>Communication</strong> Communities',
-        //         CommunicationCommunityGraph);
-        // });
 
 
         UiService.getInstance().addSideInfoElement(new SideInfoModel(

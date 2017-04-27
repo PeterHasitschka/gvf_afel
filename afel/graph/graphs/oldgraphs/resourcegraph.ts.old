@@ -1,28 +1,28 @@
-import {GraphAbstract} from "../../../gvfcore/components/graphvis/graphs/graphabstract";
-import {Resource} from "../data/resource";
-import {EdgeAbstract} from "../../../gvfcore/components/graphvis/graphs/edges/edgeelementabstract";
-import {Plane} from "../../../gvfcore/components/plane/plane";
+import {GraphAbstract} from "../../../../gvfcore/components/graphvis/graphs/graphabstract";
+import {AfelResourceDataEntity} from "../../data/resource";
+import {EdgeAbstract} from "../../../../gvfcore/components/graphvis/graphs/edges/edgeelementabstract";
+import {Plane} from "../../../../gvfcore/components/plane/plane";
 import {AfelData} from "../../afeldata";
-import {NodeResource} from "./nodes/resource";
-import {GraphLayoutFdl} from "../../../gvfcore/components/graphvis/graphs/layouts/graphlayoutfdl";
-import {InterGraphEventService, INTERGRAPH_EVENTS} from "../../../gvfcore/services/intergraphevents.service";
-import {NodeLearner} from "./nodes/learner";
-import {Learner} from "../data/learner";
-import {UiService} from "../../../gvfcore/services/ui.service";
-import {LearningActivity} from "../data/connections/learningactivity";
-import {GraphVisConfig} from "../../../gvfcore/components/graphvis/config";
+import {NodeResource} from "../nodes/resource";
+import {GraphLayoutFdl} from "../../../../gvfcore/components/graphvis/graphs/layouts/graphlayoutfdl";
+import {InterGraphEventService, INTERGRAPH_EVENTS} from "../../../../gvfcore/services/intergraphevents.service";
+import {NodeLearner} from "../nodes/learner";
+import {AfelLearnerDataEntity} from "../../data/learner";
+import {UiService} from "../../../../gvfcore/services/ui.service";
+import {LearningActivity} from "../../data/connections/learningactivity";
+import {GraphVisConfig} from "../../../../gvfcore/components/graphvis/config";
 import {EdgeResource} from "./edges/resource";
-import {GvfCoreModule} from "../../../gvfcore/gvfcore.module";
-import {GraphAutoCreateAbstract} from "../../../gvfcore/components/graphvis/graphs/graphautocreateabstract";
+import {GvfCoreModule} from "../../../../gvfcore/gvfcore.module";
+import {GraphAutoCreateAbstract} from "../../../../gvfcore/components/graphvis/graphs/graphautocreateabstract";
 
 /**
  * The resource graph shows relations between Learning-Resources
- * Thus its Data consists of @see{Resource} data objects.
+ * Thus its Data consists of @see{AfelResourceDataEntity} data objects.
  * @author Peter Hasitschka
  */
 export class ResourceGraph extends GraphAutoCreateAbstract {
 
-    protected data:Resource[];
+    protected data:AfelResourceDataEntity[];
     protected edges:EdgeAbstract[];
 
     constructor(protected plane:Plane) {
@@ -48,8 +48,8 @@ export class ResourceGraph extends GraphAutoCreateAbstract {
             if (node.name !== NodeLearner.IDENTIFIER)
                 return;
 
-            let affectedResources:Resource[] = Resource.getResourcesByLearner(<Learner>node.getDataEntity());
-            affectedResources.forEach((r:Resource) => {
+            let affectedResources:AfelResourceDataEntity[] = AfelResourceDataEntity.getResourcesByLearner(<AfelLearnerDataEntity>node.getDataEntity());
+            affectedResources.forEach((r:AfelResourceDataEntity) => {
                 let affectedResourceNodes = this.getNodeByDataEntity(r);
                 affectedResourceNodes.forEach((n:NodeResource) => {
                     n.highlight();
@@ -108,7 +108,7 @@ export class ResourceGraph extends GraphAutoCreateAbstract {
         let tolerance = GraphVisConfig['afel'].samelearning_tolerance;
 
         // Store simple Ids of each res's learners first for faster calculation
-        Resource.getDataList().forEach((res:Resource) => {
+        AfelResourceDataEntity.getDataList().forEach((res:AfelResourceDataEntity) => {
             let resLearnerIds = [];
             res.getLearningActivities().forEach((la:LearningActivity)=> {
                 resLearnerIds.push(la.getLearner().getId());

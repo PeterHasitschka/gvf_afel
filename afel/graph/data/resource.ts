@@ -1,63 +1,47 @@
-import {Learner} from "./learner";
+import {AfelLearnerDataEntity} from "./learner";
 import {Activity} from "./connections/activity";
 import {DataAbstract} from "../../../gvfcore/components/graphvis/data/dataabstract";
 import {BasicEntity} from "../../../gvfcore/components/graphvis/data/databasicentity";
 import {LearningActivity} from "./connections/learningactivity";
 
 /**
- * Resource Data object
- * Holding data of a single Learning-Resource
+ * AfelResourceDataEntity Data object
+ * Holding data of a single Learning-AfelResourceDataEntity
  * @author Peter Hasitschka
  */
-export class Resource extends BasicEntity {
+export class AfelResourceDataEntity extends BasicEntity {
 
-    protected static dataList:Resource[] = [];
-
-    private learningActivities:LearningActivity[] = [];
+    protected static dataList:AfelResourceDataEntity[] = [];
     /**
-     * Resource constructor
+     * AfelResourceDataEntity constructor
      * @param data Holds an ID, and at least a 'title' property by current definition
      */
-    constructor(id:number, protected data:Object) {
+    constructor(data:Object) {
+        let id = AfelResourceDataEntity.dataList.length;
         super(id, data);
-        Resource.dataList.push(this);
+        AfelResourceDataEntity.dataList.push(this);
     }
 
 
     /**
      * Static function to get all resources that have a specific learner
-     * @param learner {Learner}
-     * @returns {Resource[]}
+     * @param learner {AfelLearnerDataEntity}
+     * @returns {AfelResourceDataEntity[]}
      */
-    public static getResourcesByLearner(learner:Learner):Resource[] {
-
-        let outList:Resource[] = [];
+    public static getResourcesByLearner(learner:AfelLearnerDataEntity):AfelResourceDataEntity[] {
+        let outList:AfelResourceDataEntity[] = [];
         LearningActivity.getDataList().forEach((activity:LearningActivity) => {
-
             if (activity.getLearner().getId() === learner.getId())
                 outList.push(activity.getResource());
         });
-
         return outList;
     }
 
-
-
-    public getLearningActivities(){
-        return this.learningActivities;
-    }
-
-    public addLearningActivity(activity:LearningActivity){
-        this.learningActivities.push(activity);
-    }
-
-
-
     /**
      * Get all resources
-     * @returns {Resource[]}
+     * @returns {AfelResourceDataEntity[]}
      */
-    public static getDataList():Resource[] {
-        return Resource.dataList;
+    public static getDataList():AfelResourceDataEntity[] {
+        return AfelResourceDataEntity.dataList;
     }
 }

@@ -3,7 +3,7 @@ import {BasicEntity} from "../../../../gvfcore/components/graphvis/data/databasi
 
 /**
  * Activity Data object
- * Holding data of a single Activity that relates to at least a Learner
+ * Holding data of a single Activity that relates to at least a AfelLearnerDataEntity
  * @author Peter Hasitschka
  */
 export class Activity extends BasicConnection {

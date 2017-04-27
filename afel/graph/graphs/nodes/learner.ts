@@ -1,16 +1,16 @@
 import {NodeSimple} from "../../../../gvfcore/components/graphvis/graphs/nodes/nodelementsimple";
 import {Plane} from "../../../../gvfcore/components/plane/plane";
 import {GraphVisConfig} from "../../../../gvfcore/components/graphvis/config";
-import {Learner} from "../../data/learner";
+import {AfelLearnerDataEntity} from "../../data/learner";
 /**
- * A Learner node, derived from @see{NodeSimple}
+ * A AfelLearnerDataEntity node, derived from @see{NodeSimple}
  * @author Peter Hasitschka
  */
 export class NodeLearner extends NodeSimple {
 
-    public static IDENTIFIER = "Node Learner";
+    public static IDENTIFIER = "Node AfelLearnerDataEntity";
 
-    constructor(x:number, y:number, protected dataEntity:Learner, plane:Plane, options:Object) {
+    constructor(x:number, y:number, protected dataEntity:AfelLearnerDataEntity, plane:Plane, options:Object) {
         super(x, y, dataEntity, plane, options);
 
         this.color = GraphVisConfig.graphelements['learnernode'].color;

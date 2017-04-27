@@ -1,5 +1,8 @@
 import {AfelDataSourceInterace} from "../datasource_interface";
 import {DataService} from "../../../gvfcore/services/data.service";
+import {AfelResourceDataEntity} from "../../graph/data/resource";
+import {AfelLearnerDataEntity} from "../../graph/data/learner";
+import {LearningActivity} from "../../graph/data/connections/learningactivity";
 export class AfelDataSourceSolr implements AfelDataSourceInterace {
 
 
@@ -8,7 +11,7 @@ export class AfelDataSourceSolr implements AfelDataSourceInterace {
     private urlResources = "resources/";
     private maxDate:Date;
     private rangeMs = 365 * 24 * 60 * 60 * 1000;
-    private maxReviews = 500;
+    private maxReviews = 1000;
     private http;
 
     constructor(private dataContainer) {
@@ -35,16 +38,45 @@ export class AfelDataSourceSolr implements AfelDataSourceInterace {
     }
 
 
-    public getLoadedData() {
-        return null;
-    }
-
     public setData(data) {
+
+        let resourceMapping = {};
+        let learnerMapping = {};
 
         for (var i = 0; i < data.length; i++) {
             let visit = data[i];
-            console.log(visit.resourceId, visit.user);
+
+            let resource:AfelResourceDataEntity;
+            if (typeof resourceMapping[visit.resourceId] === "undefined") {
+                resource = new AfelResourceDataEntity({hash: visit.resourceId});
+                resourceMapping[visit.resourceId] = resource;
+            }
+            else {
+                resource = resourceMapping[visit.resourceId];
+            }
+
+            let learner:AfelLearnerDataEntity;
+            if (typeof learnerMapping[visit.user] === "undefined") {
+                learner = new AfelLearnerDataEntity({hash: visit.user});
+                learnerMapping[visit.user] = learner;
+            }
+            else {
+                learner = learnerMapping[visit.user];
+            }
+
+            let learningActivity = new LearningActivity(learner, resource, visit);
+            learner.addConnection(learningActivity);
+            resource.addConnection(learningActivity);
+
         }
+
+        console.log(AfelResourceDataEntity.getDataList());
+        console.log(AfelLearnerDataEntity.getDataList());
+    }
+
+
+    public getLoadedData() {
+        return null;
     }
 
     private getApiUrlReviews() {

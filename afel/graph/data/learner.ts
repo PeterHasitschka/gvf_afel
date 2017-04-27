@@ -1,4 +1,4 @@
-import {Resource} from "./resource";
+import {AfelResourceDataEntity} from "./resource";
 import {Activity} from "./connections/activity";
 import {DataAbstract} from "../../../gvfcore/components/graphvis/data/dataabstract";
 import {BasicEntity} from "../../../gvfcore/components/graphvis/data/databasicentity";
@@ -6,34 +6,32 @@ import {LearningActivity} from "./connections/learningactivity";
 import {CommunicationActivity} from "./connections/communicationactivity";
 
 /**
- * Learner Data object
- * Holding data of a single Learner
+ * AfelLearnerDataEntity Data object
+ * Holding data of a single AfelLearnerDataEntity
  * @author Peter Hasitschka
  */
-export class Learner extends BasicEntity {
+export class AfelLearnerDataEntity extends BasicEntity {
 
-    protected static dataList:Learner[] = [];
-
-    private learningActivities:LearningActivity[] = [];
-    private communicationActivities:CommunicationActivity[] = [];
+    protected static dataList:AfelLearnerDataEntity[] = [];
 
     /**
-     * Learner constructor
+     * AfelLearnerDataEntity constructor
      * @param data Holds an id and at least a 'name' property by current definition
      */
-    constructor(id:number, protected data:Object) {
+    constructor(data:Object) {
+        let id = AfelLearnerDataEntity.dataList.length;
         super(id, data);
-        Learner.dataList.push(this);
+        AfelLearnerDataEntity.dataList.push(this);
     }
 
     /**
      * Static method to get all learners that share a specific resource
-     * @param resource {Resource}
-     * @returns {Learner[]}
+     * @param resource {AfelResourceDataEntity}
+     * @returns {AfelLearnerDataEntity[]}
      */
-    public static getLearnersByResource(resource:Resource):Learner[] {
+    public static getLearnersByResource(resource:AfelResourceDataEntity):AfelLearnerDataEntity[] {
 
-        let outList:Learner[] = [];
+        let outList:AfelLearnerDataEntity[] = [];
         LearningActivity.getDataList().forEach((activity:LearningActivity) => {
             if (activity.getResource().getId() === resource.getId())
                 outList.push(activity.getLearner());
@@ -42,28 +40,11 @@ export class Learner extends BasicEntity {
         return outList;
     }
 
-    public getCommunicationActivities(){
-        return this.communicationActivities;
-    }
-
-    public addCommunicationActivity(activity:CommunicationActivity){
-        this.communicationActivities.push(activity);
-    }
-
-    public getLearningActivities(){
-        return this.learningActivities;
-    }
-
-    public addLearningActivity(activity:LearningActivity){
-        this.learningActivities.push(activity);
-    }
-
-
     /**
      * Get all Learners
-     * @returns {Learner[]}
+     * @returns {AfelLearnerDataEntity[]}
      */
-    public static getDataList():Learner[] {
-        return Learner.dataList;
+    public static getDataList():AfelLearnerDataEntity[] {
+        return AfelLearnerDataEntity.dataList;
     }
 }

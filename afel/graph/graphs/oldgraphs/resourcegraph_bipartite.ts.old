@@ -1,30 +1,30 @@
-import {GraphAbstract} from "../../../gvfcore/components/graphvis/graphs/graphabstract";
-import {Resource} from "../data/resource";
-import {EdgeAbstract} from "../../../gvfcore/components/graphvis/graphs/edges/edgeelementabstract";
-import {Plane} from "../../../gvfcore/components/plane/plane";
+import {GraphAbstract} from "../../../../gvfcore/components/graphvis/graphs/graphabstract";
+import {AfelResourceDataEntity} from "../../data/resource";
+import {EdgeAbstract} from "../../../../gvfcore/components/graphvis/graphs/edges/edgeelementabstract";
+import {Plane} from "../../../../gvfcore/components/plane/plane";
 import {AfelData} from "../../afeldata";
-import {NodeResource} from "./nodes/resource";
-import {GraphLayoutFdl} from "../../../gvfcore/components/graphvis/graphs/layouts/graphlayoutfdl";
-import {InterGraphEventService, INTERGRAPH_EVENTS} from "../../../gvfcore/services/intergraphevents.service";
-import {NodeLearner} from "./nodes/learner";
-import {Learner} from "../data/learner";
-import {UiService} from "../../../gvfcore/services/ui.service";
-import {LearningActivity} from "../data/connections/learningactivity";
-import {GraphVisConfig} from "../../../gvfcore/components/graphvis/config";
+import {NodeResource} from "../nodes/resource";
+import {GraphLayoutFdl} from "../../../../gvfcore/components/graphvis/graphs/layouts/graphlayoutfdl";
+import {InterGraphEventService, INTERGRAPH_EVENTS} from "../../../../gvfcore/services/intergraphevents.service";
+import {NodeLearner} from "../nodes/learner";
+import {AfelLearnerDataEntity} from "../../data/learner";
+import {UiService} from "../../../../gvfcore/services/ui.service";
+import {LearningActivity} from "../../data/connections/learningactivity";
+import {GraphVisConfig} from "../../../../gvfcore/components/graphvis/config";
 import {EdgeResource} from "./edges/resource";
-import {GvfCoreModule} from "../../../gvfcore/gvfcore.module";
-import {GraphAutoCreateAbstract} from "../../../gvfcore/components/graphvis/graphs/graphautocreateabstract";
-import {GraphBipartiteProjectionAbstract} from "../../../gvfcore/components/graphvis/graphs/graphbipartiteprojectionabstract";
-import {Activity} from "../data/connections/activity";
+import {GvfCoreModule} from "../../../../gvfcore/gvfcore.module";
+import {GraphAutoCreateAbstract} from "../../../../gvfcore/components/graphvis/graphs/graphautocreateabstract";
+import {GraphBipartiteProjectionAbstract} from "../../../../gvfcore/components/graphvis/graphs/graphbipartiteprojectionabstract";
+import {Activity} from "../../data/connections/activity";
 
 /**
  * The resource graph shows relations between Learning-Resources
- * Thus its Data consists of @see{Resource} data objects.
+ * Thus its Data consists of @see{AfelResourceDataEntity} data objects.
  * @author Peter Hasitschka
  */
 export class ResourceGraphBPProj extends GraphBipartiteProjectionAbstract {
 
-    protected data:Resource[];
+    protected data:AfelResourceDataEntity[];
     protected edges:EdgeAbstract[];
     protected weightLimit = 20;
 
@@ -39,11 +39,11 @@ export class ResourceGraphBPProj extends GraphBipartiteProjectionAbstract {
         this.plane.setBackgroundColor(GraphVisConfig["afel"].resourcegraph_background);
     }
 
-    protected getPrimaryData():Resource[] {
+    protected getPrimaryData():AfelResourceDataEntity[] {
         return AfelData.getInstance().getResources();
     }
 
-    protected getSecondaryData():Learner[] {
+    protected getSecondaryData():AfelLearnerDataEntity[] {
         return AfelData.getInstance().getLearners();
     }
 
@@ -68,8 +68,8 @@ export class ResourceGraphBPProj extends GraphBipartiteProjectionAbstract {
             if (node.name !== NodeLearner.IDENTIFIER)
                 return;
 
-            let affectedResources:Resource[] = Resource.getResourcesByLearner(<Learner>node.getDataEntity());
-            affectedResources.forEach((r:Resource) => {
+            let affectedResources:AfelResourceDataEntity[] = AfelResourceDataEntity.getResourcesByLearner(<AfelLearnerDataEntity>node.getDataEntity());
+            affectedResources.forEach((r:AfelResourceDataEntity) => {
                 let affectedResourceNodes = this.getNodeByDataEntity(r);
                 affectedResourceNodes.forEach((n:NodeResource) => {
                     n.highlight();

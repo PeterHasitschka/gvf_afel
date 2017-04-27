@@ -1,11 +1,11 @@
 import {Activity} from "./activity";
-import {Learner} from "../learner";
-import {Resource} from "../resource";
+import {AfelLearnerDataEntity} from "../learner";
+import {AfelResourceDataEntity} from "../resource";
 export class CommunicationActivity extends Activity {
 
     protected static dataList:CommunicationActivity[] = [];
 
-    constructor(id:number, learner1:Learner, learner2:Learner, data:Object) {
+    constructor(id:number, learner1:AfelLearnerDataEntity, learner2:AfelLearnerDataEntity, data:Object) {
 
         super(id, learner1, learner2, data);
 

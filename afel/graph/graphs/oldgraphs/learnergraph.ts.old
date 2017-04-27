@@ -1,27 +1,27 @@
 import log1p = require("core-js/fn/math/log1p");
-import {GraphAbstract} from "../../../gvfcore/components/graphvis/graphs/graphabstract";
-import {Plane} from "../../../gvfcore/components/plane/plane";
-import {NodeLearner} from "./nodes/learner";
-import {GraphLayoutFdl} from "../../../gvfcore/components/graphvis/graphs/layouts/graphlayoutfdl";
-import {InterGraphEventService, INTERGRAPH_EVENTS} from "../../../gvfcore/services/intergraphevents.service";
-import {NodeResource} from "./nodes/resource";
-import {EdgeAbstract} from "../../../gvfcore/components/graphvis/graphs/edges/edgeelementabstract";
-import {Learner} from "../data/learner";
-import {Resource} from "../data/resource";
+import {GraphAbstract} from "../../../../gvfcore/components/graphvis/graphs/graphabstract";
+import {Plane} from "../../../../gvfcore/components/plane/plane";
+import {NodeLearner} from "../nodes/learner";
+import {GraphLayoutFdl} from "../../../../gvfcore/components/graphvis/graphs/layouts/graphlayoutfdl";
+import {InterGraphEventService, INTERGRAPH_EVENTS} from "../../../../gvfcore/services/intergraphevents.service";
+import {NodeResource} from "../nodes/resource";
+import {EdgeAbstract} from "../../../../gvfcore/components/graphvis/graphs/edges/edgeelementabstract";
+import {AfelLearnerDataEntity} from "../../data/learner";
+import {AfelResourceDataEntity} from "../../data/resource";
 import {AfelData} from "../../afeldata";
-import {LearningActivity} from "../data/connections/learningactivity";
-import {CommunicationActivity} from "../data/connections/communicationactivity";
-import {EdgeLearnersLearning} from "./edges/learnerlearning";
-import {EdgeLearnersCommunicating} from "./edges/learnercommunicating";
-import {GraphVisConfig} from "../../../gvfcore/components/graphvis/config";
-import {UiService} from "../../../gvfcore/services/ui.service";
-import {GraphAutoCreateAbstract} from "../../../gvfcore/components/graphvis/graphs/graphautocreateabstract";
-import {GraphLayoutFdlQuadtree} from "../../../gvfcore/components/graphvis/graphs/layouts/graphlayoutfdlquadtree";
+import {LearningActivity} from "../../data/connections/learningactivity";
+import {CommunicationActivity} from "../../data/connections/communicationactivity";
+import {EdgeLearnersLearning} from "../edges/learnerlearning";
+import {EdgeLearnersCommunicating} from "../edges/learnercommunicating";
+import {GraphVisConfig} from "../../../../gvfcore/components/graphvis/config";
+import {UiService} from "../../../../gvfcore/services/ui.service";
+import {GraphAutoCreateAbstract} from "../../../../gvfcore/components/graphvis/graphs/graphautocreateabstract";
+import {GraphLayoutFdlQuadtree} from "../../../../gvfcore/components/graphvis/graphs/layouts/graphlayoutfdlquadtree";
 
 
 /**
  * The resource graph shows relations between Learning-Resources
- * Thus its Data consists of @see{Resource} data objects.
+ * Thus its Data consists of @see{AfelResourceDataEntity} data objects.
  * @author Peter Hasitschka
  */
 export class LearnerGraph extends GraphAutoCreateAbstract {
@@ -50,8 +50,8 @@ export class LearnerGraph extends GraphAutoCreateAbstract {
             if (node.name !== NodeResource.IDENTIFIER)
                 return;
 
-            let affectedLearners:Learner[] = Learner.getLearnersByResource(<Resource>node.getDataEntity());
-            affectedLearners.forEach((l:Learner) => {
+            let affectedLearners:AfelLearnerDataEntity[] = AfelLearnerDataEntity.getLearnersByResource(<AfelResourceDataEntity>node.getDataEntity());
+            affectedLearners.forEach((l:AfelLearnerDataEntity) => {
                 let affectedLearnerNodes = this.getNodeByDataEntity(l);
 
                 affectedLearnerNodes.forEach((n:NodeLearner) => {
@@ -148,7 +148,7 @@ export class LearnerGraph extends GraphAutoCreateAbstract {
         let tolerance = GraphVisConfig['afel'].samelearning_tolerance;
 
         // Store simple Ids of each learner's resources first for faster calculation
-        Learner.getDataList().forEach((learner:Learner) => {
+        AfelLearnerDataEntity.getDataList().forEach((learner:AfelLearnerDataEntity) => {
             let learnersResourceids = [];
             learner.getLearningActivities().forEach((la:LearningActivity)=> {
                 learnersResourceids.push(la.getResource().getId());
@@ -164,7 +164,7 @@ export class LearnerGraph extends GraphAutoCreateAbstract {
             if (!rs.length)
                 return;
 
-            // Iterate through all Resource Ids of every other learner and compare
+            // Iterate through all AfelResourceDataEntity Ids of every other learner and compare
             resourceIdsOfLearners.forEach((otherLearnersResources) => {
                 let otherLearner = otherLearnersResources.l;
                 let otherRs = otherLearnersResources.r;

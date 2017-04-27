@@ -1,11 +1,11 @@
 import {Community} from "./community";
-import {Learner} from "../learner";
+import {AfelLearnerDataEntity} from "../learner";
 export class CommunicationCommunity extends Community {
 
     protected static dataList:CommunicationCommunity[] = [];
-    //protected entities:Learner[] = [];
+    //protected entities:AfelLearnerDataEntity[] = [];
 
-    constructor(id:number, learner:Learner[], data:Object) {
+    constructor(id:number, learner:AfelLearnerDataEntity[], data:Object) {
         super(id, learner, data);
         CommunicationCommunity.dataList.push(this);
     }
@@ -14,7 +14,7 @@ export class CommunicationCommunity extends Community {
         return CommunicationCommunity.dataList;
     }
 
-    public getEntities():Learner[] {
-        return <Learner[]>this.entities
+    public getEntities():AfelLearnerDataEntity[] {
+        return <AfelLearnerDataEntity[]>this.entities
     }
 }

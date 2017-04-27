@@ -1,12 +1,11 @@
+
+
+import {GroupGraphAbstract} from "../../../gvfcore/components/graphvis/graphs/graphgroupabstract";
 import {CommunityElementAbstract} from "./communities/communityelementabstract";
 import {Plane} from "../../../gvfcore/components/plane/plane";
-import {GraphLayoutFdl} from "../../../gvfcore/components/graphvis/graphs/layouts/graphlayoutfdl";
-import {GroupGraphAbstract} from "../../../gvfcore/components/graphvis/graphs/graphgroupabstract";
-
-
 /**
  * Basic graph
- * Thus its Data consists of @see{Resource} data objects.
+ * Thus its Data consists of @see{AfelResourceDataEntity} data objects.
  * @author Peter Hasitschka
  */
 export abstract class CommunityGraphAbstract extends GroupGraphAbstract {
@@ -26,3 +25,14 @@ export abstract class CommunityGraphAbstract extends GroupGraphAbstract {
 
 
 }
+
+
+
+
+
+
+
+
+
+
+

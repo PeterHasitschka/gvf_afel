@@ -1,8 +1,9 @@
-import {CommunityElementAbstract} from "./communities/communityelementabstract";
-import {Plane} from "../../../gvfcore/components/plane/plane";
+
+
+
 import {GroupCombinedGraphAbstract} from "../../../gvfcore/components/graphvis/graphs/graphgroupcombinedabstract";
-
-
+import {Plane} from "../../../gvfcore/components/plane/plane";
+import {CommunityElementAbstract} from "./communities/communityelementabstract";
 /**
  * Learning community graph
  * @author Peter Hasitschka

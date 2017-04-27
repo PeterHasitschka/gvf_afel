@@ -3,8 +3,8 @@ import {Http} from '@angular/http';
 
 import 'rxjs/add/operator/map'
 import 'rxjs/add/operator/toPromise'
-import {Learner} from "./graph/data/learner";
-import {Resource} from "./graph/data/resource";
+import {AfelLearnerDataEntity} from "./graph/data/learner";
+import {AfelResourceDataEntity} from "./graph/data/resource";
 import {Activity} from "./graph/data/activity";
 import {DataService} from "../gvfcore/services/data.service";
 import {LearningActivity} from "./graph/data/learningactivity";
@@ -137,7 +137,7 @@ export class AfelData {
 
                 if (typeof communityEntities[cId] === "undefined")
                     communityEntities[cId] = [];
-                let lEntity = Learner.getObject(parseInt(lId));
+                let lEntity = AfelLearnerDataEntity.getObject(parseInt(lId));
                 communityEntities[cId].push(lEntity);
             }
 
@@ -162,7 +162,7 @@ export class AfelData {
      * Return the (stored) learners
      * @returns {Array}
      */
-    getLearners():Learner[] {
+    getLearners():AfelLearnerDataEntity[] {
         return this.data.learners;
     }
 
@@ -170,7 +170,7 @@ export class AfelData {
      * Return the (stored) resources
      * @returns {Array}
      */
-    getResources():Resource[] {
+    getResources():AfelResourceDataEntity[] {
         return this.data.resources;
     }
 

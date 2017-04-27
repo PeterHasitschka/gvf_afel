@@ -1,29 +1,32 @@
 import {Activity} from "./activity";
-import {Learner} from "../learner";
-import {Resource} from "../resource";
+import {AfelLearnerDataEntity} from "../learner";
+import {AfelResourceDataEntity} from "../resource";
 export class LearningActivity extends Activity {
 
     protected static dataList:LearningActivity[] = [];
+    protected learner:AfelLearnerDataEntity;
+    protected resource:AfelResourceDataEntity;
 
-    constructor(id:number, protected learner:Learner, protected resource:Resource, data:Object) {
-
+    constructor(learner:AfelLearnerDataEntity, resource:AfelResourceDataEntity, data:Object) {
+        let id = LearningActivity.dataList.length;
         super(id, learner, resource, data);
-
+        this.learner = learner;
+        this.resource = resource
         this.type = Activity.TYPE_LEARNING;
 
         LearningActivity.dataList.push(this);
     }
 
 
-    public static getDataList(){
+    public static getDataList() {
         return LearningActivity.dataList;
     }
 
-    public getLearner():Learner {
+    public getLearner():AfelLearnerDataEntity {
         return this.learner;
     }
 
-    public getResource():Resource {
+    public getResource():AfelResourceDataEntity {
         return this.resource;
     }
 }
