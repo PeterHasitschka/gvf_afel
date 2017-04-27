@@ -10,9 +10,13 @@ import {EdgeResourceLearner} from "./edges/resourcelearner";
 import {EdgeResourceResource} from "./edges/resourceresource";
 import {BasicConnection} from "../../../gvfcore/components/graphvis/data/databasicconnection";
 import {EdgeAbstract} from "../../../gvfcore/components/graphvis/graphs/edges/edgeelementabstract";
+import {NodeAbstract} from "../../../gvfcore/components/graphvis/graphs/nodes/nodeelementabstract";
+import {BasicEntity} from "../../../gvfcore/components/graphvis/data/databasicentity";
 
 
 export class AfelAutoResourceGraph extends AutoGraph {
+
+
 
     protected mappingStructure = {
         nodes: [
@@ -23,9 +27,9 @@ export class AfelAutoResourceGraph extends AutoGraph {
         ],
         edges: [
             {
-                type: AUTOGRAPH_EDGETYPES.BY_FUNCTION,
-                fct: this.getResourceNodesBybySameLearnersResource.bind(this),
+                type: AUTOGRAPH_EDGETYPES.BY_ONE_HOP,
                 sourceNodeType: NodeResource,
+                hopDataEntityType: AfelLearnerDataEntity,
                 edge: EdgeResourceResource
             }
         ]
@@ -38,34 +42,9 @@ export class AfelAutoResourceGraph extends AutoGraph {
 
     public init() {
         super.init();
+        console.log(this.edgesCreatedForSameNodeTypePairs);
     }
 
 
-    protected getResourceNodesBybySameLearnersResource(resNode:NodeResource) {
-        let resNodes:NodeResource[] = [];
-        resNode.getDataEntity().getConnections().forEach((cr:BasicConnection) => {
-            if (cr.constructor !== LearningActivity)
-                return;
 
-            (<LearningActivity>cr).getLearner().getConnections().forEach((cl:BasicConnection) => {
-                if (cl.constructor !== LearningActivity)
-                    return;
-                let connectedRes = (<LearningActivity>cl).getResource();
-
-                if (connectedRes.getId() === resNode.getDataEntity().getId())
-                    return;
-
-                connectedRes.getRegisteredGraphElements().forEach((n:NodeResource) => {
-                    if (n.getPlane().getId() !== this.plane.getId())
-                        return;
-
-                    if (cl.getAlreadyPaintedFlag(this.plane.getId()))
-                        return;
-                    cl.setAlreadyPaintedFlag(this.plane.getId());
-                    resNodes.push(n);
-                });
-            })
-        });
-        return resNodes;
-    }
 }

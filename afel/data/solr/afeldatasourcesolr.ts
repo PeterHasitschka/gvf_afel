@@ -11,7 +11,7 @@ export class AfelDataSourceSolr implements AfelDataSourceInterace {
     private urlResources = "resources/";
     private maxDate:Date;
     private rangeMs = 365 * 24 * 60 * 60 * 1000;
-    private maxReviews = 1000;
+    private maxReviews = 100;
     private http;
 
     constructor(private dataContainer) {

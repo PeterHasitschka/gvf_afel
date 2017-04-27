@@ -24,9 +24,9 @@ export class AfelAutoLearnersGraph extends AutoGraph {
         ],
         edges: [
             {
-                type: AUTOGRAPH_EDGETYPES.BY_FUNCTION,
-                fct: this.getLearnerNodesBybySameResourceLearner.bind(this),
+                type: AUTOGRAPH_EDGETYPES.BY_ONE_HOP,
                 sourceNodeType: NodeLearner,
+                hopDataEntityType: AfelResourceDataEntity,
                 edge: EdgeLearnerLearner
             }
         ]
@@ -39,34 +39,5 @@ export class AfelAutoLearnersGraph extends AutoGraph {
 
     public init() {
         super.init();
-    }
-
-
-    protected getLearnerNodesBybySameResourceLearner(learnerNode:NodeLearner) {
-        let learnerNodes:NodeLearner[] = [];
-        learnerNode.getDataEntity().getConnections().forEach((firstConnection:BasicConnection) => {
-            if (firstConnection.constructor !== LearningActivity)
-                return;
-
-            (<LearningActivity>firstConnection).getResource().getConnections().forEach((secondConnection:BasicConnection) => {
-                if (secondConnection.constructor !== LearningActivity)
-                    return;
-                let connectedLearner = (<LearningActivity>secondConnection).getLearner();
-
-                if (connectedLearner.getId() === learnerNode.getDataEntity().getId())
-                    return;
-
-                connectedLearner.getRegisteredGraphElements().forEach((n:NodeLearner) => {
-                    if (n.getPlane().getId() !== this.plane.getId())
-                        return;
-
-                    if (secondConnection.getAlreadyPaintedFlag(this.plane.getId()))
-                        return;
-                    secondConnection.setAlreadyPaintedFlag(this.plane.getId());
-                    learnerNodes.push(n);
-                });
-            })
-        });
-        return learnerNodes;
     }
 }
