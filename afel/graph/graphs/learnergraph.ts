@@ -9,8 +9,8 @@ import {EdgeAbstract} from "../../../gvfcore/components/graphvis/graphs/edges/ed
 import {Learner} from "../data/learner";
 import {Resource} from "../data/resource";
 import {AfelData} from "../../afeldata";
-import {LearningActivity} from "../data/learningactivity";
-import {CommunicationActivity} from "../data/communicationactivity";
+import {LearningActivity} from "../data/connections/learningactivity";
+import {CommunicationActivity} from "../data/connections/communicationactivity";
 import {EdgeLearnersLearning} from "./edges/learnerlearning";
 import {EdgeLearnersCommunicating} from "./edges/learnercommunicating";
 import {GraphVisConfig} from "../../../gvfcore/components/graphvis/config";

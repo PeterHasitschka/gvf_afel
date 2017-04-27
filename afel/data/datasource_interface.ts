@@ -1,3 +1,5 @@
 export interface AfelDataSourceInterace {
-    fetchDataFromServer()
+    fetchDataFromServer(cb)
+    getLoadedData()
+    setData(data)
 }

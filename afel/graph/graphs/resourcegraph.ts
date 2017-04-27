@@ -9,7 +9,7 @@ import {InterGraphEventService, INTERGRAPH_EVENTS} from "../../../gvfcore/servic
 import {NodeLearner} from "./nodes/learner";
 import {Learner} from "../data/learner";
 import {UiService} from "../../../gvfcore/services/ui.service";
-import {LearningActivity} from "../data/learningactivity";
+import {LearningActivity} from "../data/connections/learningactivity";
 import {GraphVisConfig} from "../../../gvfcore/components/graphvis/config";
 import {EdgeResource} from "./edges/resource";
 import {GvfCoreModule} from "../../../gvfcore/gvfcore.module";

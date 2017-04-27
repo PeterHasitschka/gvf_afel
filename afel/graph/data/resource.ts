@@ -1,8 +1,8 @@
 import {Learner} from "./learner";
-import {Activity} from "./activity";
+import {Activity} from "./connections/activity";
 import {DataAbstract} from "../../../gvfcore/components/graphvis/data/dataabstract";
 import {BasicEntity} from "../../../gvfcore/components/graphvis/data/databasicentity";
-import {LearningActivity} from "./learningactivity";
+import {LearningActivity} from "./connections/learningactivity";
 
 /**
  * Resource Data object
