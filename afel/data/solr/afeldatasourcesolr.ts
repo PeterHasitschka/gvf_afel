@@ -11,7 +11,7 @@ export class AfelDataSourceSolr implements AfelDataSourceInterace {
     private urlResources = "resources/";
     private maxDate:Date;
     private rangeMs = 365 * 24 * 60 * 60 * 1000;
-    private maxReviews = 100;
+    private maxReviews = 200;
     private http;
 
     constructor(private dataContainer) {
@@ -34,6 +34,10 @@ export class AfelDataSourceSolr implements AfelDataSourceInterace {
             .then((r) => {
                 if (cb)
                     cb(r.response.docs);
+            }, (r) =>{
+                alert("Error calling SolR Server. Currently you need to have a Plugin installed " +
+                    "which overrides the Allow-Control-Allow-Origin Header of the resonse. " +
+                    "When using Chrome, search for the 'Allow-Control-Allow-Origin: *' extension");
             });
     }
 

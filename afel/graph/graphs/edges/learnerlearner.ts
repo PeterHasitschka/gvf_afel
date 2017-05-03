@@ -4,7 +4,7 @@ import {NodeLearner} from "../nodes/learner";
 import {NodeResource} from "../nodes/resource";
 export class EdgeLearnerLearner extends EdgeColored {
 
-    protected static color = 0xcccccc;
+    protected static color = 0x555555;
     protected static opacity = 0.3;
 
     constructor(l1:NodeLearner, l2:NodeLearner, plane:Plane) {
