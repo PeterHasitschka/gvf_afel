@@ -12,6 +12,8 @@ import {EdgeResourceLearner} from "./edges/resourcelearner";
 
 export class AfelAutoCompleteGraph extends AutoGraph {
 
+    protected applyWeights = true;
+    protected thinOut = false;
 
     protected mappingStructure = {
         nodes: [

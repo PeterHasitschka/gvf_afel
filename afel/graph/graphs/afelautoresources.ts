@@ -16,6 +16,8 @@ import {BasicEntity} from "../../../gvfcore/components/graphvis/data/databasicen
 
 export class AfelAutoResourceGraph extends AutoGraph {
 
+    protected applyWeights = true;
+    protected thinOut = false;
 
 
     protected mappingStructure = {

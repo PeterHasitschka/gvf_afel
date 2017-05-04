@@ -15,6 +15,10 @@ import {EdgeLearnerLearner} from "./edges/learnerlearner";
 
 export class AfelAutoLearnersGraph extends AutoGraph {
 
+    protected applyWeights = true;
+    protected thinOut = true;
+    protected thinOutThreshold = 0.0;
+
     protected mappingStructure = {
         nodes: [
             {
