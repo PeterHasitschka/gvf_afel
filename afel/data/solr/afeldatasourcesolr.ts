@@ -18,8 +18,6 @@ export class AfelDataSourceSolr implements AfelDataSourceInterace {
         this.http = DataService.getInstance().getHttp();
 
         this.maxDate = new Date();
-
-
     }
 
     public fetchDataFromServer(cb = null) {

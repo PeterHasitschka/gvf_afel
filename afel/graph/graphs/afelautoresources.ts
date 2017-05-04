@@ -42,7 +42,6 @@ export class AfelAutoResourceGraph extends AutoGraph {
 
     public init() {
         super.init();
-        console.log(this.edgesCreatedForSameNodeTypePairs);
     }
 
 
