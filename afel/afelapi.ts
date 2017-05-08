@@ -19,11 +19,14 @@ export class AfelApi implements GvfPluginInterface {
         GraphVisConfig.environment.showleftcol = false;
 
         GraphVisConfig.graphelements['resourcenode'] = {
-            color: 0x8888ff,
-            highlightcolor: 0xaaaaff
+            color: 0x8888ff
         };
         GraphVisConfig.graphelements['learnernode'] = {
-            color: 0x008800
+            color: 0x27A027
+        };
+        GraphVisConfig.graphelements['tagnode'] = {
+            color: 0xff0000,
+            highlightcolor: 0xffff00
         };
 
         GraphVisConfig.graphelements['learningcommunity'] = {
@@ -64,18 +67,18 @@ export class AfelApi implements GvfPluginInterface {
 
         window['compare'] = this.compareCommunityPlanes;
 
-        AfelDataService.getInstance().getDataSource().fetchDataFromServer(function(data){
+        AfelDataService.getInstance().getDataSource().fetchDataFromServer(function (data) {
             AfelDataService.getInstance().getDataSource().setData(data);
             console.log("finished fetching data from afel data source");
 
             PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Complete</strong> ' +
-                'Graph', AfelAutoCompleteGraph, false);
+                'Graph (Weighted by # of learning actions)', AfelAutoCompleteGraph, false);
 
             PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Resources</strong> ' +
-                'Graph', AfelAutoResourceGraph, false);
+                'Graph (Weighted by # of shared learners)', AfelAutoResourceGraph, false);
 
             PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Learners</strong> ' +
-                'Graph', AfelAutoLearnersGraph, false);
+                'Graph (Weighted by # of shared resources / Thinned out)', AfelAutoLearnersGraph, false);
 
 
         }.bind(this));
@@ -92,6 +95,21 @@ export class AfelApi implements GvfPluginInterface {
             }
             )
         );
+
+
+        UiService.getInstance().addSideInfoElement(new SideInfoModel(
+            '<i class="fa fa-info-circle" aria-hidden="true"></i> Legend',
+            SideInfoPositions.Right,
+            SideInfoContentType.Text,
+            {
+                text: "<div class='afel-legend-line'><div class='afel-legend-node afel-legend-learnernode'></div><span>Learner</span></div>" +
+                "<div class='afel-legend-line'><div class='afel-legend-node afel-legend-resourcenode'></div><span>Resource</span></div>"+
+                "<div class='afel-legend-line'><div class='afel-legend-node afel-legend-tagnode'></div><span>Tag (Keyword)</span></div>"
+            },
+            1
+            )
+        )
+        ;
 
 
     }

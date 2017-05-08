@@ -1,0 +1,27 @@
+.afel-legend-node {
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    margin-right: 10px;
+    float: left;
+}
+
+.afel-legend-line {
+    float: left;
+    width: 100%;
+    margin-bottom: 5px;
+    font-size: 13px;
+
+}
+
+.afel-legend-learnernode {
+    background: #27A027;
+}
+
+.afel-legend-resourcenode {
+    background: #8888ff;
+}
+
+.afel-legend-tagnode {
+    background: #ff0000;
+}

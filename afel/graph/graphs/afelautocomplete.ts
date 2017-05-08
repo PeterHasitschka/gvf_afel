@@ -7,7 +7,10 @@ import {AfelLearnerDataEntity} from "../data/learner";
 import {NodeLearner} from "./nodes/learner";
 import {LearningActivity} from "../data/connections/learningactivity";
 import {EdgeResourceLearner} from "./edges/resourcelearner";
-
+import {AfelTagDataEntity} from "../data/tag";
+import {NodeTag} from "./nodes/tag";
+import {ResourceTagConnection} from "../data/connections/resourcetag";
+import {EdgeResourceTag} from "./edges/resourcetag";
 
 
 export class AfelAutoCompleteGraph extends AutoGraph {
@@ -24,6 +27,10 @@ export class AfelAutoCompleteGraph extends AutoGraph {
             {
                 data: AfelLearnerDataEntity,
                 node: NodeLearner
+            },
+            {
+                data: AfelTagDataEntity,
+                node: NodeTag
             }
         ],
         edges: [
@@ -31,6 +38,11 @@ export class AfelAutoCompleteGraph extends AutoGraph {
                 type: AUTOGRAPH_EDGETYPES.BY_DATA,
                 dataConnection: LearningActivity,
                 edge: EdgeResourceLearner
+            },
+            {
+                type: AUTOGRAPH_EDGETYPES.BY_DATA,
+                dataConnection: ResourceTagConnection,
+                edge: EdgeResourceTag
             }
         ]
     };

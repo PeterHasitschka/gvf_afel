@@ -11,6 +11,8 @@ import {EdgeResourceResource} from "./edges/resourceresource";
 import {BasicConnection} from "../../../gvfcore/components/graphvis/data/databasicconnection";
 import {EdgeAbstract} from "../../../gvfcore/components/graphvis/graphs/edges/edgeelementabstract";
 import {EdgeLearnerLearner} from "./edges/learnerlearner";
+import {InterGraphEventService, INTERGRAPH_EVENTS} from "../../../gvfcore/services/intergraphevents.service";
+import {NodeAbstract} from "../../../gvfcore/components/graphvis/graphs/nodes/nodeelementabstract";
 
 
 export class AfelAutoLearnersGraph extends AutoGraph {
@@ -43,5 +45,57 @@ export class AfelAutoLearnersGraph extends AutoGraph {
 
     public init() {
         super.init();
+
+        InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.NODE_HOVERED, function (e) {
+
+                let nodeHovered = <NodeAbstract>e.detail;
+
+                // Only handle events from other planes!
+                if (nodeHovered.getPlane().getId() === this.plane.getId())
+                    return;
+
+                switch (nodeHovered.constructor) {
+                    case NodeResource :
+                        this.graphElements.forEach((n:NodeLearner) => {
+                            let learner:AfelLearnerDataEntity = <AfelLearnerDataEntity>n.getDataEntity();
+                            learner.getConnections().forEach((c:BasicConnection) => {
+
+                                if (!(c instanceof LearningActivity))
+                                    return;
+
+                                if ((<LearningActivity>c).getResource().getId() === nodeHovered.getDataEntity().getId())
+                                    n.highlight();
+                            });
+                        });
+                        this.plane.getGraphScene().render();
+                        break;
+
+                    case NodeLearner :
+                        this.graphElements.forEach((n:NodeLearner) => {
+                            let learner:AfelLearnerDataEntity = <AfelLearnerDataEntity>n.getDataEntity();
+                            if (learner.getId() === nodeHovered.getDataEntity().getId())
+                                n.highlight();
+                        });
+                        this.plane.getGraphScene().render();
+                        break;
+                }
+            }
+                .bind(this)
+        )
+        ;
+
+
+        InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.NODE_LEFT, function (e) {
+            let nodeHovered = <NodeAbstract>e.detail;
+            switch (nodeHovered.constructor) {
+                default :
+                    this.graphElements.forEach((n:NodeLearner) => {
+                        n.deHighlight(false);
+                    });
+                    this.plane.getGraphScene().render();
+                    break;
+            }
+        }.bind(this));
     }
+
 }

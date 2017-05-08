@@ -3,6 +3,8 @@ import {DataService} from "../../../gvfcore/services/data.service";
 import {AfelResourceDataEntity} from "../../graph/data/resource";
 import {AfelLearnerDataEntity} from "../../graph/data/learner";
 import {LearningActivity} from "../../graph/data/connections/learningactivity";
+import {AfelTagDataEntity} from "../../graph/data/tag";
+import {ResourceTagConnection} from "../../graph/data/connections/resourcetag";
 export class AfelDataSourceSolr implements AfelDataSourceInterace {
 
 
@@ -21,18 +23,37 @@ export class AfelDataSourceSolr implements AfelDataSourceInterace {
     }
 
     public fetchDataFromServer(cb = null) {
-        let url = this.getApiUrlReviews();
+        let reviewsUrl = this.getApiUrlReviews();
 
-        console.log(url);
+        console.log(reviewsUrl);
 
 
-        return this.http.get(url)
-            .map(res => res.json())
+        this.http.get(reviewsUrl)
+            .map(reviewsResult => reviewsResult.json())
             .toPromise()
-            .then((r) => {
-                if (cb)
-                    cb(r.response.docs);
-            }, (r) =>{
+            .then((reviewResult) => {
+
+
+                // Fetch tags via a call for all resources-ids fetched before
+                let rIds = [];
+                reviewResult.response.docs.forEach((doc => {
+                    let rId = doc.resourceId;
+                    rIds.push(rId);
+                }));
+                let resourceUrl = this.getApiUrlResources(rIds);
+                console.log(resourceUrl);
+
+                return this.http.get(resourceUrl)
+                    .map(resourceResults => resourceResults.json())
+                    .toPromise()
+                    .then((resourceResult) => {
+                        this.enrichReviewDataWithResourceData(reviewResult, resourceResult);
+                        if (cb)
+                            cb(reviewResult.response.docs);
+                    });
+
+
+            }, (r) => {
                 alert("Error calling SolR Server. Currently you need to have a Plugin installed " +
                     "which overrides the Allow-Control-Allow-Origin Header of the resonse. " +
                     "When using Chrome, search for the 'Allow-Control-Allow-Origin: *' extension");
@@ -44,14 +65,32 @@ export class AfelDataSourceSolr implements AfelDataSourceInterace {
 
         let resourceMapping = {};
         let learnerMapping = {};
+        let tagMapping = {};
 
         for (var i = 0; i < data.length; i++) {
             let visit = data[i];
 
             let resource:AfelResourceDataEntity;
             if (typeof resourceMapping[visit.resourceId] === "undefined") {
-                resource = new AfelResourceDataEntity({hash: visit.resourceId});
+
+                resource = new AfelResourceDataEntity({hash: visit.resourceId, type: visit.resource.type});
                 resourceMapping[visit.resourceId] = resource;
+
+                let tagStrings = visit.resource.Tag;
+                tagStrings.forEach(tagString => {
+
+                    let tag:AfelTagDataEntity;
+                    if (typeof tagMapping[tagString] === "undefined") {
+                        tag = new AfelTagDataEntity(tagString);
+                        tagMapping[tagString] = tag;
+                    } else
+                        tag = tagMapping[tagString];
+
+                    let tagConnection = new ResourceTagConnection(resource, tag, {});
+                    resource.addConnection(tagConnection);
+                    tag.addConnection(tagConnection);
+                });
+
             }
             else {
                 resource = resourceMapping[visit.resourceId];
@@ -74,6 +113,7 @@ export class AfelDataSourceSolr implements AfelDataSourceInterace {
 
         console.log(AfelResourceDataEntity.getDataList());
         console.log(AfelLearnerDataEntity.getDataList());
+        console.log(AfelTagDataEntity.getDataList());
     }
 
 
@@ -81,12 +121,40 @@ export class AfelDataSourceSolr implements AfelDataSourceInterace {
         return null;
     }
 
+
+    private enrichReviewDataWithResourceData(reviewData, resourceData) {
+
+        let resourceDataList = {};
+        resourceData.response.docs.forEach(resource => {
+            resourceDataList[resource.id] = resource;
+        });
+
+        reviewData.response.docs.forEach(review => {
+            review['resource'] = resourceDataList[review.resourceId];
+        });
+    };
+
     private getApiUrlReviews() {
         let url = this.baseApiUrl + this.urlReviews;
         let endDate:Date = this.maxDate;
         let beginDate:Date = new Date(endDate.valueOf() - this.rangeMs);
         let timeStr = this.convertDateToSolrDatestr(beginDate) + "%20TO%20" + this.convertDateToSolrDatestr(endDate);
         url += "select?indent=on&rows=" + this.maxReviews + "&q=time:[" + timeStr + "]&wt=json";
+        return url;
+    }
+
+    private getApiUrlResources(resourceIds) {
+        let rIdEncapsulatedStrings = [];
+        resourceIds.forEach((rId => {
+            rIdEncapsulatedStrings.push("\"" + rId + "\"");
+        }));
+
+        // Make unique
+        rIdEncapsulatedStrings = rIdEncapsulatedStrings.filter((v, i, a) => a.indexOf(v) === i);
+        let rIdQueryStr = rIdEncapsulatedStrings.join("%20OR%20");
+
+        let url = this.baseApiUrl + this.urlResources;
+        url += 'select?indent=on&q=id:(' + rIdQueryStr + ')&wt=json';
         return url;
     }
 

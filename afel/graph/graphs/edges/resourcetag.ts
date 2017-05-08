@@ -2,12 +2,12 @@ import {EdgeColored} from "../../../../gvfcore/components/graphvis/graphs/edges/
 import {Plane} from "../../../../gvfcore/components/plane/plane";
 import {NodeLearner} from "../nodes/learner";
 import {NodeResource} from "../nodes/resource";
-export class EdgeResourceLearner extends EdgeColored {
+export class EdgeResourceTag extends EdgeColored {
 
-    protected static color = 0x008888;
+    protected static color = 0x990000;
     protected static opacity = 0.3;
 
-    constructor(r:NodeResource, l:NodeLearner, plane:Plane) {
-        super(r, l, plane, EdgeResourceLearner.color);
+    constructor(r1:NodeResource, r2:NodeResource, plane:Plane) {
+        super(r1, r2, plane, EdgeResourceTag.color);
     }
 }
