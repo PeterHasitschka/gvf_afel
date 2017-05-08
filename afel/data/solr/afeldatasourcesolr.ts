@@ -12,7 +12,7 @@ export class AfelDataSourceSolr implements AfelDataSourceInterace {
     private urlReviews = "reviews/";
     private urlResources = "resources/";
     private maxDate:Date;
-    private rangeMs = 365 * 24 * 60 * 60 * 1000;
+    private rangeMs = 10 * 365 * 24 * 60 * 60 * 1000;
     private maxReviews = 200;
     private http;
 
@@ -72,6 +72,11 @@ export class AfelDataSourceSolr implements AfelDataSourceInterace {
 
             let resource:AfelResourceDataEntity;
             if (typeof resourceMapping[visit.resourceId] === "undefined") {
+
+                if (typeof visit.resource === "undefined") {
+                    console.warn("Could not find a loaded resource for that review!", visit);
+                    continue;
+                }
 
                 resource = new AfelResourceDataEntity({hash: visit.resourceId, type: visit.resource.type});
                 resourceMapping[visit.resourceId] = resource;
@@ -154,7 +159,7 @@ export class AfelDataSourceSolr implements AfelDataSourceInterace {
         let rIdQueryStr = rIdEncapsulatedStrings.join("%20OR%20");
 
         let url = this.baseApiUrl + this.urlResources;
-        url += 'select?indent=on&q=id:(' + rIdQueryStr + ')&wt=json';
+        url += 'select?indent=on&q=id:(' + rIdQueryStr + ')&rows=1000&wt=json';
         return url;
     }
 
