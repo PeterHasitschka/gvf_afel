@@ -15,7 +15,6 @@ export class NodeTag extends NodeSimple {
         super(x, y, dataEntity, plane, options);
 
         this.color = GraphVisConfig.graphelements['tagnode'].color;
-        this.highlightColor = GraphVisConfig.graphelements['tagnode'].highlightcolor;
         this.setColor(this.color);
         this.name = NodeTag.IDENTIFIER;
     }

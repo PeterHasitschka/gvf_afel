@@ -25,8 +25,7 @@ export class AfelApi implements GvfPluginInterface {
             color: 0x27A027
         };
         GraphVisConfig.graphelements['tagnode'] = {
-            color: 0xff0000,
-            highlightcolor: 0xffff00
+            color: 0xCE6B89
         };
 
         GraphVisConfig.graphelements['learningcommunity'] = {
