@@ -13,13 +13,16 @@ import {EdgeAbstract} from "../../../gvfcore/components/graphvis/graphs/edges/ed
 import {NodeAbstract} from "../../../gvfcore/components/graphvis/graphs/nodes/nodeelementabstract";
 import {BasicEntity} from "../../../gvfcore/components/graphvis/data/databasicentity";
 import {InterGraphEventService, INTERGRAPH_EVENTS} from "../../../gvfcore/services/intergraphevents.service";
+import {ElementAbstract} from "../../../gvfcore/components/graphvis/graphs/graphelementabstract";
+import {NodepathSimple} from "../../../gvfcore/components/graphvis/graphs/nodepath/nodepathsimple";
+import {LearningPath} from "./nodepath/learningpath";
 
 
 export class AfelAutoResourceGraph extends AutoGraph {
 
     protected applyWeights = true;
     protected thinOut = false;
-
+    protected activeLearningPath = null;
 
     protected mappingStructure = {
         nodes: [
@@ -57,6 +60,10 @@ export class AfelAutoResourceGraph extends AutoGraph {
 
             switch (nodeHovered.constructor) {
                 case NodeLearner :
+
+                    let learner = <AfelLearnerDataEntity>(nodeHovered.getDataEntity());
+                    this.showLearningPath(learner);
+
                     this.graphElements.forEach((n:NodeResource) => {
                         let resource:AfelResourceDataEntity = <AfelResourceDataEntity>n.getDataEntity();
                         resource.getConnections().forEach((c:BasicConnection) => {
@@ -64,8 +71,9 @@ export class AfelAutoResourceGraph extends AutoGraph {
                             if (!(c instanceof LearningActivity))
                                 return;
 
-                            if ((<LearningActivity>c).getLearner().getId() === nodeHovered.getDataEntity().getId())
+                            if ((<LearningActivity>c).getLearner().getId() === nodeHovered.getDataEntity().getId()) {
                                 n.highlight();
+                            }
                         });
                     });
                     this.plane.getGraphScene().render();
@@ -84,6 +92,7 @@ export class AfelAutoResourceGraph extends AutoGraph {
 
 
         InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.NODE_LEFT, function (e) {
+            this.deleteLearningPath();
             let nodeHovered = <NodeAbstract>e.detail;
             switch (nodeHovered.constructor) {
                 default :
@@ -94,6 +103,36 @@ export class AfelAutoResourceGraph extends AutoGraph {
                     break;
             }
         }.bind(this));
+    }
+
+
+    protected showLearningPath(learner:AfelLearnerDataEntity) {
+        let nodes = [];
+        let lp = learner.getLearnerPath();
+        for (var k in lp) {
+            let res = <AfelResourceDataEntity>lp[k].r;
+            res.getRegisteredGraphElements().forEach((e:ElementAbstract) => {
+                if (e.constructor !== NodeResource || e.getPlane().getId() !== this.plane.getId())
+                    return;
+                nodes.push(e);
+            });
+        }
+
+        if (this.activeLearningPath)
+            this.deleteLearningPath();
+
+        this.activeLearningPath = new LearningPath(nodes, this.plane);
+        this.plane.getGraphScene().addObject(this.activeLearningPath);
+        this.plane.getGraphScene().render();
+    }
+
+    protected deleteLearningPath() {
+        if (!this.activeLearningPath)
+            return;
+        this.plane.getGraphScene().removeObject(this.activeLearningPath);
+        this.activeLearningPath = null;
+
+        this.plane.getGraphScene().render();
     }
 
 
