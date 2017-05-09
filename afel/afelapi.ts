@@ -103,7 +103,8 @@ export class AfelApi implements GvfPluginInterface {
             {
                 text: "<div class='afel-legend-line'><div class='afel-legend-node afel-legend-learnernode'></div><span>Learner</span></div>" +
                 "<div class='afel-legend-line'><div class='afel-legend-node afel-legend-resourcenode'></div><span>Resource</span></div>"+
-                "<div class='afel-legend-line'><div class='afel-legend-node afel-legend-tagnode'></div><span>Tag (Keyword)</span></div>"
+                "<div class='afel-legend-line'><div class='afel-legend-node afel-legend-tagnode'></div><span>Tag (Keyword)</span></div>"+
+                "<div class='afel-legend-line'><div class='afel-legend-path afel-legend-learningpath'></div><span>Learning-Path</span></div>"
             },
             1
             )

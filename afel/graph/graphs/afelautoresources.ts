@@ -118,6 +118,9 @@ export class AfelAutoResourceGraph extends AutoGraph {
             });
         }
 
+        if (nodes.length < 2)
+            return;
+
         if (this.activeLearningPath)
             this.deleteLearningPath();
 

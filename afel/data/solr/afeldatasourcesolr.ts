@@ -19,7 +19,7 @@ export class AfelDataSourceSolr implements AfelDataSourceInterace {
     constructor(private dataContainer) {
         this.http = DataService.getInstance().getHttp();
 
-        // this.maxDate = new Date(2017,1,1);
+         // this.maxDate = new Date(2016,1,1);
         this.maxDate = new Date();
     }
 
@@ -52,8 +52,6 @@ export class AfelDataSourceSolr implements AfelDataSourceInterace {
                         if (cb)
                             cb(reviewResult.response.docs);
                     });
-
-
             }, (r) => {
                 alert("Error calling SolR Server. Currently you need to have a Plugin installed " +
                     "which overrides the Allow-Control-Allow-Origin Header of the resonse. " +
