@@ -10,6 +10,7 @@ import {AfelAutoCompleteGraph} from "./graph/graphs/afelautocomplete";
 import {CombinedCommunityGraph} from "./graph/graphs/combinedcommunitygraph";
 import {AfelAutoResourceGraph} from "./graph/graphs/afelautoresources";
 import {AfelAutoLearnersGraph} from "./graph/graphs/afelautolearners";
+import {AfelDataSourceSolr} from "./data/solr/afeldatasourcesolr";
 
 
 export class AfelApi implements GvfPluginInterface {
@@ -102,11 +103,26 @@ export class AfelApi implements GvfPluginInterface {
             SideInfoContentType.Text,
             {
                 text: "<div class='afel-legend-line'><div class='afel-legend-node afel-legend-learnernode'></div><span>Learner</span></div>" +
-                "<div class='afel-legend-line'><div class='afel-legend-node afel-legend-resourcenode'></div><span>Resource</span></div>"+
-                "<div class='afel-legend-line'><div class='afel-legend-node afel-legend-tagnode'></div><span>Tag (Keyword)</span></div>"+
+                "<div class='afel-legend-line'><div class='afel-legend-node afel-legend-resourcenode'></div><span>Resource</span></div>" +
+                "<div class='afel-legend-line'><div class='afel-legend-node afel-legend-tagnode'></div><span>Tag (Keyword)</span></div>" +
                 "<div class='afel-legend-line'><div class='afel-legend-path afel-legend-learningpath'></div><span>Learning-Path</span></div>"
             },
             1
+            )
+        );
+
+        window['fetchfullresourcegraph'] = function () {
+            (<AfelDataSourceSolr>AfelDataService.getInstance().getDataSource()).fetchAllResources();
+        };
+
+        UiService.getInstance().addSideInfoElement(new SideInfoModel(
+            '<i class="fa fa-info-circle" aria-hidden="true"></i> Data: Fetch and show FULL resource graph',
+            SideInfoPositions.Right,
+            SideInfoContentType.Text,
+            {
+                text: "<button onclick='window.fetchfullresourcegraph()' >Fetch full resource graph</button>"
+            },
+            2
             )
         )
         ;

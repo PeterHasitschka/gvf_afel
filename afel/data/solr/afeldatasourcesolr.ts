@@ -166,4 +166,17 @@ export class AfelDataSourceSolr implements AfelDataSourceInterace {
         //date.setMonth(date.getMonth() - 1);
         return date.toISOString();
     }
+
+
+    public fetchAllResources() {
+
+        let url = this.baseApiUrl + this.urlResources + 'select?indent=on&q=userCount:[1%20TO%20*]&rows=100000&wt=json';
+        this.http.get(url)
+            .map(_allRes => _allRes.json())
+            .toPromise()
+            .then((allRes) => {
+
+                console.log("ALL (!) RESOURCES LOADED. DO SOMETHING WITH IT!");
+            });
+    }
 }
