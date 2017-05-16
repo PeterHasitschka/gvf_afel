@@ -19,7 +19,7 @@ export class AfelDataSourceSolr implements AfelDataSourceInterace {
     constructor(private dataContainer) {
         this.http = DataService.getInstance().getHttp();
 
-         // this.maxDate = new Date(2016,1,1);
+        // this.maxDate = new Date(2016,1,1);
         this.maxDate = new Date();
     }
 
@@ -166,5 +166,4 @@ export class AfelDataSourceSolr implements AfelDataSourceInterace {
         //date.setMonth(date.getMonth() - 1);
         return date.toISOString();
     }
-
 }
