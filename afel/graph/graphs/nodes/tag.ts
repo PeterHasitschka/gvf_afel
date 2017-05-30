@@ -17,6 +17,9 @@ export class NodeTag extends NodeSimple {
         this.color = GraphVisConfig.graphelements['tagnode'].color;
         this.setColor(this.color);
         this.name = NodeTag.IDENTIFIER;
+
+        this.hoverText = this.getDataEntity().getData("tag");
+        this.hoverTextColor = "#AA0000";
     }
 
 

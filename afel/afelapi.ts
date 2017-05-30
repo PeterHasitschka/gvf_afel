@@ -10,6 +10,7 @@ import {AfelAutoCompleteGraph} from "./graph/graphs/afelautocomplete";
 import {CombinedCommunityGraph} from "./graph/graphs/combinedcommunitygraph";
 import {AfelAutoResourceGraph} from "./graph/graphs/afelautoresources";
 import {AfelAutoLearnersGraph} from "./graph/graphs/afelautolearners";
+import {AfelAutoTagsGraph} from "./graph/graphs/afelautotags";
 
 
 export class AfelApi implements GvfPluginInterface {
@@ -78,6 +79,9 @@ export class AfelApi implements GvfPluginInterface {
 
             PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Learners</strong> ' +
                 'Graph (Weighted by # of shared resources / Thinned out)', AfelAutoLearnersGraph, false);
+
+            PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Tags</strong> ' +
+                'Graph (Weighted by # of shared resources)', AfelAutoTagsGraph, false);
 
 
         }.bind(this));

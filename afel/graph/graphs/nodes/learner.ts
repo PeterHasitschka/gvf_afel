@@ -16,6 +16,9 @@ export class NodeLearner extends NodeSimple {
         this.color = GraphVisConfig.graphelements['learnernode'].color;
         this.setColor(this.color);
         this.name = NodeLearner.IDENTIFIER;
+
+        this.hoverText = this.getDataEntity().getData("hash");
+        this.hoverTextColor = "#00AA00";
     }
 
 
