@@ -13,6 +13,7 @@ import {EdgeAbstract} from "../../../gvfcore/components/graphvis/graphs/edges/ed
 import {EdgeLearnerLearner} from "./edges/learnerlearner";
 import {InterGraphEventService, INTERGRAPH_EVENTS} from "../../../gvfcore/services/intergraphevents.service";
 import {NodeAbstract} from "../../../gvfcore/components/graphvis/graphs/nodes/nodeelementabstract";
+import {UiService} from "../../../gvfcore/services/ui.service";
 
 
 export class AfelAutoLearnersGraph extends AutoGraph {
@@ -63,8 +64,9 @@ export class AfelAutoLearnersGraph extends AutoGraph {
                                 if (!(c instanceof LearningActivity))
                                     return;
 
-                                if ((<LearningActivity>c).getResource().getId() === nodeHovered.getDataEntity().getId())
+                                if ((<LearningActivity>c).getResource().getId() === nodeHovered.getDataEntity().getId()) {
                                     n.highlight();
+                                }
                             });
                         });
                         this.plane.getGraphScene().render();
@@ -73,8 +75,9 @@ export class AfelAutoLearnersGraph extends AutoGraph {
                     case NodeLearner :
                         this.graphElements.forEach((n:NodeLearner) => {
                             let learner:AfelLearnerDataEntity = <AfelLearnerDataEntity>n.getDataEntity();
-                            if (learner.getId() === nodeHovered.getDataEntity().getId())
+                            if (learner.getId() === nodeHovered.getDataEntity().getId()) {
                                 n.highlight();
+                            }
                         });
                         this.plane.getGraphScene().render();
                         break;

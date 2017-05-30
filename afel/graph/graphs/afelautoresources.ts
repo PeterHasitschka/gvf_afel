@@ -16,6 +16,7 @@ import {InterGraphEventService, INTERGRAPH_EVENTS} from "../../../gvfcore/servic
 import {ElementAbstract} from "../../../gvfcore/components/graphvis/graphs/graphelementabstract";
 import {NodepathSimple} from "../../../gvfcore/components/graphvis/graphs/nodepath/nodepathsimple";
 import {LearningPath} from "./nodepath/learningpath";
+import {UiService} from "../../../gvfcore/services/ui.service";
 
 
 export class AfelAutoResourceGraph extends AutoGraph {
@@ -82,8 +83,10 @@ export class AfelAutoResourceGraph extends AutoGraph {
                 case NodeResource :
                     this.graphElements.forEach((n:NodeResource) => {
                         let resource:AfelResourceDataEntity = <AfelResourceDataEntity>n.getDataEntity();
-                        if (resource.getId() === nodeHovered.getDataEntity().getId())
+                        if (resource.getId() === nodeHovered.getDataEntity().getId()) {
                             n.highlight();
+                        }
+
                     });
                     this.plane.getGraphScene().render();
                     break;

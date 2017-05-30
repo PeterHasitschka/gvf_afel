@@ -16,6 +16,7 @@ import {NodeAbstract} from "../../../gvfcore/components/graphvis/graphs/nodes/no
 import {BasicConnection} from "../../../gvfcore/components/graphvis/data/databasicconnection";
 import {BasicEntity} from "../../../gvfcore/components/graphvis/data/databasicentity";
 import {DataAbstract} from "../../../gvfcore/components/graphvis/data/dataabstract";
+import {UiService} from "../../../gvfcore/services/ui.service";
 
 
 export class AfelAutoCompleteGraph extends AutoGraph {
@@ -78,8 +79,10 @@ export class AfelAutoCompleteGraph extends AutoGraph {
                         if (dataEntity.constructor !== nodeHovered.getDataEntity().constructor)
                             return;
 
-                        if (dataEntity.getId() === nodeHovered.getDataEntity().getId())
+                        if (dataEntity.getId() === nodeHovered.getDataEntity().getId()) {
                             n.highlight();
+                            UiService.getInstance().addNodesToIntergraphConnection(nodeHovered, n, "blue");
+                        }
                     });
                     this.plane.getGraphScene().render();
                     break;
@@ -93,6 +96,7 @@ export class AfelAutoCompleteGraph extends AutoGraph {
                 default :
                     this.graphElements.forEach((n:NodeAbstract) => {
                         n.deHighlight(false);
+                        UiService.getInstance().clearIntergraphConnections();
                     });
                     this.plane.getGraphScene().render();
                     break;
