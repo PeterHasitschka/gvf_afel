@@ -7,7 +7,6 @@ import {AfelLearnerDataEntity} from "../data/learner";
 import {NodeLearner} from "./nodes/learner";
 import {LearningActivity} from "../data/connections/learningactivity";
 import {EdgeResourceLearner} from "./edges/resourcelearner";
-import {EdgeResourceResource} from "./edges/resourceresource";
 import {BasicConnection} from "../../../gvfcore/components/graphvis/data/databasicconnection";
 import {EdgeAbstract} from "../../../gvfcore/components/graphvis/graphs/edges/edgeelementabstract";
 import {EdgeLearnerLearner} from "./edges/learnerlearner";

@@ -6,17 +6,16 @@ import {NodeResource} from "./nodes/resource";
 import {AfelLearnerDataEntity} from "../data/learner";
 import {NodeLearner} from "./nodes/learner";
 import {LearningActivity} from "../data/connections/learningactivity";
-import {EdgeResourceLearner} from "./edges/resourcelearner";
-import {EdgeResourceResource} from "./edges/resourceresource";
 import {BasicConnection} from "../../../gvfcore/components/graphvis/data/databasicconnection";
-import {EdgeAbstract} from "../../../gvfcore/components/graphvis/graphs/edges/edgeelementabstract";
 import {NodeAbstract} from "../../../gvfcore/components/graphvis/graphs/nodes/nodeelementabstract";
-import {BasicEntity} from "../../../gvfcore/components/graphvis/data/databasicentity";
 import {InterGraphEventService, INTERGRAPH_EVENTS} from "../../../gvfcore/services/intergraphevents.service";
 import {ElementAbstract} from "../../../gvfcore/components/graphvis/graphs/graphelementabstract";
-import {NodepathSimple} from "../../../gvfcore/components/graphvis/graphs/nodepath/nodepathsimple";
 import {LearningPath} from "./nodepath/learningpath";
-import {UiService} from "../../../gvfcore/services/ui.service";
+import {AfelTagDataEntity} from "../data/tag";
+import {EdgeResourceResourceByLearner} from "./edges/resourceresourcebylearner";
+import {EdgeResourceResourceByTag} from "./edges/resourceresourcebytag";
+import {NodeTag} from "./nodes/tag";
+import {ResourceTagConnection} from "../data/connections/resourcetag";
 
 
 export class AfelAutoResourceGraph extends AutoGraph {
@@ -36,9 +35,16 @@ export class AfelAutoResourceGraph extends AutoGraph {
             {
                 type: AUTOGRAPH_EDGETYPES.BY_ONE_HOP,
                 sourceNodeType: NodeResource,
+                hopDataEntityType: AfelTagDataEntity,
+                edge: EdgeResourceResourceByTag
+            },
+            {
+                type: AUTOGRAPH_EDGETYPES.BY_ONE_HOP,
+                sourceNodeType: NodeResource,
                 hopDataEntityType: AfelLearnerDataEntity,
-                edge: EdgeResourceResource
+                edge: EdgeResourceResourceByLearner
             }
+
         ]
     };
 
@@ -73,6 +79,22 @@ export class AfelAutoResourceGraph extends AutoGraph {
                                 return;
 
                             if ((<LearningActivity>c).getLearner().getId() === nodeHovered.getDataEntity().getId()) {
+                                n.highlight();
+                            }
+                        });
+                    });
+                    this.plane.getGraphScene().render();
+                    break;
+                case NodeTag :
+
+                    this.graphElements.forEach((n:NodeResource) => {
+                        let resource:AfelResourceDataEntity = <AfelResourceDataEntity>n.getDataEntity();
+                        resource.getConnections().forEach((c:BasicConnection) => {
+
+                            if (!(c instanceof ResourceTagConnection))
+                                return;
+
+                            if ((<ResourceTagConnection>c).getTag().getId() === nodeHovered.getDataEntity().getId()) {
                                 n.highlight();
                             }
                         });

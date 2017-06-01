@@ -12,6 +12,7 @@ import {NodeAbstract} from "../../../gvfcore/components/graphvis/graphs/nodes/no
 import {AfelTagDataEntity} from "../data/tag";
 import {NodeTag} from "./nodes/tag";
 import {EdgeTagTag} from "./edges/tagtag";
+import {ResourceTagConnection} from "../data/connections/resourcetag";
 
 
 export class AfelAutoTagsGraph extends AutoGraph {
@@ -43,6 +44,49 @@ export class AfelAutoTagsGraph extends AutoGraph {
 
     public init() {
         super.init();
+
+
+        InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.NODE_HOVERED, function (e) {
+
+            let nodeHovered = <NodeAbstract>e.detail;
+
+            // Only handle events from other planes!
+            if (nodeHovered.getPlane().getId() === this.plane.getId())
+                return;
+
+            switch (nodeHovered.constructor) {
+                case NodeResource :
+
+                    this.graphElements.forEach((n:NodeTag) => {
+                        let tag:AfelTagDataEntity = <AfelTagDataEntity >n.getDataEntity();
+                        tag.getConnections().forEach((c:BasicConnection) => {
+
+                            if (!(c instanceof ResourceTagConnection))
+                                return;
+
+                            if ((<ResourceTagConnection>c).getResource().getId() === nodeHovered.getDataEntity().getId()) {
+                                n.highlight();
+                            }
+                        });
+                    });
+                    this.plane.getGraphScene().render();
+                    break;
+            }
+        }.bind(this));
+
+
+
+        InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.NODE_LEFT, function (e) {
+            let nodeHovered = <NodeAbstract>e.detail;
+            switch (nodeHovered.constructor) {
+                default :
+                    this.graphElements.forEach((n:NodeResource) => {
+                        n.deHighlight(false);
+                    });
+                    this.plane.getGraphScene().render();
+                    break;
+            }
+        }.bind(this));
     }
 
 }

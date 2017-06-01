@@ -20,6 +20,14 @@ export class ResourceTagConnection extends BasicConnection {
     }
 
 
+    public getResource():AfelResourceDataEntity{
+        return <AfelResourceDataEntity>this.entitySrc;
+    }
+
+    public getTag():AfelTagDataEntity{
+        return <AfelTagDataEntity>this.entityDst;
+    }
+
     /**
      * Get all Connections
      * @returns {ResourceTagConnection[]}
