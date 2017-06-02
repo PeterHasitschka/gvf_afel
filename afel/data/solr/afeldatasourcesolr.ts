@@ -24,39 +24,67 @@ export class AfelDataSourceSolr implements AfelDataSourceInterace {
     }
 
     public fetchDataFromServer(cb = null) {
-        let reviewsUrl = this.getApiUrlReviews();
+        let allUsersUrl = this.getApiUrlAllUsers();
 
-        console.log(reviewsUrl);
+        console.log(allUsersUrl);
 
-
-        this.http.get(reviewsUrl)
-            .map(reviewsResult => reviewsResult.json())
+        this.http.get(allUsersUrl)
+            .map(allUsersRes => allUsersRes.json())
             .toPromise()
-            .then((reviewResult) => {
+            .then((res) => {
+
+                try {
+                    let userIds = [];
+                    let usersData = res.facet_counts.facet_fields.user;
+                    for (let uKey in usersData) {
+                        let uId = usersData[uKey];
+                        if (typeof uId !== "string")
+                            continue;
+                        userIds.push(uId);
+                    }
+
+                    let urlReviews = this.getApiUrlReviewsByUsers(userIds);
+
+                    this.http.get(urlReviews)
+                        .map(reviewsResult => reviewsResult.json())
+                        .toPromise()
+                        .then((reviewResult) => {
 
 
-                // Fetch tags via a call for all resources-ids fetched before
-                let rIds = [];
-                reviewResult.response.docs.forEach((doc => {
-                    let rId = doc.resourceId;
-                    rIds.push(rId);
-                }));
-                let resourceUrl = this.getApiUrlResources(rIds);
-                console.log(resourceUrl);
+                            // Fetch tags via a call for all resources-ids fetched before
+                            let rIds = [];
+                            reviewResult.response.docs.forEach((doc => {
+                                let rId = doc.resourceId;
+                                rIds.push(rId);
+                            }));
+                            let resourceUrl = this.getApiUrlResources(rIds);
+                            console.log(resourceUrl);
 
-                return this.http.get(resourceUrl)
-                    .map(resourceResults => resourceResults.json())
-                    .toPromise()
-                    .then((resourceResult) => {
-                        this.enrichReviewDataWithResourceData(reviewResult, resourceResult);
-                        if (cb)
-                            cb(reviewResult.response.docs);
-                    });
-            }, (r) => {
-                alert("Error calling SolR Server. Currently you need to have a Plugin installed " +
-                    "which overrides the Allow-Control-Allow-Origin Header of the resonse. " +
-                    "When using Chrome, search for the 'Allow-Control-Allow-Origin: *' extension");
+                            return this.http.get(resourceUrl)
+                                .map(resourceResults => resourceResults.json())
+                                .toPromise()
+                                .then((resourceResult) => {
+                                    this.enrichReviewDataWithResourceData(reviewResult, resourceResult);
+                                    if (cb)
+                                        cb(reviewResult.response.docs);
+                                });
+                        }, (r) => {
+                            alert("Error calling SolR Server. Currently you need to have a Plugin installed " +
+                                "which overrides the Allow-Control-Allow-Origin Header of the resonse. " +
+                                "When using Chrome, search for the 'Allow-Control-Allow-Origin: *' extension");
+                        });
+
+
+                } catch (e) {
+                    console.error("Error in getting users from Solr ", e);
+                    return;
+                }
+
+
             });
+
+        return;
+
     }
 
 
@@ -138,12 +166,30 @@ export class AfelDataSourceSolr implements AfelDataSourceInterace {
         });
     };
 
+    private getApiUrlAllUsers() {
+        let url = this.baseApiUrl + this.urlReviews;
+        url += "select?facet.field=user&facet.limit=100&facet=on&indent=on&wt=json";
+        return url;
+    }
+
     private getApiUrlReviews() {
         let url = this.baseApiUrl + this.urlReviews;
         let endDate:Date = this.maxDate;
         let beginDate:Date = new Date(endDate.valueOf() - this.rangeMs);
         let timeStr = this.convertDateToSolrDatestr(beginDate) + "%20TO%20" + this.convertDateToSolrDatestr(endDate);
         url += "select?indent=on&rows=" + this.maxReviews + "&q=time:[" + timeStr + "]&wt=json";
+        return url;
+    }
+
+    private getApiUrlReviewsByUsers(userIds) {
+        let url = this.baseApiUrl + this.urlReviews;
+        let uIdEncapsulatedStrings = [];
+        userIds.forEach((uId => {
+            uIdEncapsulatedStrings.push("\"" + uId + "\"");
+        }));
+        let uIdQueryStr = uIdEncapsulatedStrings.join("%20OR%20");
+
+        url += 'select?indent=on&q=user:(' + uIdQueryStr + ')&rows=1000&wt=json';
         return url;
     }
 
