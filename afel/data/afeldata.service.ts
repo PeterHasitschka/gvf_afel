@@ -1,8 +1,7 @@
-
-
 import {DataService} from "../../gvfcore/services/data.service";
 import {AfelDataSourceSolr} from "./solr/afeldatasourcesolr";
 import {AfelDataSourceInterace} from "./datasource_interface";
+import {AfelDataSourceGnoss} from "./gnossdata/afeldatasourcegnoss";
 export class AfelDataService {
 
     static instance:AfelDataService;
@@ -13,7 +12,8 @@ export class AfelDataService {
         if (!AfelDataService.isCreating) {
             return AfelDataService.getInstance();
         }
-        this.dataSource = new AfelDataSourceSolr(null);
+        // this.dataSource = new AfelDataSourceSolr(null);
+        this.dataSource = new AfelDataSourceGnoss(null);
     }
 
     static getInstance() {

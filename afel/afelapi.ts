@@ -16,7 +16,7 @@ import {AfelAutoTagsGraph} from "./graph/graphs/afelautotags";
 export class AfelApi implements GvfPluginInterface {
     constructor() {
         UiService.consolelog("Created AFEL API Plugin", this, null, 4);
-        GraphVisConfig.environment.title = "GVF - Visualize Search Results (Solr data source)";
+        GraphVisConfig.environment.title = "GVF - GNOSS data";
         GraphVisConfig.environment.showleftcol = false;
 
         GraphVisConfig.graphelements['resourcenode'] = {
