@@ -20,7 +20,7 @@ import {ResourceTagConnection} from "../data/connections/resourcetag";
 
 export class AfelAutoResourceGraph extends AutoGraph {
 
-    protected applyWeights = true;
+    protected applyWeights = false;
     protected thinOut = false;
     protected activeLearningPath = null;
 

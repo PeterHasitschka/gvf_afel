@@ -7,8 +7,9 @@ export class LearningActivity extends Activity {
     protected learner:AfelLearnerDataEntity;
     protected resource:AfelResourceDataEntity;
 
-    constructor(learner:AfelLearnerDataEntity, resource:AfelResourceDataEntity, data:Object) {
-        let id = LearningActivity.dataList.length;
+    constructor(id:Number = null, learner:AfelLearnerDataEntity, resource:AfelResourceDataEntity, data:Object) {
+        if (id === null)
+            id = LearningActivity.dataList.length;
         super(id, learner, resource, data);
         this.learner = learner;
         this.resource = resource

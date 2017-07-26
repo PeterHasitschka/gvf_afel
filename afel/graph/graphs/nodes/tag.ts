@@ -18,7 +18,7 @@ export class NodeTag extends NodeSimple {
         this.setColor(this.color);
         this.name = NodeTag.IDENTIFIER;
 
-        this.hoverText = this.getDataEntity().getData("tag");
+        this.hoverText = this.getDataEntity().getData("tag")["name"];
         this.hoverTextColor = "#AA0000";
     }
 

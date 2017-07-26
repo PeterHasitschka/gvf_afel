@@ -73,15 +73,15 @@ export class AfelApi implements GvfPluginInterface {
 
             PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Complete</strong> ' +
                 'Graph (Weighted by # of learning actions)', AfelAutoCompleteGraph, false);
-
-            PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Resources</strong> ' +
-                'Graph (Weighted by # of shared learners (green) and # of shared tags (red))', AfelAutoResourceGraph, false);
-
-            PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Learners</strong> ' +
-                'Graph (Weighted by # of shared resources / Thinned out)', AfelAutoLearnersGraph, false);
-
-            PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Tags</strong> ' +
-                'Graph (Weighted by # of shared resources)', AfelAutoTagsGraph, false);
+            //
+            // PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Resources</strong> ' +
+            //     'Graph', AfelAutoResourceGraph, false);
+            //
+            // PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Learners</strong> ' +
+            //     'Graph', AfelAutoLearnersGraph, false);
+            //
+            // PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Tags</strong> ' +
+            //     'Graph', AfelAutoTagsGraph, false);
 
 
         }.bind(this));

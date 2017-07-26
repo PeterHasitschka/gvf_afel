@@ -77,7 +77,7 @@ export class AfelDataSourceSolr implements AfelDataSourceInterace {
                     continue;
                 }
 
-                resource = new AfelResourceDataEntity({hash: visit.resourceId, type: visit.resource.type});
+                resource = new AfelResourceDataEntity(null, {hash: visit.resourceId, type: visit.resource.type});
                 resourceMapping[visit.resourceId] = resource;
 
                 let tagStrings = visit.resource.Tag;
@@ -85,12 +85,12 @@ export class AfelDataSourceSolr implements AfelDataSourceInterace {
 
                     let tag:AfelTagDataEntity;
                     if (typeof tagMapping[tagString] === "undefined") {
-                        tag = new AfelTagDataEntity(tagString);
+                        tag = new AfelTagDataEntity(null, tagString);
                         tagMapping[tagString] = tag;
                     } else
                         tag = tagMapping[tagString];
 
-                    let tagConnection = new ResourceTagConnection(resource, tag, {});
+                    let tagConnection = new ResourceTagConnection(null, resource, tag, {});
                     resource.addConnection(tagConnection);
                     tag.addConnection(tagConnection);
                 });
@@ -102,7 +102,7 @@ export class AfelDataSourceSolr implements AfelDataSourceInterace {
 
             let learner:AfelLearnerDataEntity;
             if (typeof learnerMapping[visit.user] === "undefined") {
-                learner = new AfelLearnerDataEntity({hash: visit.user});
+                learner = new AfelLearnerDataEntity(null, {hash: visit.user});
                 learnerMapping[visit.user] = learner;
             }
             else {

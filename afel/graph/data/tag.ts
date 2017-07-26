@@ -16,8 +16,9 @@ export class AfelTagDataEntity extends BasicEntity {
     /**
      * AfelTagDataEntity constructor
      */
-    constructor(tag:string) {
-        let id = AfelTagDataEntity.dataList.length;
+    constructor(id:Number = null, tag:string) {
+        if (id === null)
+            id = AfelTagDataEntity.dataList.length;
         super(id, {tag: tag});
         AfelTagDataEntity.dataList.push(this);
     }

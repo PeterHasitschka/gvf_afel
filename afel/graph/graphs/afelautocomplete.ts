@@ -18,7 +18,6 @@ import {BasicEntity} from "../../../gvfcore/components/graphvis/data/databasicen
 import {DataAbstract} from "../../../gvfcore/components/graphvis/data/dataabstract";
 import {UiService} from "../../../gvfcore/services/ui.service";
 
-
 export class AfelAutoCompleteGraph extends AutoGraph {
 
     protected applyWeights = true;
@@ -103,5 +102,6 @@ export class AfelAutoCompleteGraph extends AutoGraph {
             }
         }.bind(this));
 
+        this.applyWeightsFromDataEntities();
     }
 }

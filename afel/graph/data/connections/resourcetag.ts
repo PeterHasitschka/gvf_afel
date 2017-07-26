@@ -12,19 +12,19 @@ export class ResourceTagConnection extends BasicConnection {
     protected static dataList:ResourceTagConnection[] = [];
 
 
-
-    constructor(resource:AfelResourceDataEntity, tag:AfelTagDataEntity, data:Object) {
-        let id = ResourceTagConnection.dataList.length;
+    constructor(id = null, resource:AfelResourceDataEntity, tag:AfelTagDataEntity, data:Object) {
+        if (!id)
+            id = ResourceTagConnection.dataList.length;
         super(id, resource, tag, data);
         ResourceTagConnection.dataList.push(this);
     }
 
 
-    public getResource():AfelResourceDataEntity{
+    public getResource():AfelResourceDataEntity {
         return <AfelResourceDataEntity>this.entitySrc;
     }
 
-    public getTag():AfelTagDataEntity{
+    public getTag():AfelTagDataEntity {
         return <AfelTagDataEntity>this.entityDst;
     }
 

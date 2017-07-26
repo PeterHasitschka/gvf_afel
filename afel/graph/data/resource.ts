@@ -12,12 +12,14 @@ import {LearningActivity} from "./connections/learningactivity";
 export class AfelResourceDataEntity extends BasicEntity {
 
     protected static dataList:AfelResourceDataEntity[] = [];
+
     /**
      * AfelResourceDataEntity constructor
      * @param data Holds an ID, and at least a 'title' property by current definition
      */
-    constructor(data:Object) {
-        let id = AfelResourceDataEntity.dataList.length;
+    constructor(id:Number = null, data:Object) {
+        if (id === null)
+            id = AfelResourceDataEntity.dataList.length;
         super(id, data);
         AfelResourceDataEntity.dataList.push(this);
     }

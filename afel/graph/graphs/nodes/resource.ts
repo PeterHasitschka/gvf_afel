@@ -18,7 +18,7 @@ export class NodeResource extends NodeSimple {
         this.color = GraphVisConfig.graphelements['resourcenode'].color;
         this.setColor(this.color);
         this.name = NodeResource.IDENTIFIER;
-        this.hoverText = this.getDataEntity().getData("type");
+        this.hoverText = this.getDataEntity().getData("title");
         this.hoverTextColor = "#0000AA";
     }
 
