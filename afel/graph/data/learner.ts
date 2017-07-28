@@ -22,7 +22,7 @@ export class AfelLearnerDataEntity extends BasicEntity {
      * AfelLearnerDataEntity constructor
      * @param data Holds an id and at least a 'name' property by current definition
      */
-    constructor(id:Number = null, data:Object) {
+    constructor(id:number = null, data:Object) {
         if (id === null)
             id = AfelLearnerDataEntity.dataList.length;
         super(id, data);

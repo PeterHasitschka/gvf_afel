@@ -17,7 +17,7 @@ export class AfelResourceDataEntity extends BasicEntity {
      * AfelResourceDataEntity constructor
      * @param data Holds an ID, and at least a 'title' property by current definition
      */
-    constructor(id:Number = null, data:Object) {
+    constructor(id:number = null, data:Object) {
         if (id === null)
             id = AfelResourceDataEntity.dataList.length;
         super(id, data);

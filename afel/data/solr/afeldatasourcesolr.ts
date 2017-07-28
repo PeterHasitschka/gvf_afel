@@ -23,7 +23,7 @@ export class AfelDataSourceSolr implements AfelDataSourceInterace {
         this.maxDate = new Date();
     }
 
-    public fetchDataFromServer(cb = null) {
+    public fetchInitDataFromServer(cb = null) {
         let reviewsUrl = this.getApiUrlReviews();
 
         console.log(reviewsUrl);
@@ -109,7 +109,7 @@ export class AfelDataSourceSolr implements AfelDataSourceInterace {
                 learner = learnerMapping[visit.user];
             }
 
-            let learningActivity = new LearningActivity(learner, resource, visit);
+            let learningActivity = new LearningActivity(null, learner, resource, visit);
             learner.addConnection(learningActivity);
             resource.addConnection(learningActivity);
 

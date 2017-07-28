@@ -88,7 +88,7 @@ export class AfelData {
      * @returns {null}
      */
     fetchData(cb?:Function) {
-        let ret = this.dataSource.fetchDataFromServer();
+        let ret = this.dataSource.fetchInitDataFromServer();
         console.log(this.data);
         return ret;
     }

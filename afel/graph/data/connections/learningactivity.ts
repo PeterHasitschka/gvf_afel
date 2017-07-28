@@ -7,7 +7,7 @@ export class LearningActivity extends Activity {
     protected learner:AfelLearnerDataEntity;
     protected resource:AfelResourceDataEntity;
 
-    constructor(id:Number = null, learner:AfelLearnerDataEntity, resource:AfelResourceDataEntity, data:Object) {
+    constructor(id:number = null, learner:AfelLearnerDataEntity, resource:AfelResourceDataEntity, data:Object) {
         if (id === null)
             id = LearningActivity.dataList.length;
         super(id, learner, resource, data);

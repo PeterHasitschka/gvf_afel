@@ -67,7 +67,7 @@ export class AfelApi implements GvfPluginInterface {
 
         window['compare'] = this.compareCommunityPlanes;
 
-        AfelDataService.getInstance().getDataSource().fetchDataFromServer(function (data) {
+        AfelDataService.getInstance().getDataSource().fetchInitDataFromServer(function (data) {
             AfelDataService.getInstance().getDataSource().setData(data);
             console.log("finished fetching data from afel data source");
 

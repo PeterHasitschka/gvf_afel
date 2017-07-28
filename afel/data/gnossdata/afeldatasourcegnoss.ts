@@ -14,6 +14,8 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
 
     private http;
     private url = "http://localhost:8082";
+    private urlPostfixInit = "/";
+    private urlPostfixDummy = "/dummy";
 
     private dataMapping = {
         "User": AfelLearnerDataEntity,
@@ -29,7 +31,7 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
 
     }
 
-    public fetchDataFromServer(cb = null) {
+    public fetchInitDataFromServer(cb = null) {
 
         let postData = {
             method: "getInitGraph",
@@ -37,27 +39,46 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
                 userId: 18
             }
         };
+        this.makeCall(this.url + this.urlPostfixInit, postData, cb);
+    }
 
 
-        this.http.post(this.url, postData)
+    public loadSomethingDummyNew(resourceId, cb) {
+        let postData = {
+            method: "addDummy",
+            data: {
+                resourceId: resourceId
+            }
+        };
+        this.makeCall(this.url + this.urlPostfixDummy, postData, cb);
+    }
+
+    protected makeCall(url, data, cb) {
+        this.http.post(url, data)
             .map(res => res.json())
             .toPromise()
             .then((res) => {
 
-                console.log(res);
-                this.storeResponseData(res);
 
-                console.log(AfelResourceDataEntity.getDataList());
-                console.log(AfelLearnerDataEntity.getDataList());
-                console.log(AfelTagDataEntity.getDataList());
-                if (cb)
-                    cb();
+                console.log(res);
+                if (res["data"] !== null) {
+                    let addedData = this.storeResponseData(res);
+
+                    if (cb)
+                        cb(true, addedData);
+                }
+                else if (cb) {
+                    if (res["error"])
+                        console.error("ERROR on API CALL:", res["error"]);
+                    cb(false, null);
+                }
+
 
             }, (r) => {
-                alert("Error");
+                console.error("ERROR on API CALL", r);
+                cb(false, null)
             });
     }
-
 
     public storeResponseData(res) {
         let dataIdMapping = {};
@@ -76,14 +97,30 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
                 let serverNodeList = res["data"]["nodes"][nTypeK];
 
                 switch (entityClass) {
-
-
                     default:
                         serverNodeList.forEach((serverNode) => {
                             let serverNodeId = serverNode["id"];
 
                             if (typeof dataIdMapping[serverNodeId] !== "undefined")
                                 return;
+
+                            /*
+                             Check if entity already exists. If so, skip adding.
+                             */
+                            let BreakException = {};
+                            try {
+                                entityClass.getDataList().forEach((d:BasicEntity) => {
+                                    if (d.getId() === serverNodeId) {
+                                        console.log("ENTITY ", d.getId(), "already exists");
+                                        throw BreakException;
+                                    }
+                                });
+
+                            } catch (e) {
+                                if (e !== BreakException)
+                                    throw e;
+                                return;
+                            }
 
                             dataIdMapping[serverNodeId] = new entityClass(serverNodeId, serverNode["properties"]);
                         });
@@ -107,49 +144,72 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
                     let e1 = dataIdMapping[serverRelation["start"]];
                     let e2 = dataIdMapping[serverRelation["end"]];
 
+                    // Nodes not in internal list, since they were already existing-
+                    // Search them in the existing entities
+                    if (!e1 || !e2) {
 
+                        let BreakException = {};
+                        try {
+                            BasicEntity.getDataList().forEach((existingDE:BasicEntity) => {
+
+                                if (e1 && e2)
+                                    throw BreakException;
+
+                                if (!e1 && existingDE.getId() === serverRelation["start"]) {
+                                    e1 = existingDE;
+                                    return;
+                                }
+                                if (!e2 && existingDE.getId() === serverRelation["end"]) {
+                                    e2 = existingDE;
+                                    return;
+                                }
+                            })
+                        } catch (exc) {
+                            if (exc !== BreakException)
+                                throw exc;
+                        }
+
+                    }
+
+                    console.log(e1, e2);
                     switch (entityClass) {
 
                         case  ResourceTagConnection:
-                            let connection = new ResourceTagConnection(
+                            let connectionRT = new ResourceTagConnection(
                                 serverRelation["id"],
                                 <AfelResourceDataEntity>e1,
                                 <AfelTagDataEntity>e2,
                                 serverRelation["properties"]
                             );
-                            (<AfelResourceDataEntity>e1).addConnection(connection);
-                            (<AfelTagDataEntity>e2).addConnection(connection);
-                            dataIdMapping[serverRelation["id"]] = connection;
+                            (<AfelResourceDataEntity>e1).addConnection(connectionRT);
+                            (<AfelTagDataEntity>e2).addConnection(connectionRT);
+                            dataIdMapping[serverRelation["id"]] = connectionRT;
                             break;
 
                         case  LearningActivity:
-                            let connection = new LearningActivity(
+                            let connectionLA = new LearningActivity(
                                 serverRelation["id"],
                                 <AfelLearnerDataEntity>e1,
                                 <AfelResourceDataEntity>e2,
                                 serverRelation["properties"]
                             );
-                            ( <AfelLearnerDataEntity>e1).addConnection(connection);
-                            (<AfelResourceDataEntity>e2).addConnection(connection);
-                            dataIdMapping[serverRelation["id"]] = connection;
+                            ( <AfelLearnerDataEntity>e1).addConnection(connectionLA);
+                            (<AfelResourceDataEntity>e2).addConnection(connectionLA);
+                            dataIdMapping[serverRelation["id"]] = connectionLA;
+
+                            console.log(connectionLA);
                             break;
 
-                        case  ResourceTagConnection:
-                            let connection = new ResourceTagConnection(
-                                serverRelation["id"],
-                                <AfelResourceDataEntity>e1,
-                                <AfelTagDataEntity>e2,
-                                serverRelation["properties"]
-                            );
-                            ( <AfelResourceDataEntity>e1).addConnection(connection);
-                            (<AfelTagDataEntity>e2).addConnection(connection);
-                            dataIdMapping[serverRelation["id"]] = connection;
-                            break;
+                        default:
+                            console.warn("Could not handle connection-Entity-Class", entityClass);
+
                     }
 
                 });
             }
         }
+
+        return dataIdMapping;
     }
 
     public setData(data) {

@@ -3,6 +3,9 @@ import {GraphVisConfig} from "../../../../gvfcore/components/graphvis/config";
 import {Plane} from "../../../../gvfcore/components/plane/plane";
 import {DataAbstract} from "../../../../gvfcore/components/graphvis/data/dataabstract";
 import {AfelResourceDataEntity} from "../../data/resource";
+import {AfelDataService} from "../../../data/afeldata.service";
+import {AfelDataSourceGnoss} from "../../../data/gnossdata/afeldatasourcegnoss";
+import {AutoGraph} from "../../../../gvfcore/components/graphvis/graphs/autograph";
 
 /**
  * A AfelResourceDataEntity node, derived from @see{NodeSimple}
@@ -20,6 +23,23 @@ export class NodeResource extends NodeSimple {
         this.name = NodeResource.IDENTIFIER;
         this.hoverText = this.getDataEntity().getData("title");
         this.hoverTextColor = "#0000AA";
+    }
+
+
+    public onClick() {
+
+        (<AfelDataSourceGnoss>AfelDataService.getInstance().getDataSource()).loadSomethingDummyNew(this.dataEntity.getId(), function (status, addedData) {
+            console.log("LOADED!", status, addedData);
+
+            this.plane.getGraph().addGraphElements(addedData);
+            this.plane.getGraph().getLayout().calculateLayout(function () {
+                console.log("FINISHED RECALCULATING LAYOUT");
+            }, addedData);
+
+        }.bind(this));
+
+
+        super.onClick();
     }
 
 
