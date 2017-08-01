@@ -14,8 +14,13 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
 
     private http;
     private url = "http://localhost:8082";
-    private urlPostfixInit = "/";
-    private urlPostfixDummy = "/dummy";
+    private urlPaths = {
+        init: "/",
+        resource: "/resource",
+        user: "/user",
+        tag: "/tag"
+    };
+
 
     private dataMapping = {
         "User": AfelLearnerDataEntity,
@@ -36,22 +41,68 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
         let postData = {
             method: "getInitGraph",
             data: {
-                userId: 18
+                userId: 1,
+                count: 500
             }
         };
-        this.makeCall(this.url + this.urlPostfixInit, postData, cb);
+            this.makeCall(this.url + this.urlPaths.init, postData, cb);
     }
 
 
-    public loadSomethingDummyNew(resourceId, cb) {
+    public loadUsersOfResource(resourceId, cb) {
         let postData = {
-            method: "addDummy",
+            method: "getUsers",
             data: {
-                resourceId: resourceId
+                resourceId: resourceId,
+                count: 500
             }
         };
-        this.makeCall(this.url + this.urlPostfixDummy, postData, cb);
+        this.makeCall(this.url + this.urlPaths.resource, postData, cb);
     }
+
+    public loadUsersConnections(newUserIds, cb) {
+        let postData = {
+            method: "getUsersConnections",
+            data: {
+                userIds: newUserIds
+            }
+        };
+        this.makeCall(this.url + this.urlPaths.user, postData, cb);
+    }
+
+
+    public loadResourcesOfUser(userId, cb) {
+        let postData = {
+            method: "getResources",
+            data: {
+                userId: userId,
+                count: 500
+            }
+        };
+        this.makeCall(this.url + this.urlPaths.user, postData, cb);
+    }
+
+    public loadResourcesConnections(newResourceIds, cb) {
+        let postData = {
+            method: "getResourcesConnections",
+            data: {
+                resourceIds: newResourceIds
+            }
+        };
+        this.makeCall(this.url + this.urlPaths.resource, postData, cb);
+    }
+
+    public loadResourcesOfTag(tagId, cb) {
+        let postData = {
+            method: "getResources",
+            data: {
+                tagId: tagId,
+                count: 500
+            }
+        };
+        this.makeCall(this.url + this.urlPaths.tag, postData, cb);
+    }
+
 
     protected makeCall(url, data, cb) {
         this.http.post(url, data)
@@ -59,8 +110,6 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
             .toPromise()
             .then((res) => {
 
-
-                console.log(res);
                 if (res["data"] !== null) {
                     let addedData = this.storeResponseData(res);
 
@@ -171,7 +220,12 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
 
                     }
 
-                    console.log(e1, e2);
+                    /*
+                     If still no connection, skip (could be...)
+                     */
+                    if (!e1 || !e2)
+                        return;
+
                     switch (entityClass) {
 
                         case  ResourceTagConnection:
@@ -196,8 +250,6 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
                             ( <AfelLearnerDataEntity>e1).addConnection(connectionLA);
                             (<AfelResourceDataEntity>e2).addConnection(connectionLA);
                             dataIdMapping[serverRelation["id"]] = connectionLA;
-
-                            console.log(connectionLA);
                             break;
 
                         default:

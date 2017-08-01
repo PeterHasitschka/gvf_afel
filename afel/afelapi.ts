@@ -72,7 +72,7 @@ export class AfelApi implements GvfPluginInterface {
             console.log("finished fetching data from afel data source");
 
             PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Complete</strong> ' +
-                'Graph (Weighted by # of learning actions)', AfelAutoCompleteGraph, false);
+                'Graph (Weighted by # of learning actions)', AfelAutoCompleteGraph, true);
             //
             // PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Resources</strong> ' +
             //     'Graph', AfelAutoResourceGraph, false);
@@ -93,8 +93,7 @@ export class AfelApi implements GvfPluginInterface {
             SideInfoContentType.Text,
             {
                 text: 'Demo Application with GVF included as IFrame. ' +
-                'The data here is <a href="http://afel-project.eu/" target="_blank">AFEL</a> specific.<br>' +
-                'More Details about this visualization can be found <a href="https://github.com/PeterHasitschka/gvf_afel" target="_blank">here</a>.'
+                'The data here is <a href="http://afel-project.eu/" target="_blank">AFEL</a> specific.<br>'
             }
             )
         );
@@ -106,8 +105,8 @@ export class AfelApi implements GvfPluginInterface {
             SideInfoContentType.Text,
             {
                 text: "<div class='afel-legend-line'><div class='afel-legend-node afel-legend-learnernode'></div><span>Learner</span></div>" +
-                "<div class='afel-legend-line'><div class='afel-legend-node afel-legend-resourcenode'></div><span>Resource</span></div>"+
-                "<div class='afel-legend-line'><div class='afel-legend-node afel-legend-tagnode'></div><span>Tag (Keyword)</span></div>"+
+                "<div class='afel-legend-line'><div class='afel-legend-node afel-legend-resourcenode'></div><span>Resource</span></div>" +
+                "<div class='afel-legend-line'><div class='afel-legend-node afel-legend-tagnode'></div><span>Tag (Keyword)</span></div>" +
                 "<div class='afel-legend-line'><div class='afel-legend-path afel-legend-learningpath'></div><span>Learning-Path</span></div>"
             },
             1

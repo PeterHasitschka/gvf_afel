@@ -6,6 +6,8 @@ import {AfelResourceDataEntity} from "../../data/resource";
 import {AfelDataService} from "../../../data/afeldata.service";
 import {AfelDataSourceGnoss} from "../../../data/gnossdata/afeldatasourcegnoss";
 import {AutoGraph} from "../../../../gvfcore/components/graphvis/graphs/autograph";
+import {AfelLearnerDataEntity} from "../../data/learner";
+import {UiService} from "../../../../gvfcore/services/ui.service";
 
 /**
  * A AfelResourceDataEntity node, derived from @see{NodeSimple}
@@ -14,6 +16,7 @@ import {AutoGraph} from "../../../../gvfcore/components/graphvis/graphs/autograp
 export class NodeResource extends NodeSimple {
 
     public static IDENTIFIER = "Node AfelResourceDataEntity";
+    protected affiliatedTopButton = null;
 
     constructor(x:number, y:number, protected dataEntity:AfelResourceDataEntity, plane:Plane, options:Object) {
         super(x, y, dataEntity, plane, options);
@@ -26,21 +29,19 @@ export class NodeResource extends NodeSimple {
     }
 
 
-    public onClick() {
-
-        (<AfelDataSourceGnoss>AfelDataService.getInstance().getDataSource()).loadSomethingDummyNew(this.dataEntity.getId(), function (status, addedData) {
-            console.log("LOADED!", status, addedData);
-
-            this.plane.getGraph().addGraphElements(addedData);
-            this.plane.getGraph().getLayout().calculateLayout(function () {
-                console.log("FINISHED RECALCULATING LAYOUT");
-            }, addedData);
-
-        }.bind(this));
-
-
-        super.onClick();
+    public select(render = false) {
+        let button = AfelDataService.getInstance().addButtonLoadLearnersByResource(this.dataEntity.getId(), this.plane);
+        this.affiliatedTopButton = button;
+        super.select(render);
     }
 
+    public deSelect(render = false) {
+
+        if (this.affiliatedTopButton) {
+            UiService.getInstance().removeTopButton(this.affiliatedTopButton);
+            this.affiliatedTopButton = null;
+        }
+        super.deSelect(render);
+    }
 
 }
