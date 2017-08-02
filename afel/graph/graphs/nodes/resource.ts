@@ -32,6 +32,8 @@ export class NodeResource extends NodeSimple {
     public select(render = false) {
         let button = AfelDataService.getInstance().addButtonLoadLearnersByResource(this.dataEntity.getId(), this.plane);
         this.affiliatedTopButton = button;
+
+        console.log(this);
         super.select(render);
     }
 

@@ -7,6 +7,8 @@ import {AfelTagDataEntity} from "../../graph/data/tag";
 import {ResourceTagConnection} from "../../graph/data/connections/resourcetag";
 import {BasicEntity} from "../../../gvfcore/components/graphvis/data/databasicentity";
 import raw = require("core-js/fn/string/raw");
+import {ResourceResourceTransitionConnectionOfUserVisited} from "../../graph/data/connections/resresUserGenerated";
+import {ResourceResourceTransitionConnectionGeneral} from "../../graph/data/connections/resresGeneral";
 
 
 export class AfelDataSourceGnoss implements AfelDataSourceInterace {
@@ -21,13 +23,17 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
         tag: "/tag"
     };
 
+    private currentUserId = 1;
+
 
     private dataMapping = {
         "User": AfelLearnerDataEntity,
         "Resource": AfelResourceDataEntity,
         "Tag": AfelTagDataEntity,
         "HAS_TAG": ResourceTagConnection,
-        "USER_RESOURCE_ACTION": LearningActivity
+        "USER_RESOURCE_ACTION": LearningActivity,
+        "RES_RES_USERTRANS": ResourceResourceTransitionConnectionOfUserVisited,
+        "RES_TRANS": ResourceResourceTransitionConnectionGeneral,
     };
 
 
@@ -38,14 +44,61 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
 
     public fetchInitDataFromServer(cb = null) {
 
-        let postData = {
+        let postDataInit = {
             method: "getInitGraph",
             data: {
-                userId: 1,
-                count: 500
+                userId: this.currentUserId,
+                count: 500,
+                createResResTransition: true
             }
         };
-            this.makeCall(this.url + this.urlPaths.init, postData, cb);
+
+        /**
+         * Get init network first
+         */
+        this.makeCall(this.url + this.urlPaths.init, postDataInit, function (someBool, fetchedInitData) {
+
+            console.log("initdata", fetchedInitData);
+
+            let fetchedResIds = [];
+            for (let fIKey in fetchedInitData) {
+                if (!(fetchedInitData[fIKey] instanceof AfelResourceDataEntity))
+                    continue;
+                fetchedResIds.push(fetchedInitData[fIKey].getId());
+            }
+
+            let postDataInitTrans = {
+                method: "getResourcesWithBestTransition",
+                data: {
+                    resourceIds: fetchedResIds,
+                    count: 300,
+                    minWeight: 10
+                }
+            };
+
+            /**
+             * After that, load additional resources, which have a good transition from the user's learned ones
+             */
+            this.makeCall(this.url + this.urlPaths.resource, postDataInitTrans, function (someBool, fetchedNewTransRes) {
+
+                let fetchedNewResIds = [];
+                for (let fIKey in fetchedNewTransRes) {
+                    if (!(fetchedNewTransRes[fIKey] instanceof AfelResourceDataEntity))
+                        continue;
+                    fetchedNewResIds.push(fetchedNewTransRes[fIKey].getId());
+                }
+
+                /**
+                 * Finally get the connections of the new resources
+                 */
+                this.loadResourcesConnectionsToResources(fetchedNewResIds, function (status, addedConnections) {
+                    if (cb) {
+
+                        cb();
+                    }
+                });
+            }.bind(this));
+        }.bind(this));
     }
 
 
@@ -54,7 +107,8 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
             method: "getUsers",
             data: {
                 resourceId: resourceId,
-                count: 500
+                count: 500,
+                ignoredUsers: [this.currentUserId]
             }
         };
         this.makeCall(this.url + this.urlPaths.resource, postData, cb);
@@ -82,9 +136,19 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
         this.makeCall(this.url + this.urlPaths.user, postData, cb);
     }
 
-    public loadResourcesConnections(newResourceIds, cb) {
+    public loadResourcesConnectionsToUsers(newResourceIds, cb) {
         let postData = {
-            method: "getResourcesConnections",
+            method: "getResourcesConnectionsToUsers",
+            data: {
+                resourceIds: newResourceIds
+            }
+        };
+        this.makeCall(this.url + this.urlPaths.resource, postData, cb);
+    }
+
+    public loadResourcesConnectionsToResources(newResourceIds, cb) {
+        let postData = {
+            method: "getResourcesConnectionsToResources",
             data: {
                 resourceIds: newResourceIds
             }
@@ -109,6 +173,7 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
             .map(res => res.json())
             .toPromise()
             .then((res) => {
+                console.log("CALL MADE:", url, data, res);
 
                 if (res["data"] !== null) {
                     let addedData = this.storeResponseData(res);
@@ -252,6 +317,29 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
                             dataIdMapping[serverRelation["id"]] = connectionLA;
                             break;
 
+                        case  ResourceResourceTransitionConnectionOfUserVisited:
+                            let connectionRRU = new ResourceResourceTransitionConnectionOfUserVisited(
+                                serverRelation["id"],
+                                <AfelResourceDataEntity>e1,
+                                <AfelResourceDataEntity>e2,
+                                serverRelation["properties"]
+                            );
+                            (<AfelResourceDataEntity>e1).addConnection(connectionRRU);
+                            (<AfelResourceDataEntity>e2).addConnection(connectionRRU);
+                            dataIdMapping[serverRelation["id"]] = connectionRRU;
+                            break;
+
+                        case  ResourceResourceTransitionConnectionGeneral:
+                            let connectionRRG = new ResourceResourceTransitionConnectionGeneral(
+                                serverRelation["id"],
+                                <AfelResourceDataEntity>e1,
+                                <AfelResourceDataEntity>e2,
+                                serverRelation["properties"]
+                            );
+                            (<AfelResourceDataEntity>e1).addConnection(connectionRRG);
+                            (<AfelResourceDataEntity>e2).addConnection(connectionRRG);
+                            dataIdMapping[serverRelation["id"]] = connectionRRG;
+                            break;
                         default:
                             console.warn("Could not handle connection-Entity-Class", entityClass);
 

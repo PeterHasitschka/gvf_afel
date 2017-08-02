@@ -17,6 +17,11 @@ import {BasicConnection} from "../../../gvfcore/components/graphvis/data/databas
 import {BasicEntity} from "../../../gvfcore/components/graphvis/data/databasicentity";
 import {DataAbstract} from "../../../gvfcore/components/graphvis/data/dataabstract";
 import {UiService} from "../../../gvfcore/services/ui.service";
+import {ResourceResourceTransitionConnection} from "../data/connections/resres";
+import {ResourceResourceTransitionConnectionOfUserVisited} from "../data/connections/resresUserGenerated";
+import {ResourceResourceTransitionConnectionGeneral} from "../data/connections/resresGeneral";
+import {EdgeResourceResourceGeneral} from "./edges/resourceresourcegeneral";
+import {EdgeResourceResourceOfUserVisited} from "./edges/resourceresourceuservisit";
 
 export class AfelAutoCompleteGraph extends AutoGraph {
 
@@ -48,9 +53,20 @@ export class AfelAutoCompleteGraph extends AutoGraph {
                 type: AUTOGRAPH_EDGETYPES.BY_DATA,
                 dataConnection: ResourceTagConnection,
                 edge: EdgeResourceTag
+            },
+            {
+                type: AUTOGRAPH_EDGETYPES.BY_DATA,
+                dataConnection: ResourceResourceTransitionConnectionOfUserVisited,
+                edge: EdgeResourceResourceOfUserVisited
+            },
+            {
+                type: AUTOGRAPH_EDGETYPES.BY_DATA,
+                dataConnection: ResourceResourceTransitionConnectionGeneral,
+                edge: EdgeResourceResourceGeneral
             }
         ]
     };
+
 
     constructor(protected plane:Plane) {
         super(plane);

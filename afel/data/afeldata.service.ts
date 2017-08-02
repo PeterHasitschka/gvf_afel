@@ -49,7 +49,7 @@ export class AfelDataService {
                 plane.getGraph().getLayout().calculateLayout(function () {
                 }, addedData);
 
-                (<AfelDataSourceGnoss>AfelDataService.getInstance().getDataSource()).loadResourcesConnections(newResIds, function (statusC, addedConnections) {
+                (<AfelDataSourceGnoss>AfelDataService.getInstance().getDataSource()).loadResourcesConnectionsToUsers(newResIds, function (statusC, addedConnections) {
                     plane.getGraph().addGraphElements(addedConnections);
                     plane.getGraph().getLayout().calculateLayout(function () {
                     }, addedConnections);
@@ -129,7 +129,7 @@ export class AfelDataService {
                 plane.getGraph().getLayout().calculateLayout(function () {
                 }, addedData);
 
-                (<AfelDataSourceGnoss>AfelDataService.getInstance().getDataSource()).loadResourcesConnections(newResIds, function (statusC, addedConnections) {
+                (<AfelDataSourceGnoss>AfelDataService.getInstance().getDataSource()).loadResourcesConnectionsToUsers(newResIds, function (statusC, addedConnections) {
                     plane.getGraph().addGraphElements(addedConnections);
                     plane.getGraph().getLayout().calculateLayout(function () {
                     }, addedConnections);

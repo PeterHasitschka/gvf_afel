@@ -11,6 +11,7 @@ import {CombinedCommunityGraph} from "./graph/graphs/combinedcommunitygraph";
 import {AfelAutoResourceGraph} from "./graph/graphs/afelautoresources";
 import {AfelAutoLearnersGraph} from "./graph/graphs/afelautolearners";
 import {AfelAutoTagsGraph} from "./graph/graphs/afelautotags";
+import {AfelResourceDataEntity} from "./graph/data/resource";
 
 
 export class AfelApi implements GvfPluginInterface {
@@ -67,9 +68,9 @@ export class AfelApi implements GvfPluginInterface {
 
         window['compare'] = this.compareCommunityPlanes;
 
-        AfelDataService.getInstance().getDataSource().fetchInitDataFromServer(function (data) {
-            AfelDataService.getInstance().getDataSource().setData(data);
-            console.log("finished fetching data from afel data source");
+        AfelDataService.getInstance().getDataSource().fetchInitDataFromServer(function (someBool, data) {
+            // AfelDataService.getInstance().getDataSource().setData(data);
+            console.log("finished fetching data from afel data source", AfelResourceDataEntity.getDataList());
 
             PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Complete</strong> ' +
                 'Graph (Weighted by # of learning actions)', AfelAutoCompleteGraph, true);
