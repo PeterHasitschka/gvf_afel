@@ -70,7 +70,7 @@ export class AfelApi implements GvfPluginInterface {
 
         AfelDataService.getInstance().getDataSource().fetchInitDataFromServer(function (someBool, data) {
             // AfelDataService.getInstance().getDataSource().setData(data);
-            console.log("finished fetching data from afel data source", AfelResourceDataEntity.getDataList());
+
 
             PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Complete</strong> ' +
                 'Graph (Weighted by # of learning actions)', AfelAutoCompleteGraph, true);

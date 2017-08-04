@@ -67,12 +67,13 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
                 fetchedResIds.push(fetchedInitData[fIKey].getId());
             }
 
+            console.log(fetchedResIds);
             let postDataInitTrans = {
                 method: "getResourcesWithBestTransition",
                 data: {
                     resourceIds: fetchedResIds,
                     count: 300,
-                    minWeight: 10
+                    minWeight: 0
                 }
             };
 
