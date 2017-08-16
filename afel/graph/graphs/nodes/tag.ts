@@ -26,6 +26,8 @@ export class NodeTag extends NodeSimple {
 
         this.hoverText = this.getDataEntity().getData("tag")["name"];
         this.hoverTextColor = "#AA0000";
+
+        this.labelZoomAdjustmentBlocked = true;
     }
 
 

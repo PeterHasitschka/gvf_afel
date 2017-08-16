@@ -24,6 +24,8 @@ export class NodeLearner extends NodeSimple {
 
         this.hoverText = this.getDataEntity().getData("hash");
         this.hoverTextColor = "#00AA00";
+
+        this.labelZoomAdjustmentBlocked = true;
     }
 
 

@@ -26,6 +26,8 @@ export class NodeResource extends NodeSimple {
         this.name = NodeResource.IDENTIFIER;
         this.hoverText = this.getDataEntity().getData("title");
         this.hoverTextColor = "#0000AA";
+
+        this.labelZoomAdjustmentBlocked = true;
     }
 
 

@@ -13,7 +13,8 @@ export class LearningPath extends NodepathAbstract {
             lineColor1: LearningPath.lineColor1,
             lineColor2: LearningPath.lineColor2,
             lineWidth: LearningPath.lineWidth,
-            opacity: LearningPath.opacity
+            opacity: LearningPath.opacity,
+            createNodes : false
         });
     }
 }

@@ -45,7 +45,7 @@ export class AfelAutoResourceGraph extends AutoGraph {
                 edge: EdgeResourceResourceByLearner
             }
 
-        ]
+        ], paths : []
     };
 
     constructor(protected plane:Plane) {

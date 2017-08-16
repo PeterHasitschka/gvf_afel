@@ -35,7 +35,7 @@ export class AfelAutoLearnersGraph extends AutoGraph {
                 hopDataEntityType: AfelResourceDataEntity,
                 edge: EdgeLearnerLearner
             }
-        ]
+        ], paths : []
     };
 
     constructor(protected plane:Plane) {

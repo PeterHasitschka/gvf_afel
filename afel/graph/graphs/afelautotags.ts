@@ -34,7 +34,7 @@ export class AfelAutoTagsGraph extends AutoGraph {
                 hopDataEntityType: AfelResourceDataEntity,
                 edge: EdgeTagTag
             }
-        ]
+        ], paths : []
     };
 
     constructor(protected plane:Plane) {

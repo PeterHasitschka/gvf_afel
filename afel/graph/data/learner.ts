@@ -15,7 +15,6 @@ import {BasicConnection} from "../../../gvfcore/components/graphvis/data/databas
 export class AfelLearnerDataEntity extends BasicEntity {
 
     protected static dataList:AfelLearnerDataEntity[] = [];
-
     protected learnerPath;
 
     /**

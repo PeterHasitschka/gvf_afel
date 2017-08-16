@@ -22,6 +22,8 @@ import {ResourceResourceTransitionConnectionOfUserVisited} from "../data/connect
 import {ResourceResourceTransitionConnectionGeneral} from "../data/connections/resresGeneral";
 import {EdgeResourceResourceGeneral} from "./edges/resourceresourcegeneral";
 import {EdgeResourceResourceOfUserVisited} from "./edges/resourceresourceuservisit";
+import {ElementAbstract} from "../../../gvfcore/components/graphvis/graphs/graphelementabstract";
+import {LearningPath} from "./nodepath/learningpath";
 
 export class AfelAutoCompleteGraph extends AutoGraph {
 
@@ -64,6 +66,14 @@ export class AfelAutoCompleteGraph extends AutoGraph {
                 dataConnection: ResourceResourceTransitionConnectionGeneral,
                 edge: EdgeResourceResourceGeneral
             }
+        ],
+        paths : [
+            {
+                dataConnectionClass: ResourceResourceTransitionConnectionOfUserVisited,
+                dataConnectionEntities : ResourceResourceTransitionConnectionOfUserVisited.getDataList,
+                path: LearningPath
+            }
+
         ]
     };
 
@@ -75,7 +85,6 @@ export class AfelAutoCompleteGraph extends AutoGraph {
 
     public init() {
         super.init();
-
 
         InterGraphEventService.getInstance().addListener(INTERGRAPH_EVENTS.NODE_HOVERED, function (e) {
 
