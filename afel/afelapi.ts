@@ -12,6 +12,8 @@ import {AfelAutoResourceGraph} from "./graph/graphs/afelautoresources";
 import {AfelAutoLearnersGraph} from "./graph/graphs/afelautolearners";
 import {AfelAutoTagsGraph} from "./graph/graphs/afelautotags";
 import {AfelResourceDataEntity} from "./graph/data/resource";
+import {AfelAutoResourceTransitionNetworkGraph} from "./graph/graphs/afelautoresourcetransitionnetwork";
+import {AfelDataSourceGnoss} from "./data/gnossdata/afeldatasourcegnoss";
 
 
 export class AfelApi implements GvfPluginInterface {
@@ -68,12 +70,16 @@ export class AfelApi implements GvfPluginInterface {
 
         window['compare'] = this.compareCommunityPlanes;
 
-        AfelDataService.getInstance().getDataSource().fetchInitDataFromServer(function (someBool, data) {
+        (<AfelDataSourceGnoss>AfelDataService.getInstance().getDataSource()).fetchInitDataFromServer(function (someBool, data) {
             // AfelDataService.getInstance().getDataSource().setData(data);
 
-
             PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Complete</strong> ' +
-                'Graph (Weighted by # of learning actions)', AfelAutoCompleteGraph, true);
+                'Graph (Weighted by # of learning actions)', AfelAutoCompleteGraph, false);
+
+
+            (<AfelDataSourceGnoss>AfelDataService.getInstance().getDataSource()).fetchGlobalResourceTransitionNetwork(function (someBool, data) {
+                PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> Global Resource Transition Graph', AfelAutoResourceTransitionNetworkGraph, false);
+            });
             //
             // PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Resources</strong> ' +
             //     'Graph', AfelAutoResourceGraph, false);

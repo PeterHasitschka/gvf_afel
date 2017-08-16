@@ -16,9 +16,11 @@ import {EdgeResourceResourceByLearner} from "./edges/resourceresourcebylearner";
 import {EdgeResourceResourceByTag} from "./edges/resourceresourcebytag";
 import {NodeTag} from "./nodes/tag";
 import {ResourceTagConnection} from "../data/connections/resourcetag";
+import {ResourceResourceTransitionConnectionGeneral} from "../data/connections/resresGeneral";
+import {EdgeResourceResourceGeneral} from "./edges/resourceresourcegeneral";
 
 
-export class AfelAutoResourceGraph extends AutoGraph {
+export class AfelAutoResourceTransitionNetworkGraph extends AutoGraph {
 
     protected applyCalculatedWeights = false;
     protected thinOut = false;
@@ -33,18 +35,10 @@ export class AfelAutoResourceGraph extends AutoGraph {
         ],
         edges: [
             {
-                type: AUTOGRAPH_EDGETYPES.BY_ONE_HOP,
-                sourceNodeType: NodeResource,
-                hopDataEntityType: AfelTagDataEntity,
-                edge: EdgeResourceResourceByTag
-            },
-            {
-                type: AUTOGRAPH_EDGETYPES.BY_ONE_HOP,
-                sourceNodeType: NodeResource,
-                hopDataEntityType: AfelLearnerDataEntity,
-                edge: EdgeResourceResourceByLearner
+                type: AUTOGRAPH_EDGETYPES.BY_DATA,
+                dataConnection: ResourceResourceTransitionConnectionGeneral,
+                edge: EdgeResourceResourceGeneral
             }
-
         ], paths : []
     };
 

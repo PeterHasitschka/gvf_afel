@@ -49,7 +49,7 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
             data: {
                 userId: this.currentUserId,
                 count: 500,
-                createResResTransition: true
+                createUserResResTransition: true
             }
         };
 
@@ -94,7 +94,6 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
                  */
                 this.loadResourcesConnectionsToResources(fetchedNewResIds, function (status, addedConnections) {
                     if (cb) {
-
                         cb();
                     }
                 });
@@ -102,6 +101,37 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
         }.bind(this));
     }
 
+
+    public fetchGlobalResourceTransitionNetwork(cb = null) {
+
+        let postData = {
+            method: "getGlobalResourceTransitionGraph",
+            data: {
+                count: 100
+            }
+        };
+
+        this.makeCall(this.url + this.urlPaths.resource, postData, function (someBool, fetchedData) {
+            let fetchedNewResIds = [];
+            for (let fKey in fetchedData) {
+                (<BasicEntity>fetchedData[fKey]).setData("is_res_trans_nw_data", true);
+                if (fetchedData[fKey] instanceof AfelResourceDataEntity)
+                    fetchedNewResIds.push(fetchedData[fKey].getId());
+            }
+
+            // this.loadResourcesConnectionsToResources(fetchedNewResIds, function (status, addedConnections) {
+            //     if (cb) {
+            //         cb();
+            //     }
+            // });
+
+            if (cb) {
+                cb();
+            }
+
+        }.bind(this));
+
+    }
 
     public loadUsersOfResource(resourceId, cb) {
         let postData = {
@@ -238,6 +268,9 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
                             }
 
                             dataIdMapping[serverNodeId] = new entityClass(serverNodeId, serverNode["properties"]);
+
+                            // To distinguish between same data types from different calls later
+                            (<BasicEntity>dataIdMapping[serverNodeId]).setData("is_init_data", true);
                         });
                         break;
                 }
@@ -343,9 +376,7 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
                             break;
                         default:
                             console.warn("Could not handle connection-Entity-Class", entityClass);
-
                     }
-
                 });
             }
         }

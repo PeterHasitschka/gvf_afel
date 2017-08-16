@@ -17,7 +17,7 @@ import {ResourceTagConnection} from "../data/connections/resourcetag";
 
 export class AfelAutoTagsGraph extends AutoGraph {
 
-    protected applyWeights = true;
+    protected applyCalculatedWeights = true;
     protected thinOut = false;
 
     protected mappingStructure = {

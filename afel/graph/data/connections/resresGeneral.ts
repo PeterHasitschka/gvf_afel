@@ -6,6 +6,8 @@ import {ResourceResourceTransitionConnection} from "./resres";
 
 /**
  * ResourceResourceTransitionConnectionGeneral
+ * Differs from ResourceResourceTransitionConnectionOfUserVisited, that this type of connection describes a transition
+ * between two nodes, which was performed by ANY user, not specifically by the current one.
  * @author Peter Hasitschka
  */
 export class ResourceResourceTransitionConnectionGeneral extends ResourceResourceTransitionConnection {

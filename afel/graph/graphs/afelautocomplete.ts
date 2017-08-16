@@ -27,14 +27,16 @@ import {LearningPath} from "./nodepath/learningpath";
 
 export class AfelAutoCompleteGraph extends AutoGraph {
 
-    protected applyWeights = true;
+    protected applyCalculatedWeights = false;
+    protected applyOfflineWeightsByData = true;
     protected thinOut = false;
 
     protected mappingStructure = {
         nodes: [
             {
                 data: AfelResourceDataEntity,
-                node: NodeResource
+                node: NodeResource,
+                filter: this.filterResourceOnlyFromInitCall
             },
             {
                 data: AfelLearnerDataEntity,
@@ -67,16 +69,22 @@ export class AfelAutoCompleteGraph extends AutoGraph {
                 edge: EdgeResourceResourceGeneral
             }
         ],
-        paths : [
+        paths: [
             {
                 dataConnectionClass: ResourceResourceTransitionConnectionOfUserVisited,
-                dataConnectionEntities : ResourceResourceTransitionConnectionOfUserVisited.getDataList,
+                dataConnectionEntities: ResourceResourceTransitionConnectionOfUserVisited.getDataList,
                 path: LearningPath
             }
 
         ]
     };
 
+    // Filter to only show init network, independent if other calls (e.g. global resource nw) was already performed
+    protected filterResourceOnlyFromInitCall(data:BasicEntity) {
+        if (data.getData("is_init_data"))
+            return true;
+        return false;
+    }
 
     constructor(protected plane:Plane) {
         super(plane);

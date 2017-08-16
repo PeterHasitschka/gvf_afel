@@ -17,7 +17,7 @@ import {UiService} from "../../../gvfcore/services/ui.service";
 
 export class AfelAutoLearnersGraph extends AutoGraph {
 
-    protected applyWeights = false;
+    protected applyCalculatedWeights = false;
     protected thinOut = false;
     protected thinOutThreshold = 0.0;
 
