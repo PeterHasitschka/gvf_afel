@@ -23,6 +23,7 @@ import {EdgeResourceResourceGeneral} from "./edges/resourceresourcegeneral";
 export class AfelAutoResourceTransitionNetworkGraph extends AutoGraph {
 
     protected applyCalculatedWeights = false;
+    protected applyOfflineWeightsByData = true;
     protected thinOut = false;
     protected activeLearningPath = null;
 

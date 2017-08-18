@@ -328,6 +328,10 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
                     switch (entityClass) {
 
                         case  ResourceTagConnection:
+
+                            if (ResourceTagConnection.getObject(serverRelation["id"]))
+                                break;
+
                             let connectionRT = new ResourceTagConnection(
                                 serverRelation["id"],
                                 <AfelResourceDataEntity>e1,
@@ -340,6 +344,10 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
                             break;
 
                         case  LearningActivity:
+
+                            if (LearningActivity.getObject(serverRelation["id"]))
+                                break;
+
                             let connectionLA = new LearningActivity(
                                 serverRelation["id"],
                                 <AfelLearnerDataEntity>e1,
@@ -352,6 +360,10 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
                             break;
 
                         case  ResourceResourceTransitionConnectionOfUserVisited:
+
+                            if (ResourceResourceTransitionConnectionOfUserVisited.getObject(serverRelation["id"]))
+                                break;
+
                             let connectionRRU = new ResourceResourceTransitionConnectionOfUserVisited(
                                 serverRelation["id"],
                                 <AfelResourceDataEntity>e1,
@@ -364,6 +376,10 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
                             break;
 
                         case  ResourceResourceTransitionConnectionGeneral:
+
+                            if (ResourceResourceTransitionConnectionGeneral.getObject(serverRelation["id"]))
+                                break;
+
                             let connectionRRG = new ResourceResourceTransitionConnectionGeneral(
                                 serverRelation["id"],
                                 <AfelResourceDataEntity>e1,
