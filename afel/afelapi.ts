@@ -71,15 +71,21 @@ export class AfelApi implements GvfPluginInterface {
         window['compare'] = this.compareCommunityPlanes;
 
         (<AfelDataSourceGnoss>AfelDataService.getInstance().getDataSource()).fetchInitDataFromServer(function (someBool, data) {
-            // AfelDataService.getInstance().getDataSource().setData(data);
+
 
             PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Complete</strong> ' +
-                'Graph (Weighted by # of learning actions)', AfelAutoCompleteGraph, false);
+                'Graph (Weighted by # of learning actions)', AfelAutoCompleteGraph, true);
+
+            //
+            // (<AfelDataSourceGnoss>AfelDataService.getInstance().getDataSource()).fetchGlobalResourceTransitionNetwork(function (someBool, data) {
+            //     PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> Global Resource Transition Graph', AfelAutoResourceTransitionNetworkGraph, false);
+            // });
 
 
-            (<AfelDataSourceGnoss>AfelDataService.getInstance().getDataSource()).fetchGlobalResourceTransitionNetwork(function (someBool, data) {
-                PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> Global Resource Transition Graph', AfelAutoResourceTransitionNetworkGraph, false);
-            });
+
+
+            // Old, single graphs
+
             //
             // PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Resources</strong> ' +
             //     'Graph', AfelAutoResourceGraph, false);

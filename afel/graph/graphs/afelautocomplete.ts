@@ -24,6 +24,7 @@ import {EdgeResourceResourceGeneral} from "./edges/resourceresourcegeneral";
 import {EdgeResourceResourceOfUserVisited} from "./edges/resourceresourceuservisit";
 import {ElementAbstract} from "../../../gvfcore/components/graphvis/graphs/graphelementabstract";
 import {LearningPath} from "./nodepath/learningpath";
+import {GraphLayoutAfelTimeline} from "../layouts/afeltimeline";
 
 export class AfelAutoCompleteGraph extends AutoGraph {
 
@@ -88,7 +89,8 @@ export class AfelAutoCompleteGraph extends AutoGraph {
 
     constructor(protected plane:Plane) {
         super(plane);
-        this.layoutClass = GraphLayoutFdlQuadtreeCompleteAfelGraph;
+        // this.layoutClass = GraphLayoutFdlQuadtreeCompleteAfelGraph;
+        this.layoutClass = GraphLayoutAfelTimeline;
     }
 
     public init() {
