@@ -76,7 +76,6 @@ export class AfelAutoCompleteGraph extends AutoGraph {
                 dataConnectionEntities: ResourceResourceTransitionConnectionOfUserVisited.getDataList,
                 path: LearningPath
             }
-
         ]
     };
 

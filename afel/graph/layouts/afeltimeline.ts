@@ -11,8 +11,10 @@ import {NodeTag} from "../graphs/nodes/tag";
 import {AfelTagDataEntity} from "../data/tag";
 import {EdgeResourceTag} from "../graphs/edges/resourcetag";
 import {LearningPath} from "../graphs/nodepath/learningpath";
+import {ResourceResourceTransitionConnectionOfUserVisited} from "../data/connections/resresUserGenerated";
 export class GraphLayoutAfelTimeline extends GraphLayoutAbstract {
 
+    private connectedEntityIdsOrderOnTimeline = null;
 
     constructor(protected plane:Plane, nodes:NodeAbstract[], edges:EdgeAbstract[]) {
         super(plane, nodes, edges);
@@ -83,7 +85,22 @@ export class GraphLayoutAfelTimeline extends GraphLayoutAbstract {
             }
         });
 
-        // tmpResourcesOnTimeline = plane.getLearnerPath()
+
+        // Find 'learning-path' by discovering the nodes on the ResourceResourceTransitionConnectionOfUserVisited connections
+        // This is necessary since they are NOT connected by their order but by the incoming connection order from the server
+        // In setResourceTimelinePositions the nodes are ordered by this list (@see sortResNodesByOrderedEntityIdList)
+        let connectedResEntitiesByVisitOrder = [];
+        ResourceResourceTransitionConnectionOfUserVisited.getDataList().forEach((rtrC:ResourceResourceTransitionConnectionOfUserVisited) => {
+
+            let eSrc = rtrC.getResourceSrc();
+            let eDst = rtrC.getResourceDst();
+
+            if (connectedResEntitiesByVisitOrder.indexOf(eSrc.getId()) < 0)
+                connectedResEntitiesByVisitOrder.push(eSrc.getId());
+            if (connectedResEntitiesByVisitOrder.indexOf(eDst.getId()) < 0)
+                connectedResEntitiesByVisitOrder.push(eDst.getId());
+        });
+        this.connectedEntityIdsOrderOnTimeline = connectedResEntitiesByVisitOrder;
 
         this.setResourceTimelinePositions(tmpResourcesOnTimeline);
         this.setResourceOthersPositions(tmpResourcesOthers);
@@ -91,112 +108,52 @@ export class GraphLayoutAfelTimeline extends GraphLayoutAbstract {
     }
 
     /**
-     * Sort Fct to sort a list of nodes by their minimal start-date in one of their edges' entities.
-     * Additionaly sets the min-start date as a data-variable ('min_date_timeline') in the node's entity.
+     * Simple sorting function that sorts the nodes by a list of entity-ids.
+     * Necessary to get the correct order regarding the connections to show the timeline correctly.
+     * The nodes do not come in the right order, thus they were ordered in this.calculate by their visit-connections
      * @param a
      * @param b
      * @returns {number}
      */
-    private sortResNodesByFirstOccurenceOfStartDateFct(a:NodeResource, b:NodeResource) {
-        // Two ways to sort:
-        // B) By dates
-        // A) By checking connecting edges
+    private sortResNodesByOrderedEntityIdList(a:NodeResource, b:NodeResource) {
+        return (this.connectedEntityIdsOrderOnTimeline.indexOf(a.getDataEntity().getId()) <
+        this.connectedEntityIdsOrderOnTimeline.indexOf(b.getDataEntity().getId()) ? -1 : 1);
+    }
 
 
-        // B) - Not directly connected. Sorting must be done by date
-
-        let minDateA = null;
-
-        if (!a.getDataEntity().getData("min_date_timeline")) {
-            let edgesOfNodeA = a.getEdges();
-            edgesOfNodeA.forEach((e:EdgeAbstract) => {
-
-                if (e.constructor !== EdgeResourceResourceOfUserVisited)
-                    return;
-
-                let date = null;
-                if (e.getSourceNode().getUniqueId() === a.getUniqueId())
-                    date = new Date(<String>e.getConnectionEntity().getData("startdate"));
-                else
-                    date = new Date(<String>e.getConnectionEntity().getData("enddate"));
-                if (minDateA === null) {
-                    minDateA = date;
-                    return;
-                }
-                if (date < minDateA)
-                    minDateA = date;
-            });
-            a.getDataEntity().setData("min_date_timeline", minDateA);
-        } else
-            minDateA = a.getDataEntity().getData("min_date_timeline");
-
-
-        let minDateB = null;
-
-        if (!b.getDataEntity().getData("min_date_timeline")) {
-            let edgesOfNodeB = b.getEdges();
-            edgesOfNodeB.forEach((e:EdgeAbstract) => {
-
-                if (e.constructor !== EdgeResourceResourceOfUserVisited)
-                    return;
-
-                let date = null;
-                if (e.getSourceNode().getUniqueId() === b.getUniqueId())
-                    date = new Date(<String>e.getConnectionEntity().getData("startdate"));
-                else
-                    date = new Date(<String>e.getConnectionEntity().getData("enddate"));
-                if (minDateB === null) {
-                    minDateB = date;
-                    return;
-                }
-                if (date < minDateB)
-                    minDateB = date;
-            });
-
-            b.getDataEntity().setData("min_date_timeline", minDateB);
-
-        } else
-            minDateB = b.getDataEntity().getData("min_date_timeline");
-
-
-
-        if (minDateA.getTime() == minDateB.getTime()) {
-            console.log("TRY BY CONNECTION!");
-            // A) - Let's see if they are connected directly to easily identify the sorting.
-            // Necessary if the two dates are the same
-            let sortByEdges = null;
-            let BreakException = {};
-            try {
-
-                a.getEdges().forEach((e:EdgeAbstract) => {
+    /**
+     * Resources might be visited multiple times.
+     * We set a data value which holds the first visit date.
+     * This is then relevant for the timeline position
+     * @param nodes
+     */
+    private setNodesMinDateOnTimeline(nodes:NodeResource[]) {
+        nodes.forEach((n:NodeResource) => {
+            let minDate = null;
+            if (!n.getDataEntity().getData("min_date_timeline")) {
+                let edgesOfNode = n.getEdges();
+                edgesOfNode.forEach((e:EdgeAbstract) => {
 
                     if (e.constructor !== EdgeResourceResourceOfUserVisited)
                         return;
 
-                    if (e.getSourceNode().getUniqueId() === a.getUniqueId() && e.getDestNode().getUniqueId() === b.getUniqueId()) {
-                        sortByEdges = -1;
-                        throw BreakException;
+                    let date = null;
+                    if (e.getSourceNode().getUniqueId() === n.getUniqueId())
+                        date = new Date(<string>e.getConnectionEntity().getData("startdate"));
+                    else
+                        date = new Date(<string>e.getConnectionEntity().getData("enddate"));
+                    if (minDate === null) {
+                        minDate = date;
+                        return;
                     }
-                    if (e.getSourceNode().getUniqueId() === b.getUniqueId() && e.getDestNode().getUniqueId() === a.getUniqueId()) {
-                        sortByEdges = 1;
-                        throw BreakException;
-                    }
+                    if (date < minDate)
+                        minDate = date;
                 });
-
-            } catch (e) {
-                if (e !== BreakException)
-                    throw e;
+                n.getDataEntity().setData("min_date_timeline", minDate);
             }
-
-            if (sortByEdges !== null)
-                return sortByEdges;
-        }
-
-
-
-
-        return (minDateA < minDateB ? -1 : (minDateA > minDateB ? 1 : 0));
+        });
     }
+
 
     private setResourceTimelinePositions(nodes:NodeResource[]) {
 
@@ -205,12 +162,8 @@ export class GraphLayoutAfelTimeline extends GraphLayoutAbstract {
         let timelineStartY = 0;
         let timelineEndY = 500;
 
-
-        let timelineTagY = -300;
-
-
-        nodes.sort(this.sortResNodesByFirstOccurenceOfStartDateFct);
-
+        this.setNodesMinDateOnTimeline(nodes);
+        nodes.sort(this.sortResNodesByOrderedEntityIdList.bind(this));
 
         let firstStartDate = nodes[0].getDataEntity().getData("min_date_timeline");
         let lastStartDate = nodes[nodes.length - 1].getDataEntity().getData("min_date_timeline");
@@ -265,7 +218,7 @@ export class GraphLayoutAfelTimeline extends GraphLayoutAbstract {
                 usedPositions[xPos] = 0;
             }
             usedPositions[xPos]++;
-            yPos += (usedPositions[xPos] -1 ) * seperationStep;
+            yPos += (usedPositions[xPos] - 1 ) * seperationStep;
 
 
             n.setPosition(xPos, yPos);
