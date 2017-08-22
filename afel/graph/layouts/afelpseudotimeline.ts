@@ -12,7 +12,7 @@ import {AfelTagDataEntity} from "../data/tag";
 import {EdgeResourceTag} from "../graphs/edges/resourcetag";
 import {LearningPath} from "../graphs/nodepath/learningpath";
 import {ResourceResourceTransitionConnectionOfUserVisited} from "../data/connections/resresUserGenerated";
-export class GraphLayoutAfelTimeline extends GraphLayoutAbstract {
+export class GraphLayoutAfelPseudoTimeline extends GraphLayoutAbstract {
 
     private connectedEntityIdsOrderOnTimeline = null;
 
@@ -154,7 +154,10 @@ export class GraphLayoutAfelTimeline extends GraphLayoutAbstract {
         });
     }
 
-
+    /**
+     * Set the position of resource nodes which were visited by the user in a row
+     * @param nodes
+     */
     private setResourceTimelinePositions(nodes:NodeResource[]) {
 
         let timelineStartX = 0;
@@ -177,9 +180,14 @@ export class GraphLayoutAfelTimeline extends GraphLayoutAbstract {
             let posX = timelineStartX + timelineFactor * timelineEndX;
             n.setPosition(posX, timelineStartY + (k * ((timelineEndY - timelineStartY) / nodes.length)));
 
+
         });
     }
 
+    /**
+     * Set all other resource nodes (e.g. recommended ones for later visit...)
+     * @param nodes
+     */
     private setResourceOthersPositions(nodes:NodeResource[]) {
 
         let timelineY = 700;
@@ -191,6 +199,8 @@ export class GraphLayoutAfelTimeline extends GraphLayoutAbstract {
 
             let connectedTimelineNodesMinX = null;
             let connectedTimelineNodesMaxX = null;
+            let lastNode:NodeAbstract = null;
+            let resEdgeCount = 0;
             n.getEdges().forEach((e:EdgeAbstract) => {
 
                 if (e.constructor !== EdgeResourceResourceGeneral)
@@ -206,10 +216,19 @@ export class GraphLayoutAfelTimeline extends GraphLayoutAbstract {
                     connectedTimelineNodesMinX = posOtherNode["x"];
                 if (connectedTimelineNodesMaxX === null || posOtherNode["x"] > connectedTimelineNodesMaxX)
                     connectedTimelineNodesMaxX = posOtherNode["x"];
+
+                resEdgeCount++;
+                lastNode = otherNode;
             });
 
-            let xPos = Math.round((connectedTimelineNodesMaxX - connectedTimelineNodesMinX) / 2);
-            let yPos = timelineY;
+            let xPos, yPos;
+            yPos = timelineY;
+            // If the res is only connected to one resource, place it directly over it
+            if (resEdgeCount === 1 || (connectedTimelineNodesMaxX - connectedTimelineNodesMinX) < 1.0) {
+                xPos = Math.round(lastNode.getPosition()['x']);
+            } else {
+                xPos = Math.round((connectedTimelineNodesMaxX - connectedTimelineNodesMinX) / 2 + connectedTimelineNodesMinX);
+            }
 
 
             // Register the X-Position.
@@ -226,9 +245,21 @@ export class GraphLayoutAfelTimeline extends GraphLayoutAbstract {
         console.log(usedPositions);
     }
 
+
+    private orderTagsByWeightFct(a:NodeTag, b:NodeTag) {
+        return (a.getDataEntity().getData("weight") > b.getDataEntity().getData("weight") ? -1 : 1);
+    }
+
+    /**
+     * Set the position of TAG-Nodes below the timeline
+     * @param nodes
+     */
     private setTagPositions(nodes:NodeTag[]) {
         let timelineY = -100;
+        let seperationStep = 50;
 
+        let usedPositions = {};
+        nodes.sort(this.orderTagsByWeightFct);
 
         nodes.forEach((n:NodeTag) => {
             let tagEdgesCounted = 0;
@@ -257,11 +288,23 @@ export class GraphLayoutAfelTimeline extends GraphLayoutAbstract {
                 lastResNode = otherNode;
             });
 
+
+            let xPos, yPos;
+            yPos = timelineY;
+            // If the tag is used only by one resource, place it directly underneath it
             if (tagEdgesCounted === 1 || (connectedTimelineNodesMaxX - connectedTimelineNodesMinX) < 1.0) {
-                n.setPosition(lastResNode.getPosition()['x'], timelineY);
-                return;
+                xPos = Math.round(lastResNode.getPosition()['x']);
+            } else
+                xPos = Math.round((connectedTimelineNodesMaxX - connectedTimelineNodesMinX) / 2 + connectedTimelineNodesMinX);
+
+            // Register the X-Position.
+            // If another node wants to use the same, shift the Y pos to prevent overlap
+            if (typeof usedPositions[xPos] === "undefined") {
+                usedPositions[xPos] = 0;
             }
-            n.setPosition((connectedTimelineNodesMaxX - connectedTimelineNodesMinX) / 2, timelineY);
+            usedPositions[xPos]++;
+            yPos -= (usedPositions[xPos] - 1 ) * seperationStep;
+            n.setPosition(xPos, yPos);
 
         });
     }

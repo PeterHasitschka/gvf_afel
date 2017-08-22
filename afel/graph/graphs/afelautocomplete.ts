@@ -24,7 +24,14 @@ import {EdgeResourceResourceGeneral} from "./edges/resourceresourcegeneral";
 import {EdgeResourceResourceOfUserVisited} from "./edges/resourceresourceuservisit";
 import {ElementAbstract} from "../../../gvfcore/components/graphvis/graphs/graphelementabstract";
 import {LearningPath} from "./nodepath/learningpath";
-import {GraphLayoutAfelTimeline} from "../layouts/afeltimeline";
+import {GraphLayoutAfelPseudoTimeline} from "../layouts/afelpseudotimeline";
+import {GraphLayoutAfelTimelineSequence} from "../layouts/afeltimelinesequ";
+import {AfelDynActionDataEntity} from "../data/dynaction";
+import {NodeDynAction} from "./nodes/dynaction";
+import {DynActionResConnection} from "../data/connections/dynactionRes";
+import {EdgeDynactionRes} from "./edges/dynactionres";
+import {DynActionDynActionConnection} from "../data/connections/dynactionDynAction";
+import {EdgeDynactionDynaction} from "./edges/dynactiondynaction";
 
 export class AfelAutoCompleteGraph extends AutoGraph {
 
@@ -46,7 +53,12 @@ export class AfelAutoCompleteGraph extends AutoGraph {
             {
                 data: AfelTagDataEntity,
                 node: NodeTag
+            },
+            {
+                data: AfelDynActionDataEntity,
+                node: NodeDynAction
             }
+
         ],
         edges: [
             {
@@ -68,14 +80,24 @@ export class AfelAutoCompleteGraph extends AutoGraph {
                 type: AUTOGRAPH_EDGETYPES.BY_DATA,
                 dataConnection: ResourceResourceTransitionConnectionGeneral,
                 edge: EdgeResourceResourceGeneral
+            },
+            // {
+            //     type: AUTOGRAPH_EDGETYPES.BY_DATA,
+            //     dataConnection: DynActionResConnection,
+            //     edge: EdgeDynactionRes
+            // },
+            {
+                type: AUTOGRAPH_EDGETYPES.BY_DATA,
+                dataConnection: DynActionDynActionConnection,
+                edge: EdgeDynactionDynaction
             }
         ],
         paths: [
-            {
-                dataConnectionClass: ResourceResourceTransitionConnectionOfUserVisited,
-                dataConnectionEntities: ResourceResourceTransitionConnectionOfUserVisited.getDataList,
-                path: LearningPath
-            }
+            // {
+            //     dataConnectionClass: ResourceResourceTransitionConnectionOfUserVisited,
+            //     dataConnectionEntities: ResourceResourceTransitionConnectionOfUserVisited.getDataList,
+            //     path: LearningPath
+            // }
         ]
     };
 
@@ -89,7 +111,8 @@ export class AfelAutoCompleteGraph extends AutoGraph {
     constructor(protected plane:Plane) {
         super(plane);
         // this.layoutClass = GraphLayoutFdlQuadtreeCompleteAfelGraph;
-        this.layoutClass = GraphLayoutAfelTimeline;
+        // this.layoutClass = GraphLayoutAfelPseudoTimeline;
+        this.layoutClass = GraphLayoutAfelTimelineSequence;
     }
 
     public init() {

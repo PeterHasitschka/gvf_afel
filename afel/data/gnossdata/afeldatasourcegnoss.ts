@@ -9,6 +9,9 @@ import {BasicEntity} from "../../../gvfcore/components/graphvis/data/databasicen
 import raw = require("core-js/fn/string/raw");
 import {ResourceResourceTransitionConnectionOfUserVisited} from "../../graph/data/connections/resresUserGenerated";
 import {ResourceResourceTransitionConnectionGeneral} from "../../graph/data/connections/resresGeneral";
+import {AfelDynActionDataEntity} from "../../graph/data/dynaction";
+import {DynActionResConnection} from "../../graph/data/connections/dynactionRes";
+import {DynActionDynActionConnection} from "../../graph/data/connections/dynactionDynAction";
 
 
 export class AfelDataSourceGnoss implements AfelDataSourceInterace {
@@ -30,10 +33,12 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
         "User": AfelLearnerDataEntity,
         "Resource": AfelResourceDataEntity,
         "Tag": AfelTagDataEntity,
+        "DynAction": AfelDynActionDataEntity,
         "HAS_TAG": ResourceTagConnection,
         "USER_RESOURCE_ACTION": LearningActivity,
         "RES_RES_USERTRANS": ResourceResourceTransitionConnectionOfUserVisited,
         "RES_TRANS": ResourceResourceTransitionConnectionGeneral,
+        "ACTION_ON_RESOURCE": DynActionResConnection
     };
 
 
@@ -390,12 +395,64 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
                             (<AfelResourceDataEntity>e2).addConnection(connectionRRG);
                             dataIdMapping[serverRelation["id"]] = connectionRRG;
                             break;
+
+                        case  DynActionResConnection:
+
+                            if (DynActionResConnection.getObject(serverRelation["id"]))
+                                break;
+
+                            let connectionDR = new DynActionResConnection(
+                                serverRelation["id"],
+                                <AfelDynActionDataEntity>e1,
+                                <AfelResourceDataEntity>e2,
+                                serverRelation["properties"]
+                            );
+                            (<AfelDynActionDataEntity>e1).addConnection(connectionDR);
+                            (<AfelResourceDataEntity>e2).addConnection(connectionDR);
+                            dataIdMapping[serverRelation["id"]] = connectionDR;
+                            break;
+
                         default:
                             console.warn("Could not handle connection-Entity-Class", entityClass);
                     }
                 });
             }
         }
+
+        dataIdMapping = this.createDynActionDynActionConnections(dataIdMapping);
+
+        return dataIdMapping;
+    }
+
+
+    private sortDynDatasByDateFct(d1:AfelDynActionDataEntity, d2:AfelDynActionDataEntity) {
+        let date1 = new Date(<string>d1.getData("action_date"));
+        let date2 = new Date(<string>d2.getData("action_date"));
+        return date1 < date2 ? -1 : (date2 < date1 ? 1 : 0);
+    }
+
+    private createDynActionDynActionConnections(dataIdMapping) {
+        AfelDynActionDataEntity.getDataList().sort(this.sortDynDatasByDateFct);
+
+
+        AfelDynActionDataEntity.getDataList().forEach((d1:AfelDynActionDataEntity, k) => {
+            if (k === 0)
+                return;
+            let d2:AfelDynActionDataEntity = AfelDynActionDataEntity.getDataList()[k - 1];
+            let newConnectionId = d1.getId() + "-" + d2.getId();
+            let connectionDD = new DynActionDynActionConnection(
+                newConnectionId,
+                d1,
+                d2,
+                {
+                    "startdate": d1.getData("action_date"),
+                    "enddate": d2.getData("action_date")
+                }
+            );
+            d1.addConnection(connectionDD);
+            d2.addConnection(connectionDD);
+            dataIdMapping[newConnectionId] = connectionDD;
+        });
 
         return dataIdMapping;
     }

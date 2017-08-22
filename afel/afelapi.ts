@@ -31,6 +31,9 @@ export class AfelApi implements GvfPluginInterface {
         GraphVisConfig.graphelements['tagnode'] = {
             color: 0xCE6B89
         };
+        GraphVisConfig.graphelements['dynactionnode'] = {
+            color: 0xc6c42f
+        };
 
         GraphVisConfig.graphelements['learningcommunity'] = {
             segments: 128,
@@ -73,15 +76,13 @@ export class AfelApi implements GvfPluginInterface {
         (<AfelDataSourceGnoss>AfelDataService.getInstance().getDataSource()).fetchInitDataFromServer(function (someBool, data) {
 
 
-            PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Complete</strong> ' +
-                'Graph (Weighted by # of learning actions)', AfelAutoCompleteGraph, true);
+            PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> <strong>Timeline</strong> ' +
+                'Graph (For current user)', AfelAutoCompleteGraph, true);
 
-            //
+
             // (<AfelDataSourceGnoss>AfelDataService.getInstance().getDataSource()).fetchGlobalResourceTransitionNetwork(function (someBool, data) {
             //     PluginApi.addPlane('<i class="fa fa-book" aria-hidden="true"></i> Global Resource Transition Graph', AfelAutoResourceTransitionNetworkGraph, false);
             // });
-
-
 
 
             // Old, single graphs
