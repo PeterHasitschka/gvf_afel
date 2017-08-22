@@ -81,11 +81,11 @@ export class AfelAutoCompleteGraph extends AutoGraph {
                 dataConnection: ResourceResourceTransitionConnectionGeneral,
                 edge: EdgeResourceResourceGeneral
             },
-            // {
-            //     type: AUTOGRAPH_EDGETYPES.BY_DATA,
-            //     dataConnection: DynActionResConnection,
-            //     edge: EdgeDynactionRes
-            // },
+            {
+                type: AUTOGRAPH_EDGETYPES.BY_DATA,
+                dataConnection: DynActionResConnection,
+                edge: EdgeDynactionRes
+            },
             {
                 type: AUTOGRAPH_EDGETYPES.BY_DATA,
                 dataConnection: DynActionDynActionConnection,

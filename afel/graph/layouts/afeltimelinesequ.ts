@@ -160,39 +160,6 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
 
 
     /**
-     * Resources might be visited multiple times.
-     * We set a data value which holds the first visit date.
-     * This is then relevant for the timeline position
-     * @param nodes
-     */
-    private setNodesMinDateOnTimeline(nodes:NodeResource[]) {
-        nodes.forEach((n:NodeResource) => {
-            let minDate = null;
-            if (!n.getDataEntity().getData("min_date_timeline")) {
-                let edgesOfNode = n.getEdges();
-                edgesOfNode.forEach((e:EdgeAbstract) => {
-
-                    if (e.constructor !== EdgeResourceResourceOfUserVisited)
-                        return;
-
-                    let date = null;
-                    if (e.getSourceNode().getUniqueId() === n.getUniqueId())
-                        date = new Date(<string>e.getConnectionEntity().getData("startdate"));
-                    else
-                        date = new Date(<string>e.getConnectionEntity().getData("enddate"));
-                    if (minDate === null) {
-                        minDate = date;
-                        return;
-                    }
-                    if (date < minDate)
-                        minDate = date;
-                });
-                n.getDataEntity().setData("min_date_timeline", minDate);
-            }
-        });
-    }
-
-    /**
      * Set the position of resource nodes which were visited by the user in a row
      * @param nodes
      */
@@ -203,22 +170,12 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
         let timelineStartY = 0;
         let timelineEndY = 500;
 
-        this.setNodesMinDateOnTimeline(nodes);
         nodes.sort(this.sortResNodesByOrderedEntityIdList.bind(this));
 
-        let firstStartDate = nodes[0].getDataEntity().getData("min_date_timeline");
-        let lastStartDate = nodes[nodes.length - 1].getDataEntity().getData("min_date_timeline");
-
-        console.log(firstStartDate, lastStartDate);
-
         nodes.forEach((n:NodeResource, k) => {
-            // let startD = n.getDataEntity().getData("min_date_timeline");
-            //
-            // let timelineFactor = (startD - firstStartDate) / (lastStartDate - firstStartDate);
-            // let posX = timelineStartX + timelineFactor * timelineEndX;
-
             let posX = 0;
-            let posY = timelineStartY + (k * ((timelineEndY - timelineStartY) / nodes.length))
+            let posY = timelineStartY + (k * ((timelineEndY - timelineStartY) / nodes.length));
+
             n.setPosition(posX, posY);
 
 

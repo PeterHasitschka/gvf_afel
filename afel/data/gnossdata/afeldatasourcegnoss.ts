@@ -38,7 +38,8 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
         "USER_RESOURCE_ACTION": LearningActivity,
         "RES_RES_USERTRANS": ResourceResourceTransitionConnectionOfUserVisited,
         "RES_TRANS": ResourceResourceTransitionConnectionGeneral,
-        "ACTION_ON_RESOURCE": DynActionResConnection
+        "ACTION_ON_RESOURCE": DynActionResConnection,
+        "DYNACTION_DYNACTION_CONNECTION": DynActionDynActionConnection
     };
 
 
@@ -400,7 +401,6 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
 
                             if (DynActionResConnection.getObject(serverRelation["id"]))
                                 break;
-
                             let connectionDR = new DynActionResConnection(
                                 serverRelation["id"],
                                 <AfelDynActionDataEntity>e1,
@@ -412,6 +412,21 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
                             dataIdMapping[serverRelation["id"]] = connectionDR;
                             break;
 
+                        case  DynActionDynActionConnection:
+
+                            if (DynActionDynActionConnection.getObject(serverRelation["id"]))
+                                break;
+                            let connectionDD = new DynActionDynActionConnection(
+                                serverRelation["id"],
+                                <AfelDynActionDataEntity>e1,
+                                <AfelDynActionDataEntity>e2,
+                                serverRelation["properties"]
+                            );
+                            (<AfelDynActionDataEntity>e1).addConnection(connectionDD);
+                            (<AfelDynActionDataEntity>e2).addConnection(connectionDD);
+                            dataIdMapping[serverRelation["id"]] = connectionDD;
+                            break;
+
                         default:
                             console.warn("Could not handle connection-Entity-Class", entityClass);
                     }
@@ -419,26 +434,29 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
             }
         }
 
-        dataIdMapping = this.createDynActionDynActionConnections(dataIdMapping);
+        // dataIdMapping = this.createDynActionDynActionConnections(dynDataForPostProcess, dataIdMapping);
 
         return dataIdMapping;
     }
 
-
+    /**
+     * Obsolete: Calculated on server now.
+     */
+    /*
     private sortDynDatasByDateFct(d1:AfelDynActionDataEntity, d2:AfelDynActionDataEntity) {
         let date1 = new Date(<string>d1.getData("action_date"));
         let date2 = new Date(<string>d2.getData("action_date"));
         return date1 < date2 ? -1 : (date2 < date1 ? 1 : 0);
     }
 
-    private createDynActionDynActionConnections(dataIdMapping) {
-        AfelDynActionDataEntity.getDataList().sort(this.sortDynDatasByDateFct);
+    private createDynActionDynActionConnections(data:AfelDynActionDataEntity[], dataIdMapping) {
+        data.sort(this.sortDynDatasByDateFct);
 
 
-        AfelDynActionDataEntity.getDataList().forEach((d1:AfelDynActionDataEntity, k) => {
+        data.forEach((d1:AfelDynActionDataEntity, k) => {
             if (k === 0)
                 return;
-            let d2:AfelDynActionDataEntity = AfelDynActionDataEntity.getDataList()[k - 1];
+            let d2:AfelDynActionDataEntity = data[k - 1];
             let newConnectionId = d1.getId() + "-" + d2.getId();
             let connectionDD = new DynActionDynActionConnection(
                 newConnectionId,
@@ -452,10 +470,13 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
             d1.addConnection(connectionDD);
             d2.addConnection(connectionDD);
             dataIdMapping[newConnectionId] = connectionDD;
+
+            console.log(d1.getId(), d2.getId());
         });
 
         return dataIdMapping;
     }
+    */
 
     public setData(data) {
 
