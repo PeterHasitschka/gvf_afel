@@ -55,7 +55,9 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
             data: {
                 userId: this.currentUserId,
                 count: 500,
-                createUserResResTransition: true
+                createUserResResTransition: true,
+                mergeResourceCategories: true,
+                getResourceGrouping : true
             }
         };
 
@@ -443,40 +445,40 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
      * Obsolete: Calculated on server now.
      */
     /*
-    private sortDynDatasByDateFct(d1:AfelDynActionDataEntity, d2:AfelDynActionDataEntity) {
-        let date1 = new Date(<string>d1.getData("action_date"));
-        let date2 = new Date(<string>d2.getData("action_date"));
-        return date1 < date2 ? -1 : (date2 < date1 ? 1 : 0);
-    }
+     private sortDynDatasByDateFct(d1:AfelDynActionDataEntity, d2:AfelDynActionDataEntity) {
+     let date1 = new Date(<string>d1.getData("action_date"));
+     let date2 = new Date(<string>d2.getData("action_date"));
+     return date1 < date2 ? -1 : (date2 < date1 ? 1 : 0);
+     }
 
-    private createDynActionDynActionConnections(data:AfelDynActionDataEntity[], dataIdMapping) {
-        data.sort(this.sortDynDatasByDateFct);
+     private createDynActionDynActionConnections(data:AfelDynActionDataEntity[], dataIdMapping) {
+     data.sort(this.sortDynDatasByDateFct);
 
 
-        data.forEach((d1:AfelDynActionDataEntity, k) => {
-            if (k === 0)
-                return;
-            let d2:AfelDynActionDataEntity = data[k - 1];
-            let newConnectionId = d1.getId() + "-" + d2.getId();
-            let connectionDD = new DynActionDynActionConnection(
-                newConnectionId,
-                d1,
-                d2,
-                {
-                    "startdate": d1.getData("action_date"),
-                    "enddate": d2.getData("action_date")
-                }
-            );
-            d1.addConnection(connectionDD);
-            d2.addConnection(connectionDD);
-            dataIdMapping[newConnectionId] = connectionDD;
+     data.forEach((d1:AfelDynActionDataEntity, k) => {
+     if (k === 0)
+     return;
+     let d2:AfelDynActionDataEntity = data[k - 1];
+     let newConnectionId = d1.getId() + "-" + d2.getId();
+     let connectionDD = new DynActionDynActionConnection(
+     newConnectionId,
+     d1,
+     d2,
+     {
+     "startdate": d1.getData("action_date"),
+     "enddate": d2.getData("action_date")
+     }
+     );
+     d1.addConnection(connectionDD);
+     d2.addConnection(connectionDD);
+     dataIdMapping[newConnectionId] = connectionDD;
 
-            console.log(d1.getId(), d2.getId());
-        });
+     console.log(d1.getId(), d2.getId());
+     });
 
-        return dataIdMapping;
-    }
-    */
+     return dataIdMapping;
+     }
+     */
 
     public setData(data) {
 

@@ -18,7 +18,10 @@ export class NodeDynAction extends NodeSimple {
 
     public static IDENTIFIER = "Node Dynamic Action";
 
-    constructor(x:number, y:number, protected dataEntity:AfelDynActionDataEntity, plane:Plane, options:Object) {
+    constructor(x:number, y:number, dataEntity:AfelDynActionDataEntity, plane:Plane, options:Object) {
+        if (options === null)
+            options = {};
+            options["size"] = 10;
         super(x, y, dataEntity, plane, options);
 
         this.color = GraphVisConfig.graphelements['dynactionnode'].color;
@@ -33,7 +36,7 @@ export class NodeDynAction extends NodeSimple {
 
     public getConnectedResourceNode():NodeResource {
 
-        let res = this.dataEntity.getConnectedResource();
+        let res = (<AfelDynActionDataEntity>this.dataEntity).getConnectedResource();
         let resNode:NodeResource = null;
         let BreakException = {};
         try {

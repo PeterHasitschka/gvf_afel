@@ -14,9 +14,18 @@ import {LearningPath} from "../graphs/nodepath/learningpath";
 import {ResourceResourceTransitionConnectionOfUserVisited} from "../data/connections/resresUserGenerated";
 import {NodeDynAction} from "../graphs/nodes/dynaction";
 import {AfelDynActionDataEntity} from "../data/dynaction";
+import {AfelMetanodeResources} from "../graphs/metanodes/resGroup";
+import {EdgeBasic} from "../../../gvfcore/components/graphvis/graphs/edges/edgeelementbasic";
+import {EdgeResourceMetaGroup} from "../graphs/edges/resourcemetagroup";
+import {AfelTimeLineGrid, AFEL_TIMELINEGRID_TIMESCALE} from "./timeline/timelinegrid";
 export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
 
     private connectedEntityIdsOrderOnTimeline = null;
+
+    private timelineStartX = 0;
+    private timelineEndX = 2000;
+    private timelineStartY = 0;
+    private timelineEndY = 500;
 
     constructor(protected plane:Plane, nodes:NodeAbstract[], edges:EdgeAbstract[]) {
         super(plane, nodes, edges);
@@ -93,29 +102,43 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
         });
 
 
-        // Find 'learning-path' by discovering the nodes on the ResourceResourceTransitionConnectionOfUserVisited connections
-        // This is necessary since they are NOT connected by their order but by the incoming connection order from the server
-        // In setResourceTimelinePositions the nodes are ordered by this list (@see sortResNodesByOrderedEntityIdList)
-        let connectedResEntitiesByVisitOrder = [];
-        ResourceResourceTransitionConnectionOfUserVisited.getDataList().forEach((rtrC:ResourceResourceTransitionConnectionOfUserVisited) => {
-
-            let eSrc = rtrC.getResourceSrc();
-            let eDst = rtrC.getResourceDst();
-
-            if (connectedResEntitiesByVisitOrder.indexOf(eSrc.getId()) < 0)
-                connectedResEntitiesByVisitOrder.push(eSrc.getId());
-            if (connectedResEntitiesByVisitOrder.indexOf(eDst.getId()) < 0)
-                connectedResEntitiesByVisitOrder.push(eDst.getId());
-        });
-        this.connectedEntityIdsOrderOnTimeline = connectedResEntitiesByVisitOrder;
-
         this.setResourceTimelinePositions(tmpResourcesOnTimeline);
-        // this.setResourceOthersPositions(tmpResourcesOthers);
-        // this.setTagPositions(tmpTagNodes);
+        let mNs = this.createAndSetMetanodePositions(tmpResourcesOnTimeline);
+        this.setResourceOthersPositions(tmpResourcesOthers);
+        this.setTagPositions(tmpTagNodes);
         this.setDynActionNodesOnTimeline(tmpDynActionNodes);
+        this.createTimelineGrid(mNs, tmpDynActionNodes);
     }
 
+    /**
+     * Creating the grid of the timeline
+     * @param metaNodes
+     * @param dynNodes
+     */
+    private createTimelineGrid(metaNodes:AfelMetanodeResources[], dynNodes:NodeDynAction[]) {
 
+        console.log("CREATE GRID!", metaNodes, dynNodes);
+        let startDate = new Date(<string>dynNodes[0].getDataEntity().getData("action_date"));
+        let endDate = new Date(<string>dynNodes[dynNodes.length - 1].getDataEntity().getData("action_date"));
+        let width = this.timelineEndX - this.timelineStartX;
+        let height = this.timelineEndY - this.timelineStartY;
+
+        let sliceNum = metaNodes.length;
+
+        let timelineGrid = new AfelTimeLineGrid(startDate, endDate, width, height, sliceNum,
+            AFEL_TIMELINEGRID_TIMESCALE.WEEKLY,
+            this.plane,
+            {});
+
+        this.plane.getGraphScene().addObject(timelineGrid);
+    }
+
+    /**
+     * Sortin function for dynamic actions by their date
+     * @param dNode1
+     * @param dNode2
+     * @returns {number}
+     */
     private sortDynDatasByDateFct(dNode1:NodeDynAction, dNode2:NodeDynAction) {
 
         let date1 = new Date(<string>dNode1.getDataEntity().getData("action_date"));
@@ -123,6 +146,11 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
         return date1 < date2 ? -1 : 1;
     }
 
+    /**
+     * Dynamic actions are shown on the timeline, while their y-Position is defined by their resource's group-node.
+     * The x-position relates to the 'action_date'
+     * @param nodes
+     */
     private setDynActionNodesOnTimeline(nodes:NodeDynAction[]) {
 
         let timelineStartX = 10;
@@ -133,13 +161,32 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
 
         nodes.forEach((n:NodeDynAction, k) => {
             let rNode = n.getConnectedResourceNode();
+
+            // We want the position of its group-metanode to determine the y position:
+            let BreakException = {};
+            let groupY = null;
+            try {
+                rNode.getEdges().forEach((eOfR:EdgeAbstract) => {
+                    if (eOfR.constructor === EdgeResourceMetaGroup) {
+                        groupY = (<EdgeResourceMetaGroup>eOfR).getMetaNode().getPosition()['y'];
+                        throw BreakException;
+                    }
+                });
+            } catch (e) {
+                if (e !== BreakException)
+                    throw e;
+            }
+
+
             let yPos = 0;
-            if (rNode)
-                yPos = rNode.getPosition()['y'];
+            if (groupY !== null)
+                yPos = groupY;
+            else
+                console.warn("Could not determine the action's resource group!");
 
             let actionDate = new Date(<string>n.getDataEntity().getData("action_date"));
             let timelineFactor = (actionDate.getTime() - firstDate.getTime()) / (lastDate.getTime() - firstDate.getTime());
-            console.log(timelineFactor, actionDate, firstDate, lastDate);
+
             let posX = timelineStartX + timelineFactor * timelineEndX;
             n.setPosition(posX, yPos);
         });
@@ -158,6 +205,50 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
         this.connectedEntityIdsOrderOnTimeline.indexOf(b.getDataEntity().getId()) ? -1 : 1);
     }
 
+    /**
+     * We want to group the resources by their 'calculatedResourceGroup' data value which comes from the server
+     * Resources should be hidden in the created meta-nodes.
+     * @param nodes
+     */
+    private createAndSetMetanodePositions(nodes:NodeResource[]):AfelMetanodeResources[] {
+        let metaNodeScaleFct = 30;
+        let metaNodePosX = -20;
+        // GROUP RESOURCE NODES (BY CATEGORY OR WHATEVER THE SERVER CALCULATED @todo: currently DUMMY!
+        let rGroups = {};
+        // Push resource nodes in a group array
+        nodes.forEach((n:NodeResource) => {
+            let gId = n.getDataEntity().getData("calculatedResourceGroup");
+            if (typeof rGroups[gId] === "undefined")
+                rGroups[gId] = [];
+            rGroups[gId].push(n);
+        });
+
+        // Create group nodes and connecting edges to their resources.
+        // Resources get collapsed.
+        let gCount = 0;
+        let metaNodes:AfelMetanodeResources[] = [];
+        let rGrLength = Object.keys(rGroups).length;
+        for (let rGroupId in rGroups) {
+            let metaY = (this.timelineEndY - this.timelineStartY) / rGrLength * gCount + this.timelineStartX;
+
+            let metaNodeSize = rGroups[rGroupId].length / rGrLength * metaNodeScaleFct;
+            let metaNode = new AfelMetanodeResources(metaNodePosX, metaY, rGroups[rGroupId], this.plane, metaNodeSize);
+            this.plane.getGraphScene().addObject(metaNode);
+            metaNode.collapseResNodes(false, null);
+            rGroups[rGroupId].forEach((rn:NodeResource) => {
+
+                let mEdge = new EdgeResourceMetaGroup(rn, metaNode, this.plane);
+                rn.addEdge(mEdge);
+                metaNode.addEdge(mEdge);
+                this.plane.getGraphScene().addObject(mEdge);
+            });
+
+            metaNodes.push(metaNode);
+            gCount++;
+        }
+
+        return metaNodes;
+    }
 
     /**
      * Set the position of resource nodes which were visited by the user in a row
@@ -165,21 +256,33 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
      */
     private setResourceTimelinePositions(nodes:NodeResource[]) {
 
-        let timelineStartX = 0;
-        let timelineEndX = 2000;
-        let timelineStartY = 0;
-        let timelineEndY = 500;
+        let resNodePosX = -200;
 
+        // SORT RESOURCE NODES
+        // Find 'learning-path' by discovering the nodes on the ResourceResourceTransitionConnectionOfUserVisited connections
+        // This is necessary since they are NOT connected by their order but by the incoming connection order from the server
+        // In sortResNodesByOrderedEntityIdList the nodes are ordered by this list
+        let connectedResEntitiesByVisitOrder = [];
+        ResourceResourceTransitionConnectionOfUserVisited.getDataList().forEach((rtrC:ResourceResourceTransitionConnectionOfUserVisited) => {
+            let eSrc = rtrC.getResourceSrc();
+            let eDst = rtrC.getResourceDst();
+            if (connectedResEntitiesByVisitOrder.indexOf(eSrc.getId()) < 0)
+                connectedResEntitiesByVisitOrder.push(eSrc.getId());
+            if (connectedResEntitiesByVisitOrder.indexOf(eDst.getId()) < 0)
+                connectedResEntitiesByVisitOrder.push(eDst.getId());
+        });
+        this.connectedEntityIdsOrderOnTimeline = connectedResEntitiesByVisitOrder;
         nodes.sort(this.sortResNodesByOrderedEntityIdList.bind(this));
 
+
+        // FINALLY SET RESOURCE NODE POSITIONS
         nodes.forEach((n:NodeResource, k) => {
-            let posX = 0;
-            let posY = timelineStartY + (k * ((timelineEndY - timelineStartY) / nodes.length));
-
+            let posX = resNodePosX;
+            let posY = this.timelineStartY + (k * ((this.timelineEndY - this.timelineStartY) / nodes.length));
             n.setPosition(posX, posY);
-
-
         });
+
+
     }
 
     /**
@@ -195,6 +298,11 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
 
         nodes.forEach((n:NodeResource) => {
 
+            // For now hide them
+            n.setIsVisible(false);
+            return;
+
+        /*
             let connectedTimelineNodesMinX = null;
             let connectedTimelineNodesMaxX = null;
             let lastNode:NodeAbstract = null;
@@ -239,6 +347,8 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
 
 
             n.setPosition(xPos, yPos);
+
+        */
         });
         console.log(usedPositions);
     }
@@ -260,6 +370,11 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
         nodes.sort(this.orderTagsByWeightFct);
 
         nodes.forEach((n:NodeTag) => {
+
+            // For now hide them
+            n.setIsVisible(false);
+            return;
+        /*
             let tagEdgesCounted = 0;
             let lastResNode = null;
 
@@ -303,7 +418,7 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
             usedPositions[xPos]++;
             yPos -= (usedPositions[xPos] - 1 ) * seperationStep;
             n.setPosition(xPos, yPos);
-
+        */
         });
     }
 
