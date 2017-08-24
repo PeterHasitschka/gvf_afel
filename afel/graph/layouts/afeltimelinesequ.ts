@@ -18,6 +18,8 @@ import {AfelMetanodeResources} from "../graphs/metanodes/resGroup";
 import {EdgeBasic} from "../../../gvfcore/components/graphvis/graphs/edges/edgeelementbasic";
 import {EdgeResourceMetaGroup} from "../graphs/edges/resourcemetagroup";
 import {AfelTimeLineGrid, AFEL_TIMELINEGRID_TIMESCALE} from "./timeline/timelinegrid";
+import {BasicConnection} from "../../../gvfcore/components/graphvis/data/databasicconnection";
+import {DynActionResConnection} from "../data/connections/dynactionRes";
 export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
 
     private connectedEntityIdsOrderOnTimeline = null;
@@ -102,12 +104,14 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
         });
 
 
-        this.setResourceTimelinePositions(tmpResourcesOnTimeline);
-        let mNs = this.createAndSetMetanodePositions(tmpResourcesOnTimeline);
+        let mNs = this.createAndSetResourceMetanodePositions(tmpResourcesOnTimeline);
         this.setResourceOthersPositions(tmpResourcesOthers);
         this.setTagPositions(tmpTagNodes);
         this.setDynActionNodesOnTimeline(tmpDynActionNodes);
+        this.setResourceTimelinePositions(tmpResourcesOnTimeline);
+        this.collapseMetaNodes(mNs);
         this.createTimelineGrid(mNs, tmpDynActionNodes);
+
     }
 
     /**
@@ -126,7 +130,7 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
         let sliceNum = metaNodes.length;
 
         let timelineGrid = new AfelTimeLineGrid(startDate, endDate, width, height, sliceNum,
-            AFEL_TIMELINEGRID_TIMESCALE.WEEKLY,
+            AFEL_TIMELINEGRID_TIMESCALE.MONTHLY,
             this.plane,
             {});
 
@@ -192,6 +196,13 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
         });
     }
 
+
+    private collapseMetaNodes(metaNodes:AfelMetanodeResources[]) {
+        metaNodes.forEach((m:AfelMetanodeResources) => {
+            m.collapseNodes(false, null);
+        })
+    }
+
     /**
      * Simple sorting function that sorts the nodes by a list of entity-ids.
      * Necessary to get the correct order regarding the connections to show the timeline correctly.
@@ -210,7 +221,10 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
      * Resources should be hidden in the created meta-nodes.
      * @param nodes
      */
-    private createAndSetMetanodePositions(nodes:NodeResource[]):AfelMetanodeResources[] {
+    private createAndSetResourceMetanodePositions(nodes:NodeResource[]):AfelMetanodeResources[] {
+
+
+
         let metaNodeScaleFct = 30;
         let metaNodePosX = -20;
         // GROUP RESOURCE NODES (BY CATEGORY OR WHATEVER THE SERVER CALCULATED @todo: currently DUMMY!
@@ -223,6 +237,8 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
             rGroups[gId].push(n);
         });
 
+        console.log("GROUPS:", rGroups);
+
         // Create group nodes and connecting edges to their resources.
         // Resources get collapsed.
         let gCount = 0;
@@ -234,7 +250,7 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
             let metaNodeSize = rGroups[rGroupId].length / rGrLength * metaNodeScaleFct;
             let metaNode = new AfelMetanodeResources(metaNodePosX, metaY, rGroups[rGroupId], this.plane, metaNodeSize);
             this.plane.getGraphScene().addObject(metaNode);
-            metaNode.collapseResNodes(false, null);
+            // metaNode.collapseResNodes(false, null);
             rGroups[rGroupId].forEach((rn:NodeResource) => {
 
                 let mEdge = new EdgeResourceMetaGroup(rn, metaNode, this.plane);
@@ -256,29 +272,62 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
      */
     private setResourceTimelinePositions(nodes:NodeResource[]) {
 
-        let resNodePosX = -200;
+        let resNodePosY = 600;
+        let nodeGridWidth = 20;
+        let usedPositions = {};
 
-        // SORT RESOURCE NODES
-        // Find 'learning-path' by discovering the nodes on the ResourceResourceTransitionConnectionOfUserVisited connections
-        // This is necessary since they are NOT connected by their order but by the incoming connection order from the server
-        // In sortResNodesByOrderedEntityIdList the nodes are ordered by this list
-        let connectedResEntitiesByVisitOrder = [];
-        ResourceResourceTransitionConnectionOfUserVisited.getDataList().forEach((rtrC:ResourceResourceTransitionConnectionOfUserVisited) => {
-            let eSrc = rtrC.getResourceSrc();
-            let eDst = rtrC.getResourceDst();
-            if (connectedResEntitiesByVisitOrder.indexOf(eSrc.getId()) < 0)
-                connectedResEntitiesByVisitOrder.push(eSrc.getId());
-            if (connectedResEntitiesByVisitOrder.indexOf(eDst.getId()) < 0)
-                connectedResEntitiesByVisitOrder.push(eDst.getId());
-        });
-        this.connectedEntityIdsOrderOnTimeline = connectedResEntitiesByVisitOrder;
-        nodes.sort(this.sortResNodesByOrderedEntityIdList.bind(this));
+        let getNodePosXFromDynActionEntity = function (da:AfelDynActionDataEntity) {
+            let BreakException = {};
+            let posX = null;
+            try {
+                da.getRegisteredGraphElements().forEach((node:NodeDynAction) => {
+                    if (node.getPlane().getId() !== this.plane.getId())
+                        return;
 
+                    posX = node.getPosition()['x'];
+                    throw BreakException;
+                });
+            } catch (e) {
+                if (e !== BreakException)
+                    throw e;
+            }
 
-        // FINALLY SET RESOURCE NODE POSITIONS
+            return posX;
+        }.bind(this);
+
         nodes.forEach((n:NodeResource, k) => {
-            let posX = resNodePosX;
-            let posY = this.timelineStartY + (k * ((this.timelineEndY - this.timelineStartY) / nodes.length));
+
+            let minDate = null;
+            let maxDate = null;
+            n.getDataEntity().getConnections().forEach((c:BasicConnection) => {
+                if (c.constructor !== DynActionResConnection)
+                    return;
+
+                let dynAct = (<DynActionResConnection>c).getDynAction();
+                let actionDate = new Date(<string>dynAct.getData("action_date"));
+                if (minDate === null || actionDate.getTime() < minDate.t)
+                    minDate = {t: actionDate.getTime(), a: dynAct};
+                if (maxDate === null || actionDate.getTime() > maxDate.t)
+                    maxDate = {t: actionDate.getTime(), a: dynAct};
+            });
+
+            let posX;
+            if (minDate.t === maxDate.t) {
+                posX = getNodePosXFromDynActionEntity(<AfelDynActionDataEntity>minDate.a);
+            } else {
+                let posX1 = getNodePosXFromDynActionEntity(<AfelDynActionDataEntity>minDate.a);
+                let posX2 = getNodePosXFromDynActionEntity(<AfelDynActionDataEntity>maxDate.a);
+                posX = (posX1 + posX2) / 2.0;
+            }
+
+
+            posX = Math.round(posX / nodeGridWidth) * nodeGridWidth;
+            if (typeof usedPositions[posX] === "undefined")
+                usedPositions[posX] = 0;
+            usedPositions[posX]++;
+
+            let posY = resNodePosY + (usedPositions[posX] - 1) * nodeGridWidth;
+
             n.setPosition(posX, posY);
         });
 
@@ -302,53 +351,53 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
             n.setIsVisible(false);
             return;
 
-        /*
-            let connectedTimelineNodesMinX = null;
-            let connectedTimelineNodesMaxX = null;
-            let lastNode:NodeAbstract = null;
-            let resEdgeCount = 0;
-            n.getEdges().forEach((e:EdgeAbstract) => {
+            /*
+             let connectedTimelineNodesMinX = null;
+             let connectedTimelineNodesMaxX = null;
+             let lastNode:NodeAbstract = null;
+             let resEdgeCount = 0;
+             n.getEdges().forEach((e:EdgeAbstract) => {
 
-                if (e.constructor !== EdgeResourceResourceGeneral)
-                    return;
-                let otherNode:NodeAbstract = null;
-                if (e.getSourceNode().getUniqueId() === n.getUniqueId())
-                    otherNode = e.getDestNode();
-                else
-                    otherNode = e.getSourceNode();
+             if (e.constructor !== EdgeResourceResourceGeneral)
+             return;
+             let otherNode:NodeAbstract = null;
+             if (e.getSourceNode().getUniqueId() === n.getUniqueId())
+             otherNode = e.getDestNode();
+             else
+             otherNode = e.getSourceNode();
 
-                let posOtherNode = otherNode.getPosition();
-                if (connectedTimelineNodesMinX === null || posOtherNode["x"] < connectedTimelineNodesMinX)
-                    connectedTimelineNodesMinX = posOtherNode["x"];
-                if (connectedTimelineNodesMaxX === null || posOtherNode["x"] > connectedTimelineNodesMaxX)
-                    connectedTimelineNodesMaxX = posOtherNode["x"];
+             let posOtherNode = otherNode.getPosition();
+             if (connectedTimelineNodesMinX === null || posOtherNode["x"] < connectedTimelineNodesMinX)
+             connectedTimelineNodesMinX = posOtherNode["x"];
+             if (connectedTimelineNodesMaxX === null || posOtherNode["x"] > connectedTimelineNodesMaxX)
+             connectedTimelineNodesMaxX = posOtherNode["x"];
 
-                resEdgeCount++;
-                lastNode = otherNode;
-            });
+             resEdgeCount++;
+             lastNode = otherNode;
+             });
 
-            let xPos, yPos;
-            yPos = timelineY;
-            // If the res is only connected to one resource, place it directly over it
-            if (resEdgeCount === 1 || (connectedTimelineNodesMaxX - connectedTimelineNodesMinX) < 1.0) {
-                xPos = Math.round(lastNode.getPosition()['x']);
-            } else {
-                xPos = Math.round((connectedTimelineNodesMaxX - connectedTimelineNodesMinX) / 2 + connectedTimelineNodesMinX);
-            }
-
-
-            // Register the X-Position.
-            // If another node wants to use the same, shift the Y pos to prevent overlap
-            if (typeof usedPositions[xPos] === "undefined") {
-                usedPositions[xPos] = 0;
-            }
-            usedPositions[xPos]++;
-            yPos += (usedPositions[xPos] - 1 ) * seperationStep;
+             let xPos, yPos;
+             yPos = timelineY;
+             // If the res is only connected to one resource, place it directly over it
+             if (resEdgeCount === 1 || (connectedTimelineNodesMaxX - connectedTimelineNodesMinX) < 1.0) {
+             xPos = Math.round(lastNode.getPosition()['x']);
+             } else {
+             xPos = Math.round((connectedTimelineNodesMaxX - connectedTimelineNodesMinX) / 2 + connectedTimelineNodesMinX);
+             }
 
 
-            n.setPosition(xPos, yPos);
+             // Register the X-Position.
+             // If another node wants to use the same, shift the Y pos to prevent overlap
+             if (typeof usedPositions[xPos] === "undefined") {
+             usedPositions[xPos] = 0;
+             }
+             usedPositions[xPos]++;
+             yPos += (usedPositions[xPos] - 1 ) * seperationStep;
 
-        */
+
+             n.setPosition(xPos, yPos);
+
+             */
         });
         console.log(usedPositions);
     }
@@ -374,51 +423,51 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
             // For now hide them
             n.setIsVisible(false);
             return;
-        /*
-            let tagEdgesCounted = 0;
-            let lastResNode = null;
+            /*
+             let tagEdgesCounted = 0;
+             let lastResNode = null;
 
-            let connectedTimelineNodesMinX = null;
-            let connectedTimelineNodesMaxX = null;
-            n.getEdges().forEach((e:EdgeAbstract) => {
+             let connectedTimelineNodesMinX = null;
+             let connectedTimelineNodesMaxX = null;
+             n.getEdges().forEach((e:EdgeAbstract) => {
 
-                if (e.constructor !== EdgeResourceTag) {
-                    return;
-                }
-                let otherNode:NodeAbstract = null;
-                if (e.getSourceNode().getUniqueId() === n.getUniqueId())
-                    otherNode = e.getDestNode();
-                else
-                    otherNode = e.getSourceNode();
+             if (e.constructor !== EdgeResourceTag) {
+             return;
+             }
+             let otherNode:NodeAbstract = null;
+             if (e.getSourceNode().getUniqueId() === n.getUniqueId())
+             otherNode = e.getDestNode();
+             else
+             otherNode = e.getSourceNode();
 
-                let posOtherNode = otherNode.getPosition();
-                if (connectedTimelineNodesMinX === null || posOtherNode["x"] < connectedTimelineNodesMinX)
-                    connectedTimelineNodesMinX = posOtherNode["x"];
-                if (connectedTimelineNodesMaxX === null || posOtherNode["x"] > connectedTimelineNodesMaxX)
-                    connectedTimelineNodesMaxX = posOtherNode["x"];
+             let posOtherNode = otherNode.getPosition();
+             if (connectedTimelineNodesMinX === null || posOtherNode["x"] < connectedTimelineNodesMinX)
+             connectedTimelineNodesMinX = posOtherNode["x"];
+             if (connectedTimelineNodesMaxX === null || posOtherNode["x"] > connectedTimelineNodesMaxX)
+             connectedTimelineNodesMaxX = posOtherNode["x"];
 
-                tagEdgesCounted++;
-                lastResNode = otherNode;
-            });
+             tagEdgesCounted++;
+             lastResNode = otherNode;
+             });
 
 
-            let xPos, yPos;
-            yPos = timelineY;
-            // If the tag is used only by one resource, place it directly underneath it
-            if (tagEdgesCounted === 1 || (connectedTimelineNodesMaxX - connectedTimelineNodesMinX) < 1.0) {
-                xPos = Math.round(lastResNode.getPosition()['x']);
-            } else
-                xPos = Math.round((connectedTimelineNodesMaxX - connectedTimelineNodesMinX) / 2 + connectedTimelineNodesMinX);
+             let xPos, yPos;
+             yPos = timelineY;
+             // If the tag is used only by one resource, place it directly underneath it
+             if (tagEdgesCounted === 1 || (connectedTimelineNodesMaxX - connectedTimelineNodesMinX) < 1.0) {
+             xPos = Math.round(lastResNode.getPosition()['x']);
+             } else
+             xPos = Math.round((connectedTimelineNodesMaxX - connectedTimelineNodesMinX) / 2 + connectedTimelineNodesMinX);
 
-            // Register the X-Position.
-            // If another node wants to use the same, shift the Y pos to prevent overlap
-            if (typeof usedPositions[xPos] === "undefined") {
-                usedPositions[xPos] = 0;
-            }
-            usedPositions[xPos]++;
-            yPos -= (usedPositions[xPos] - 1 ) * seperationStep;
-            n.setPosition(xPos, yPos);
-        */
+             // Register the X-Position.
+             // If another node wants to use the same, shift the Y pos to prevent overlap
+             if (typeof usedPositions[xPos] === "undefined") {
+             usedPositions[xPos] = 0;
+             }
+             usedPositions[xPos]++;
+             yPos -= (usedPositions[xPos] - 1 ) * seperationStep;
+             n.setPosition(xPos, yPos);
+             */
         });
     }
 

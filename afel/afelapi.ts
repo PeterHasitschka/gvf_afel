@@ -34,6 +34,10 @@ export class AfelApi implements GvfPluginInterface {
         GraphVisConfig.graphelements['dynactionnode'] = {
             color: 0xc6c42f
         };
+        GraphVisConfig.graphelements['resmetanode'] = {
+            color:  0x8888ff
+        };
+
 
         GraphVisConfig.graphelements['learningcommunity'] = {
             segments: 128,

@@ -8,7 +8,10 @@ import {AfelResourceDataEntity} from "../../data/resource";
 import {UiService} from "../../../../gvfcore/services/ui.service";
 import {AfelDynActionDataEntity} from "../../data/dynaction";
 import {NodeResource} from "./resource";
-import {ElementAbstract} from "../../../../gvfcore/components/graphvis/graphs/graphelementabstract";
+import {
+    ElementAbstract,
+    GRAPH_ELEMENT_LABEL_TYPE
+} from "../../../../gvfcore/components/graphvis/graphs/graphelementabstract";
 
 /**
  * A AfelDynActionDataEntity node, derived from @see{NodeSimple}
@@ -21,7 +24,7 @@ export class NodeDynAction extends NodeSimple {
     constructor(x:number, y:number, dataEntity:AfelDynActionDataEntity, plane:Plane, options:Object) {
         if (options === null)
             options = {};
-            options["size"] = 10;
+        options["size"] = 15;
         super(x, y, dataEntity, plane, options);
 
         this.color = GraphVisConfig.graphelements['dynactionnode'].color;
@@ -30,6 +33,12 @@ export class NodeDynAction extends NodeSimple {
 
         this.hoverText = this.getDataEntity().getData("action_date");
         this.hoverTextColor = "#AA0000";
+
+
+        this.labelType = GRAPH_ELEMENT_LABEL_TYPE.ICON;
+        this.labelIconSize = 13;
+        this.labelIconPath = "afel/assets/icon-dynaction.png";
+        this.labelZoomLevelMin = 0.3;
 
         this.labelZoomAdjustmentBlocked = true;
     }
@@ -52,6 +61,15 @@ export class NodeDynAction extends NodeSimple {
         }
 
         return resNode;
+    }
+
+    public onClick() {
+        let rN = this.getConnectedResourceNode();
+        rN.setPosition(rN.getOrigPosition()['x'],
+            rN.getOrigPosition()['y']);
+        rN.setIsVisible(true);
+
+        super.onClick();
     }
 }
 

@@ -46,17 +46,17 @@ export class AfelTimeLineGrid extends ElementAbstract {
             transparent: true
         });
 
-
+        let bottomlineY = 0 - height / verticalSliceNum;
         // THE OUTER 'FRAME'
         let vertFrameLineGeom = new THREE.Geometry();
-        vertFrameLineGeom.vertices.push(new THREE.Vector3(0, 0, lineZ));
-        vertFrameLineGeom.vertices.push(new THREE.Vector3(0, height, lineZ));
+        vertFrameLineGeom.vertices.push(new THREE.Vector3(0, bottomlineY, lineZ));
+        vertFrameLineGeom.vertices.push(new THREE.Vector3(0, height - height / verticalSliceNum, lineZ));
         let frameLineVert = new THREE.Line(vertFrameLineGeom, frameMaterial);
         gridGroup.add(frameLineVert);
 
         let horzFrameLineGeom = new THREE.Geometry();
-        horzFrameLineGeom.vertices.push(new THREE.Vector3(0, 0, lineZ));
-        horzFrameLineGeom.vertices.push(new THREE.Vector3(width, 0, lineZ));
+        horzFrameLineGeom.vertices.push(new THREE.Vector3(0, bottomlineY, lineZ));
+        horzFrameLineGeom.vertices.push(new THREE.Vector3(width, bottomlineY, lineZ));
         let frameLineHor = new THREE.Line(horzFrameLineGeom, frameMaterial);
         gridGroup.add(frameLineHor);
 
@@ -69,7 +69,7 @@ export class AfelTimeLineGrid extends ElementAbstract {
             transparent: true
         });
 
-        for (let i = 1; i < verticalSliceNum; i++) {
+        for (let i = 0; i < verticalSliceNum; i++) {
             let horzScaleLineGeom = new THREE.Geometry();
             let yPos = i / verticalSliceNum * height;
             horzScaleLineGeom.vertices.push(new THREE.Vector3(0, yPos, lineZ));
@@ -84,8 +84,8 @@ export class AfelTimeLineGrid extends ElementAbstract {
             let labelTxt = date.getDate() + "." + date.getMonth() + "." + date.getFullYear();
             let xPos = (date.getTime() - startDate.getTime()) / (endDate.getTime() - startDate.getTime()) * width;
             let vertScaleLineGeom = new THREE.Geometry();
-            vertScaleLineGeom.vertices.push(new THREE.Vector3(xPos, 0, lineZ));
-            vertScaleLineGeom.vertices.push(new THREE.Vector3(xPos, height, lineZ));
+            vertScaleLineGeom.vertices.push(new THREE.Vector3(xPos, bottomlineY, lineZ));
+            vertScaleLineGeom.vertices.push(new THREE.Vector3(xPos, height - (height / verticalSliceNum), lineZ));
             let line = new THREE.Line(vertScaleLineGeom, scaleLinesMaterial);
             gridGroup.add(line);
 
@@ -96,7 +96,7 @@ export class AfelTimeLineGrid extends ElementAbstract {
                 centerX: false,
                 rotateDegree: 45
             };
-            let label = new Label(this.plane, labelTxt, xPos, -20, labelSettings);
+            let label = new Label(this.plane, labelTxt, xPos, -20 - (height / verticalSliceNum), labelSettings);
 
         }.bind(this);
 
