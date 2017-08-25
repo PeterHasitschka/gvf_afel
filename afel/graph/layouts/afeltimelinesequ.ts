@@ -20,6 +20,10 @@ import {EdgeResourceMetaGroup} from "../graphs/edges/resourcemetagroup";
 import {AfelTimeLineGrid, AFEL_TIMELINEGRID_TIMESCALE} from "./timeline/timelinegrid";
 import {BasicConnection} from "../../../gvfcore/components/graphvis/data/databasicconnection";
 import {DynActionResConnection} from "../data/connections/dynactionRes";
+import {EdgeDynactionRes} from "../graphs/edges/dynactionres";
+import {BasicGroup} from "../../../gvfcore/components/graphvis/data/databasicgroup";
+import {BasicEntity} from "../../../gvfcore/components/graphvis/data/databasicentity";
+import {ElementAbstract} from "../../../gvfcore/components/graphvis/graphs/graphelementabstract";
 export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
 
     private connectedEntityIdsOrderOnTimeline = null;
@@ -28,6 +32,7 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
     private timelineEndX = 2000;
     private timelineStartY = 0;
     private timelineEndY = 500;
+    private timelineScale = AFEL_TIMELINEGRID_TIMESCALE.WEEKLY;
 
     constructor(protected plane:Plane, nodes:NodeAbstract[], edges:EdgeAbstract[]) {
         super(plane, nodes, edges);
@@ -108,8 +113,9 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
         this.setResourceOthersPositions(tmpResourcesOthers);
         this.setTagPositions(tmpTagNodes);
         this.setDynActionNodesOnTimeline(tmpDynActionNodes);
+        this.createAndSetDynActionMetanodes(mNs);
         this.setResourceTimelinePositions(tmpResourcesOnTimeline);
-        this.collapseMetaNodes(mNs);
+        this.collapseResourceMetaNodes(mNs);
         this.createTimelineGrid(mNs, tmpDynActionNodes);
 
     }
@@ -120,8 +126,6 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
      * @param dynNodes
      */
     private createTimelineGrid(metaNodes:AfelMetanodeResources[], dynNodes:NodeDynAction[]) {
-
-        console.log("CREATE GRID!", metaNodes, dynNodes);
         let startDate = new Date(<string>dynNodes[0].getDataEntity().getData("action_date"));
         let endDate = new Date(<string>dynNodes[dynNodes.length - 1].getDataEntity().getData("action_date"));
         let width = this.timelineEndX - this.timelineStartX;
@@ -130,7 +134,7 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
         let sliceNum = metaNodes.length;
 
         let timelineGrid = new AfelTimeLineGrid(startDate, endDate, width, height, sliceNum,
-            AFEL_TIMELINEGRID_TIMESCALE.MONTHLY,
+            this.timelineScale,
             this.plane,
             {});
 
@@ -153,6 +157,7 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
     /**
      * Dynamic actions are shown on the timeline, while their y-Position is defined by their resource's group-node.
      * The x-position relates to the 'action_date'
+     * @TODO: Consider solution of dynamic actions of same group at same time. Not visible!
      * @param nodes
      */
     private setDynActionNodesOnTimeline(nodes:NodeDynAction[]) {
@@ -191,13 +196,116 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
             let actionDate = new Date(<string>n.getDataEntity().getData("action_date"));
             let timelineFactor = (actionDate.getTime() - firstDate.getTime()) / (lastDate.getTime() - firstDate.getTime());
 
-            let posX = timelineStartX + timelineFactor * timelineEndX;
+            let posX = timelineStartX + timelineFactor * timelineEndX
             n.setPosition(posX, yPos);
         });
     }
 
+    /**
+     * Creates Metanodes holding dynamic actions to group them by Time-Range (e.g. Week / Month) and Resource-Group
+     * on the timeline.
+     * @param nodes
+     */
+    private createAndSetDynActionMetanodes(resMetaNodes:AfelMetanodeResources[]) {
 
-    private collapseMetaNodes(metaNodes:AfelMetanodeResources[]) {
+        /**
+         * Source: https://stackoverflow.com/questions/6117814/get-week-of-year-in-javascript-like-in-php
+         * @param d
+         * @returns {number[]}
+         */
+        let getWeekNumber = function (d) {
+            // Copy date so don't modify original
+            d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            // Set to nearest Thursday: current date + 4 - current day number
+            // Make Sunday's day number 7
+            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+            // Get first day of year
+            var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            // Calculate full weeks to nearest Thursday
+            var weekNo = Math.ceil(( ( (d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+            // Return array of year and week number
+            return weekNo;
+        };
+
+        let resGroups = [];
+        // COLLECT DYN-ACTIONS BY RESOURCE-GROUP AND TIME-SLOT
+        // Iterate over all resource-metanodes
+        resMetaNodes.forEach((mnR:AfelMetanodeResources, k) => {
+            resGroups[k] = {
+                rmn: mnR,
+                das: {},
+            };
+
+            console.log("-----");
+            // Iterate over the metanode's resource entites
+            (<BasicGroup>mnR.getDataEntity()).getEntities().forEach((r:AfelResourceDataEntity) => {
+
+                // Iterate over the resource's connections to identify dynamic actions
+                r.getConnections().forEach((c:BasicConnection) => {
+                    if (c.constructor !== DynActionResConnection)
+                        return;
+
+                    let dA = (<DynActionResConnection>c).getDynAction();
+                    let daDate = new Date(<string>dA.getData("action_date"));
+
+                    let identifier;
+                    switch (this.timelineScale) {
+
+                        case AFEL_TIMELINEGRID_TIMESCALE.WEEKLY :
+                            identifier = daDate.getFullYear() + "-" + getWeekNumber(daDate);
+                            break;
+                        case AFEL_TIMELINEGRID_TIMESCALE.MONTHLY :
+                            identifier = daDate.getFullYear() + "-" + daDate.getMonth();
+                            break;
+
+                        default:
+                            console.warn("Timeline scale not implemented yet!");
+                            return;
+                    }
+                    if (typeof resGroups[k].das[identifier] === "undefined")
+                        resGroups[k].das[identifier] = {entities: [], avg: null};
+                    resGroups[k].das[identifier].entities.push(dA);
+                });
+
+            });
+        });
+
+
+        console.log(resGroups);
+
+        resGroups.forEach((rg, k) => {
+
+            let yPos = (<AfelMetanodeResources>rg.rmn).getPosition()['y'];
+
+            for (let dKey in rg.das) {
+                let avgXPos = 0;
+
+                rg.das[dKey].entities.forEach((dA:AfelDynActionDataEntity) => {
+
+                    let dANode:NodeDynAction = null;
+                    dA.getRegisteredGraphElements().forEach((elm:ElementAbstract) => {
+                        if (elm.getPlane().getId() !== this.plane.getId())
+                            return;
+                        dANode = <NodeDynAction>elm;
+                    });
+
+                    if (!dANode) {
+                        console.warn("Something went wrong in finding node for dynamic action!");
+                        return;
+                    }
+                    let xPos = dANode.getPosition()['x'];
+                    avgXPos += xPos;
+                });
+
+                avgXPos /= rg.das[dKey].entities.length;
+                console.log("POS FOR TIMERANGE " + dKey + " IN RES-GROUP " + k + ": " + avgXPos + "/" + yPos);
+            }
+
+        })
+    }
+
+
+    private collapseResourceMetaNodes(metaNodes:AfelMetanodeResources[]) {
         metaNodes.forEach((m:AfelMetanodeResources) => {
             m.collapseNodes(false, null);
         })
@@ -224,11 +332,10 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
     private createAndSetResourceMetanodePositions(nodes:NodeResource[]):AfelMetanodeResources[] {
 
 
-
         let metaNodeScaleFct = 30;
         let metaNodePosX = -20;
         // GROUP RESOURCE NODES (BY CATEGORY OR WHATEVER THE SERVER CALCULATED @todo: currently DUMMY!
-        let rGroups = {};
+        let rGroups = [];
         // Push resource nodes in a group array
         nodes.forEach((n:NodeResource) => {
             let gId = n.getDataEntity().getData("calculatedResourceGroup");
@@ -237,7 +344,36 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
             rGroups[gId].push(n);
         });
 
-        console.log("GROUPS:", rGroups);
+        /**
+         * Sorting the resource-meta-node groups, to be sure that they are ordered in a way,
+         * that the average date of their resources' dynActions are stacked from the bottom to the top
+         * @param g1
+         * @param g2
+         * @returns {number}
+         */
+        let rnGroupSortFct = function (g1:NodeResource[], g2:NodeResource[]) {
+            let getAvgTimeFct = function (group:NodeResource[]) {
+                let sumD = 0;
+                let totalDynActionCountOfResources = 0;
+                group.forEach((n:NodeResource) => {
+
+                    n.getEdges().forEach((e:EdgeBasic) => {
+                        if (e.constructor !== EdgeDynactionRes)
+                            return;
+                        let nDa = <NodeDynAction>e.getDestNode();
+                        let d = new Date(<string>nDa.getDataEntity().getData("action_date"));
+                        sumD += d.getTime();
+                        totalDynActionCountOfResources++;
+                    });
+                });
+                return sumD / totalDynActionCountOfResources;
+            };
+            let avgTime1 = getAvgTimeFct(g1);
+            let avgTime2 = getAvgTimeFct(g2);
+            return avgTime1 < avgTime2 ? -1 : 1;
+        };
+
+        rGroups.sort(rnGroupSortFct);
 
         // Create group nodes and connecting edges to their resources.
         // Resources get collapsed.
@@ -399,7 +535,7 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
 
              */
         });
-        console.log(usedPositions);
+        // console.log(usedPositions);
     }
 
 
