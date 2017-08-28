@@ -24,6 +24,9 @@ import {EdgeDynactionRes} from "../graphs/edges/dynactionres";
 import {BasicGroup} from "../../../gvfcore/components/graphvis/data/databasicgroup";
 import {BasicEntity} from "../../../gvfcore/components/graphvis/data/databasicentity";
 import {ElementAbstract} from "../../../gvfcore/components/graphvis/graphs/graphelementabstract";
+import {AfelMetanodeDynActions} from "../graphs/metanodes/dynActionGroup";
+import {EdgeDynActionMetaGroup} from "../graphs/edges/dynactionmetagroup";
+import {ShadowNodeSimple} from "../../../gvfcore/components/graphvis/graphs/nodes/shadownodesimple";
 export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
 
     private connectedEntityIdsOrderOnTimeline = null;
@@ -228,6 +231,8 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
         };
 
         let resGroups = [];
+        let totalDaCount = 0;
+
         // COLLECT DYN-ACTIONS BY RESOURCE-GROUP AND TIME-SLOT
         // Iterate over all resource-metanodes
         resMetaNodes.forEach((mnR:AfelMetanodeResources, k) => {
@@ -236,8 +241,9 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
                 das: {},
             };
 
-            console.log("-----");
             // Iterate over the metanode's resource entites
+
+            let sharedXPosArrayForDynNodeShadows = [];
             (<BasicGroup>mnR.getDataEntity()).getEntities().forEach((r:AfelResourceDataEntity) => {
 
                 // Iterate over the resource's connections to identify dynamic actions
@@ -262,25 +268,6 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
                             console.warn("Timeline scale not implemented yet!");
                             return;
                     }
-                    if (typeof resGroups[k].das[identifier] === "undefined")
-                        resGroups[k].das[identifier] = {entities: [], avg: null};
-                    resGroups[k].das[identifier].entities.push(dA);
-                });
-
-            });
-        });
-
-
-        console.log(resGroups);
-
-        resGroups.forEach((rg, k) => {
-
-            let yPos = (<AfelMetanodeResources>rg.rmn).getPosition()['y'];
-
-            for (let dKey in rg.das) {
-                let avgXPos = 0;
-
-                rg.das[dKey].entities.forEach((dA:AfelDynActionDataEntity) => {
 
                     let dANode:NodeDynAction = null;
                     dA.getRegisteredGraphElements().forEach((elm:ElementAbstract) => {
@@ -293,15 +280,91 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
                         console.warn("Something went wrong in finding node for dynamic action!");
                         return;
                     }
+
+                    this.setDynNodeShadowBelowTimeline(dANode, sharedXPosArrayForDynNodeShadows);
+
+
+                    if (typeof resGroups[k].das[identifier] === "undefined")
+                        resGroups[k].das[identifier] = {nodes: [], avg: null};
+                    resGroups[k].das[identifier].nodes.push(dANode);
+
+                    totalDaCount++;
+                });
+
+            });
+        });
+
+
+        resGroups.forEach((rg, k) => {
+
+            let yPos = (<AfelMetanodeResources>rg.rmn).getPosition()['y'];
+
+            for (let dKey in rg.das) {
+                let avgXPos = 0;
+
+                rg.das[dKey].nodes.forEach((dANode:NodeDynAction) => {
+
+
                     let xPos = dANode.getPosition()['x'];
                     avgXPos += xPos;
                 });
 
-                avgXPos /= rg.das[dKey].entities.length;
+                avgXPos /= rg.das[dKey].nodes.length;
                 console.log("POS FOR TIMERANGE " + dKey + " IN RES-GROUP " + k + ": " + avgXPos + "/" + yPos);
+
+
+                let metaNodeSize = Math.sqrt(rg.das[dKey].nodes.length / totalDaCount) * 100;
+
+                console.log(rg.das[dKey].nodes.length, totalDaCount, metaNodeSize);
+                let metaNode = new AfelMetanodeDynActions(avgXPos, yPos, rg.das[dKey].nodes, this.plane, metaNodeSize);
+                metaNode.collapseNodes(false, null);
+                this.plane.getGraphScene().addObject(metaNode);
+
+                rg.das[dKey].nodes.forEach((daN:NodeDynAction) => {
+
+                    let mEdge = new EdgeDynActionMetaGroup(daN, metaNode, this.plane);
+                    daN.addEdge(mEdge);
+                    metaNode.addEdge(mEdge);
+                    this.plane.getGraphScene().addObject(mEdge);
+
+
+                });
+
+
             }
 
         })
+    }
+
+
+    /**
+     * Since we got our aggregated meta-nodes now, there's no space for the original dyn-action nodes on the timeline.
+     * We move a 'shadow' (a kind of duplicate of the node)
+     * below the timeline, also to prevent overlappings (if they seem to be done at the same time).
+     * @param daN
+     * @param usedXPositions Array shared for all nodes of the metanode
+     */
+    private setDynNodeShadowBelowTimeline(daN:NodeDynAction, usedXPositions) {
+
+        let raster = 10;
+
+
+        let x = Math.round(daN.getPosition()['x'] / raster) * raster;
+        if (typeof usedXPositions[x] === "undefined")
+            usedXPositions[x] = 0;
+        usedXPositions[x]++;
+
+
+        let y = -200;
+
+        console.log(usedXPositions);
+
+        let theShadow = new ShadowNodeSimple(x + (usedXPositions[x] - 1) * raster, y, daN, this.plane, {});
+        this.plane.getGraphScene().addObject(theShadow);
+        daN.addShadowNode(theShadow);
+
+
+        // daN.setPosition(daN.getPosition()['x'], -200);
     }
 
 

@@ -34,11 +34,12 @@ export class NodeDynAction extends NodeSimple {
         this.hoverText = this.getDataEntity().getData("action_date");
         this.hoverTextColor = "#AA0000";
 
-
-        this.labelType = GRAPH_ELEMENT_LABEL_TYPE.ICON;
-        this.labelIconSize = 13;
-        this.labelIconPath = "afel/assets/icon-dynaction.png";
-        this.labelZoomLevelMin = 0.3;
+        /*
+         this.labelType = GRAPH_ELEMENT_LABEL_TYPE.ICON;
+         this.labelIconSize = 13;
+         this.labelIconPath = "afel/assets/icon-dynaction.png";
+         this.labelZoomLevelMin = 0.3;
+         */
 
         this.labelZoomAdjustmentBlocked = true;
     }

@@ -8,7 +8,7 @@ export class AfelMetanodeDynActions extends MetanodeExpandable {
     constructor(x:number, y:number, nodes:NodeDynAction[], plane:Plane, size = null) {
         let options = {
             size: size,
-            segments: 4
+            segments: 8
         };
         super(x, y, nodes, plane, options);
 
@@ -18,14 +18,17 @@ export class AfelMetanodeDynActions extends MetanodeExpandable {
 
 
         this.hoverText = "Group of " + this.nodes.length + " dynamic actions";
-        this.hoverTextColor = "#c6c42f";
-        this.hovertextCenterX = false;
+        this.hoverTextColor = "#224400";
+        this.hovertextCenterX = true;
 
+        this.exclusiveOpening = true;
 
         // this.labelType = GRAPH_ELEMENT_LABEL_TYPE.ICON;
         // this.labelIconSize = size * 0.6;
         // this.labelIconPath = "afel/assets/icon-resmetanode.png";
         // this.labelZoomLevelMin = 0.5;
-        // this.labelZoomAdjustmentBlocked = true;
+        this.labelZoomAdjustmentBlocked = true;
     }
+
+
 }
