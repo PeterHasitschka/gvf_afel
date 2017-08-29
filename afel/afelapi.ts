@@ -32,13 +32,15 @@ export class AfelApi implements GvfPluginInterface {
             color: 0xCE6B89
         };
         GraphVisConfig.graphelements['dynactionnode'] = {
-            color: 0xc6c42f
+            color: 0xc6c42f,
+            z: 0
         };
         GraphVisConfig.graphelements['resmetanode'] = {
             color: 0x8888ff
         };
         GraphVisConfig.graphelements['dynactionmetanode'] = {
-            color: 0xdda808
+            color: 0xdda808,
+            z: -1
         };
 
 

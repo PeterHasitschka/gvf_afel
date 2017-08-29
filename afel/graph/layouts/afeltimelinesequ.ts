@@ -36,6 +36,12 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
     private timelineStartY = 0;
     private timelineEndY = 500;
     private timelineScale = AFEL_TIMELINEGRID_TIMESCALE.WEEKLY;
+    private dynActionRasterSize = 30;
+    private dynNodeBelowTimelineYPos = -200;
+    private resourceMetanodesRasterSize = 30;
+    private resourceMetanodesX = -40;
+    private resourceNodeYMin = 550;
+    private resourceNodeRasterSize = 30;
 
     constructor(protected plane:Plane, nodes:NodeAbstract[], edges:EdgeAbstract[]) {
         super(plane, nodes, edges);
@@ -165,8 +171,8 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
      */
     private setDynActionNodesOnTimeline(nodes:NodeDynAction[]) {
 
-        let timelineStartX = 10;
-        let timelineEndX = 2000;
+        let timelineStartX = this.timelineStartX;
+        let timelineEndX = this.timelineEndX;
         nodes.sort(this.sortDynDatasByDateFct);
         let firstDate = new Date(<string>nodes[0].getDataEntity().getData("action_date"));
         let lastDate = new Date(<string>nodes[nodes.length - 1].getDataEntity().getData("action_date"));
@@ -199,7 +205,7 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
             let actionDate = new Date(<string>n.getDataEntity().getData("action_date"));
             let timelineFactor = (actionDate.getTime() - firstDate.getTime()) / (lastDate.getTime() - firstDate.getTime());
 
-            let posX = timelineStartX + timelineFactor * timelineEndX
+            let posX = timelineStartX + timelineFactor * timelineEndX;
             n.setPosition(posX, yPos);
         });
     }
@@ -243,7 +249,7 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
 
             // Iterate over the metanode's resource entites
 
-            let sharedXPosArrayForDynNodeShadows = [];
+
             (<BasicGroup>mnR.getDataEntity()).getEntities().forEach((r:AfelResourceDataEntity) => {
 
                 // Iterate over the resource's connections to identify dynamic actions
@@ -281,9 +287,6 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
                         return;
                     }
 
-                    this.setDynNodeShadowBelowTimeline(dANode, sharedXPosArrayForDynNodeShadows);
-
-
                     if (typeof resGroups[k].das[identifier] === "undefined")
                         resGroups[k].das[identifier] = {nodes: [], avg: null};
                     resGroups[k].das[identifier].nodes.push(dANode);
@@ -294,7 +297,10 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
             });
         });
 
-
+        /**
+         * Finally create the Metanode at an average X-Position
+         */
+        let sharedXPosArrayForDynNodeShadows = [];
         resGroups.forEach((rg, k) => {
 
             let yPos = (<AfelMetanodeResources>rg.rmn).getPosition()['y'];
@@ -303,8 +309,6 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
                 let avgXPos = 0;
 
                 rg.das[dKey].nodes.forEach((dANode:NodeDynAction) => {
-
-
                     let xPos = dANode.getPosition()['x'];
                     avgXPos += xPos;
                 });
@@ -317,19 +321,25 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
 
                 console.log(rg.das[dKey].nodes.length, totalDaCount, metaNodeSize);
                 let metaNode = new AfelMetanodeDynActions(avgXPos, yPos, rg.das[dKey].nodes, this.plane, metaNodeSize);
-                metaNode.collapseNodes(false, null);
+
                 this.plane.getGraphScene().addObject(metaNode);
 
+                /**
+                 * Create edges from Meta-Node to dynAction Nodes.
+                 * Then move the dynAction-Nodes to the bottom on a raster and create shadow-Nodes on the timeline.
+                 */
+
                 rg.das[dKey].nodes.forEach((daN:NodeDynAction) => {
+                    this.setDynNodeShadowBelowTimeline(daN, sharedXPosArrayForDynNodeShadows);
+                    daN.saveOrigPosition(true);
 
                     let mEdge = new EdgeDynActionMetaGroup(daN, metaNode, this.plane);
                     daN.addEdge(mEdge);
                     metaNode.addEdge(mEdge);
                     this.plane.getGraphScene().addObject(mEdge);
-
-
                 });
 
+                metaNode.collapseNodes(false, null);
 
             }
 
@@ -346,20 +356,24 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
      */
     private setDynNodeShadowBelowTimeline(daN:NodeDynAction, usedXPositions) {
 
-        let raster = 10;
+        let raster = this.dynActionRasterSize;
+
+        let xTimeline = daN.getPosition()['x'];
+        let yTimeline = daN.getPosition()['y'];
+
+        let xBelow = Math.round(xTimeline / raster) * raster;
+        if (typeof usedXPositions[xBelow] === "undefined")
+            usedXPositions[xBelow] = 0;
+        usedXPositions[xBelow]++;
+        xBelow += (usedXPositions[xBelow] - 1) * raster;
+
+        let yBelow = this.dynNodeBelowTimelineYPos;
 
 
-        let x = Math.round(daN.getPosition()['x'] / raster) * raster;
-        if (typeof usedXPositions[x] === "undefined")
-            usedXPositions[x] = 0;
-        usedXPositions[x]++;
 
-
-        let y = -200;
-
-        console.log(usedXPositions);
-
-        let theShadow = new ShadowNodeSimple(x + (usedXPositions[x] - 1) * raster, y, daN, this.plane, {});
+        let theShadow = new ShadowNodeSimple(xTimeline, yTimeline, daN, this.plane, {});
+        theShadow.setIsVisible(false);
+        daN.setPosition(xBelow, yBelow);
         this.plane.getGraphScene().addObject(theShadow);
         daN.addShadowNode(theShadow);
 
@@ -395,8 +409,8 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
     private createAndSetResourceMetanodePositions(nodes:NodeResource[]):AfelMetanodeResources[] {
 
 
-        let metaNodeScaleFct = 30;
-        let metaNodePosX = -20;
+        let metaNodeScaleFct = this.resourceMetanodesRasterSize;
+        let metaNodePosX = this.resourceMetanodesX;
         // GROUP RESOURCE NODES (BY CATEGORY OR WHATEVER THE SERVER CALCULATED @todo: currently DUMMY!
         let rGroups = [];
         // Push resource nodes in a group array
@@ -471,8 +485,8 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
      */
     private setResourceTimelinePositions(nodes:NodeResource[]) {
 
-        let resNodePosY = 600;
-        let nodeGridWidth = 20;
+        let resNodePosY = this.resourceNodeYMin;
+        let nodeGridWidth = this.resourceNodeRasterSize;
         let usedPositions = {};
 
         let getNodePosXFromDynActionEntity = function (da:AfelDynActionDataEntity) {

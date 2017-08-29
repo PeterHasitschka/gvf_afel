@@ -26,6 +26,7 @@ export class NodeDynAction extends NodeSimple {
             options = {};
         options["size"] = 15;
         super(x, y, dataEntity, plane, options);
+        this.setPositionZ(GraphVisConfig.graphelements['dynactionnode'].z);
 
         this.color = GraphVisConfig.graphelements['dynactionnode'].color;
         this.setColor(this.color);
@@ -64,14 +65,19 @@ export class NodeDynAction extends NodeSimple {
         return resNode;
     }
 
-    public onClick() {
-        let rN = this.getConnectedResourceNode();
-        rN.setPosition(rN.getOrigPosition()['x'],
-            rN.getOrigPosition()['y']);
-        rN.setIsVisible(true);
 
-        super.onClick();
+    public highlight(render) {
+        this.getConnectedResourceNode().highlight(render);
+        super.highlight(render)
     }
+
+
+    public deHighlight(render) {
+        this.getConnectedResourceNode().deHighlight(render);
+        super.deHighlight(render)
+    }
+
+
 }
 
 
