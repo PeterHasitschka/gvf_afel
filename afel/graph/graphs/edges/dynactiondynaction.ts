@@ -11,7 +11,12 @@ export class EdgeDynactionDynaction extends EdgeColored {
     constructor(d1:NodeDynAction, d2:NodeDynAction, plane:Plane) {
 
         let splineOptions = {
-            spline: false
+            'spline': {
+                spline: true,
+                splineOnLineOffset: 0.5,
+                splineNormalLengthFactor: 0.5,
+                left: true
+            }
         };
 
         super(d1, d2, plane, EdgeDynactionDynaction.color, null, splineOptions);

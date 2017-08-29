@@ -32,6 +32,7 @@ import {DynActionResConnection} from "../data/connections/dynactionRes";
 import {EdgeDynactionRes} from "./edges/dynactionres";
 import {DynActionDynActionConnection} from "../data/connections/dynactionDynAction";
 import {EdgeDynactionDynaction} from "./edges/dynactiondynaction";
+import {AfelMetanodeResources} from "./metanodes/resGroup";
 
 export class AfelAutoCompleteGraph extends AutoGraph {
 

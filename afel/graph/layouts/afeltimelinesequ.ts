@@ -35,8 +35,8 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
     private timelineEndX = 2000;
     private timelineStartY = 0;
     private timelineEndY = 500;
-    private timelineScale = AFEL_TIMELINEGRID_TIMESCALE.WEEKLY;
-    private dynActionRasterSize = 30;
+    private timelineScale = AFEL_TIMELINEGRID_TIMESCALE.MONTHLY;
+    private dynActionRasterSize = 40;
     private dynNodeBelowTimelineYPos = -200;
     private resourceMetanodesRasterSize = 30;
     private resourceMetanodesX = -40;
@@ -53,6 +53,11 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
 
 
     public calculateLayout(onFinish, newNodes = null):void {
+
+        if (newNodes) {
+            alert("TODO: Handle added nodes!");
+        }
+
         // this.plane.setShowGreyOverlay(true);
         window.setTimeout(function () {
             this.calculate(false, null, newNodes);
@@ -238,6 +243,8 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
 
         let resGroups = [];
         let totalDaCount = 0;
+        let allCreatedDynActionNodes:NodeDynAction[] = [];
+        let allCreatedDynActionMetanodes:AfelMetanodeDynActions[] = [];
 
         // COLLECT DYN-ACTIONS BY RESOURCE-GROUP AND TIME-SLOT
         // Iterate over all resource-metanodes
@@ -300,7 +307,7 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
         /**
          * Finally create the Metanode at an average X-Position
          */
-        let sharedXPosArrayForDynNodeShadows = [];
+
         resGroups.forEach((rg, k) => {
 
             let yPos = (<AfelMetanodeResources>rg.rmn).getPosition()['y'];
@@ -323,7 +330,7 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
                 let othersMetaNodeSize = (0.5 + Math.random()) * metaNodeSize;
 
                 let metaNode = new AfelMetanodeDynActions(avgXPos, yPos, rg.das[dKey].nodes, this.plane, metaNodeSize, othersMetaNodeSize);
-
+                allCreatedDynActionMetanodes.push(metaNode);
                 this.plane.getGraphScene().addObject(metaNode);
 
                 /**
@@ -332,20 +339,31 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
                  */
 
                 rg.das[dKey].nodes.forEach((daN:NodeDynAction) => {
-                    this.setDynNodeShadowBelowTimeline(daN, sharedXPosArrayForDynNodeShadows);
-                    daN.saveOrigPosition(true);
 
                     let mEdge = new EdgeDynActionMetaGroup(daN, metaNode, this.plane);
                     daN.addEdge(mEdge);
                     metaNode.addEdge(mEdge);
                     this.plane.getGraphScene().addObject(mEdge);
+
+                    // We need all DNs in the end to show them below the timeline
+                    allCreatedDynActionNodes.push(daN);
                 });
-
-                metaNode.collapseNodes(false, null);
-
             }
 
-        })
+        });
+
+        // After all, sort the dyn-nodes again, to show them in the right order below the timeline:
+        let sharedXPosArrayForDynNodeShadows = [];
+        allCreatedDynActionNodes.sort(this.sortDynDatasByDateFct);
+        allCreatedDynActionNodes.forEach((daN:NodeDynAction) => {
+            this.setDynNodeShadowBelowTimeline(daN, sharedXPosArrayForDynNodeShadows);
+            daN.saveOrigPosition(true);
+        });
+
+        allCreatedDynActionMetanodes.forEach((mN:AfelMetanodeDynActions) => {
+            mN.collapseNodes(false, null);
+        });
+
     }
 
 

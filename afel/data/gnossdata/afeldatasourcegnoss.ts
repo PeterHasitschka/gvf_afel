@@ -26,7 +26,7 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
         tag: "/tag"
     };
 
-    private currentUserId = 1;
+    private currentUserId = 20;
 
 
     private dataMapping = {
