@@ -26,7 +26,7 @@ import {BasicEntity} from "../../../gvfcore/components/graphvis/data/databasicen
 import {ElementAbstract} from "../../../gvfcore/components/graphvis/graphs/graphelementabstract";
 import {AfelMetanodeDynActions} from "../graphs/metanodes/dynActionGroup";
 import {EdgeDynActionMetaGroup} from "../graphs/edges/dynactionmetagroup";
-import {ShadowNodeSimple} from "../../../gvfcore/components/graphvis/graphs/nodes/shadownodesimple";
+import {DynActionShadowNode} from "../graphs/nodes/dynactionshadownode";
 export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
 
     private connectedEntityIdsOrderOnTimeline = null;
@@ -320,7 +320,9 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
                 let metaNodeSize = Math.sqrt(rg.das[dKey].nodes.length / totalDaCount) * 100;
 
                 console.log(rg.das[dKey].nodes.length, totalDaCount, metaNodeSize);
-                let metaNode = new AfelMetanodeDynActions(avgXPos, yPos, rg.das[dKey].nodes, this.plane, metaNodeSize);
+                let othersMetaNodeSize = (0.5 + Math.random()) * metaNodeSize;
+
+                let metaNode = new AfelMetanodeDynActions(avgXPos, yPos, rg.das[dKey].nodes, this.plane, metaNodeSize, othersMetaNodeSize);
 
                 this.plane.getGraphScene().addObject(metaNode);
 
@@ -370,8 +372,7 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
         let yBelow = this.dynNodeBelowTimelineYPos;
 
 
-
-        let theShadow = new ShadowNodeSimple(xTimeline, yTimeline, daN, this.plane, {});
+        let theShadow = new DynActionShadowNode(xTimeline, yTimeline, daN, this.plane, {});
         theShadow.setIsVisible(false);
         daN.setPosition(xBelow, yBelow);
         this.plane.getGraphScene().addObject(theShadow);

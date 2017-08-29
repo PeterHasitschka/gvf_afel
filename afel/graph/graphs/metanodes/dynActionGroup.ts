@@ -4,12 +4,16 @@ import {NodeDynAction} from "../nodes/dynaction";
 import {GraphVisConfig} from "../../../../gvfcore/components/graphvis/config";
 import {GRAPH_ELEMENT_LABEL_TYPE} from "../../../../gvfcore/components/graphvis/graphs/graphelementabstract";
 import {ShadowNodeSimple} from "../../../../gvfcore/components/graphvis/graphs/nodes/shadownodesimple";
+import {NODEMESHCREATIONMODES} from "../../../../gvfcore/components/graphvis/graphs/nodes/nodeelementabstract";
 export class AfelMetanodeDynActions extends MetanodeExpandable {
 
-    constructor(x:number, y:number, nodes:NodeDynAction[], plane:Plane, size = null) {
+    constructor(x:number, y:number, nodes:NodeDynAction[], plane:Plane, size = null, othersSize = null) {
         let options = {
             size: size,
-            segments: 8
+            segments: 8,
+            nodemeshcreationmode: NODEMESHCREATIONMODES.DOUBLE_NODE,
+            additionalmeshsize: othersSize,
+            additionalmeshcolor: GraphVisConfig.graphelements['dynactionmetanode'].topColor
         };
         super(x, y, nodes, plane, options);
 
@@ -54,9 +58,9 @@ export class AfelMetanodeDynActions extends MetanodeExpandable {
 
     public onIntersectStart() {
         this.nodes.forEach((n:NodeDynAction) => {
-           n.getShadowNodes().forEach((sn:ShadowNodeSimple) => {
-               sn.setIsVisible(true);
-           })
+            n.getShadowNodes().forEach((sn:ShadowNodeSimple) => {
+                sn.setIsVisible(true);
+            })
         });
         super.onIntersectStart();
     }
@@ -71,7 +75,7 @@ export class AfelMetanodeDynActions extends MetanodeExpandable {
     }
 
 
-    public highlight(render){
+    public highlight(render) {
         this.nodes.forEach((dn:NodeDynAction) => {
             dn.highlight(render);
         });
@@ -79,7 +83,7 @@ export class AfelMetanodeDynActions extends MetanodeExpandable {
     }
 
 
-    public deHighlight(render){
+    public deHighlight(render) {
         this.nodes.forEach((dn:NodeDynAction) => {
             dn.deHighlight(render);
         });
