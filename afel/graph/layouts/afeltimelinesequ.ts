@@ -27,6 +27,7 @@ import {ElementAbstract} from "../../../gvfcore/components/graphvis/graphs/graph
 import {AfelMetanodeDynActions} from "../graphs/metanodes/dynActionGroup";
 import {EdgeDynActionMetaGroup} from "../graphs/edges/dynactionmetagroup";
 import {DynActionShadowNode} from "../graphs/nodes/dynactionshadownode";
+import {GraphLayoutFdlQuadtree} from "../../../gvfcore/components/graphvis/graphs/layouts/graphlayoutfdlquadtree";
 export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
 
     private connectedEntityIdsOrderOnTimeline = null;
@@ -122,15 +123,18 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
             }
         });
 
+        if (!newNodes) {
+            let mNs = this.createAndSetResourceMetanodePositions(tmpResourcesOnTimeline);
+            this.setResourceOthersPositions(tmpResourcesOthers);
+            this.setDynActionNodesOnTimeline(tmpDynActionNodes);
+            this.createAndSetDynActionMetanodes(mNs);
+            this.setResourceTimelinePositions(tmpResourcesOnTimeline);
+            this.setTagPositions(tmpTagNodes, tmpResourcesOnTimeline);
+            this.collapseResourceMetaNodes(mNs);
+            this.createTimelineGrid(mNs, tmpDynActionNodes);
+        } else
+            this.setResourceOthersPositions(tmpResourcesOthers);
 
-        let mNs = this.createAndSetResourceMetanodePositions(tmpResourcesOnTimeline);
-        this.setResourceOthersPositions(tmpResourcesOthers);
-        this.setTagPositions(tmpTagNodes);
-        this.setDynActionNodesOnTimeline(tmpDynActionNodes);
-        this.createAndSetDynActionMetanodes(mNs);
-        this.setResourceTimelinePositions(tmpResourcesOnTimeline);
-        this.collapseResourceMetaNodes(mNs);
-        this.createTimelineGrid(mNs, tmpDynActionNodes);
 
     }
 
@@ -175,10 +179,13 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
      * @param nodes
      */
     private setDynActionNodesOnTimeline(nodes:NodeDynAction[]) {
+        if (!nodes.length)
+            return;
 
         let timelineStartX = this.timelineStartX;
         let timelineEndX = this.timelineEndX;
         nodes.sort(this.sortDynDatasByDateFct);
+
         let firstDate = new Date(<string>nodes[0].getDataEntity().getData("action_date"));
         let lastDate = new Date(<string>nodes[nodes.length - 1].getDataEntity().getData("action_date"));
 
@@ -641,66 +648,38 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
 
     /**
      * Set the position of TAG-Nodes below the timeline
-     * @param nodes
+     * @param nodes                 Tag Nodes
+     * @param fixedResourceNodes    Important to give the resourcenodes to set them on the right pos
      */
-    private setTagPositions(nodes:NodeTag[]) {
-        let timelineY = -100;
-        let seperationStep = 50;
+    private setTagPositions(nodes:NodeTag[], fixedResourceNodes:NodeResource[]) {
 
-        let usedPositions = {};
-        nodes.sort(this.orderTagsByWeightFct);
-
-        nodes.forEach((n:NodeTag) => {
-
-            // For now hide them
-            n.setIsVisible(false);
-            return;
-            /*
-             let tagEdgesCounted = 0;
-             let lastResNode = null;
-
-             let connectedTimelineNodesMinX = null;
-             let connectedTimelineNodesMaxX = null;
-             n.getEdges().forEach((e:EdgeAbstract) => {
-
-             if (e.constructor !== EdgeResourceTag) {
-             return;
-             }
-             let otherNode:NodeAbstract = null;
-             if (e.getSourceNode().getUniqueId() === n.getUniqueId())
-             otherNode = e.getDestNode();
-             else
-             otherNode = e.getSourceNode();
-
-             let posOtherNode = otherNode.getPosition();
-             if (connectedTimelineNodesMinX === null || posOtherNode["x"] < connectedTimelineNodesMinX)
-             connectedTimelineNodesMinX = posOtherNode["x"];
-             if (connectedTimelineNodesMaxX === null || posOtherNode["x"] > connectedTimelineNodesMaxX)
-             connectedTimelineNodesMaxX = posOtherNode["x"];
-
-             tagEdgesCounted++;
-             lastResNode = otherNode;
-             });
-
-
-             let xPos, yPos;
-             yPos = timelineY;
-             // If the tag is used only by one resource, place it directly underneath it
-             if (tagEdgesCounted === 1 || (connectedTimelineNodesMaxX - connectedTimelineNodesMinX) < 1.0) {
-             xPos = Math.round(lastResNode.getPosition()['x']);
-             } else
-             xPos = Math.round((connectedTimelineNodesMaxX - connectedTimelineNodesMinX) / 2 + connectedTimelineNodesMinX);
-
-             // Register the X-Position.
-             // If another node wants to use the same, shift the Y pos to prevent overlap
-             if (typeof usedPositions[xPos] === "undefined") {
-             usedPositions[xPos] = 0;
-             }
-             usedPositions[xPos]++;
-             yPos -= (usedPositions[xPos] - 1 ) * seperationStep;
-             n.setPosition(xPos, yPos);
-             */
+        let nodesIncRes = [];
+        nodes.forEach((nT:NodeTag) => {
+            nodesIncRes.push(nT);
         });
+        fixedResourceNodes.forEach((nR:NodeResource) => {
+           nodesIncRes.push(nR);
+        });
+
+
+        let tagEntityIdsToFix = {};
+        nodes.forEach((nT:NodeTag) => {
+            let dId = nT.getDataEntity().getId();
+            // Just the key is important... value can be anything
+            tagEntityIdsToFix[dId] = dId;
+        });
+
+        let qTCalculatedData = GraphLayoutFdlQuadtree.quadTreeLayout(nodesIncRes, tagEntityIdsToFix, null, true);
+        let rect = qTCalculatedData.rect;
+
+        qTCalculatedData.nodeData.forEach(function (nData) {
+            let pos = nData.pos;
+            let node = nData.node;
+            node.setPosition(pos.x, pos.y);
+            node.setIsVisible(false);
+        });
+
+        return;
     }
 
 

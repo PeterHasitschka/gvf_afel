@@ -8,6 +8,8 @@ import {AfelDataSourceGnoss} from "../../../data/gnossdata/afeldatasourcegnoss";
 import {AutoGraph} from "../../../../gvfcore/components/graphvis/graphs/autograph";
 import {AfelLearnerDataEntity} from "../../data/learner";
 import {UiService} from "../../../../gvfcore/services/ui.service";
+import {EdgeAbstract} from "../../../../gvfcore/components/graphvis/graphs/edges/edgeelementabstract";
+import {EdgeResourceTag} from "../edges/resourcetag";
 
 /**
  * A AfelResourceDataEntity node, derived from @see{NodeSimple}
@@ -35,7 +37,13 @@ export class NodeResource extends NodeSimple {
         let button = AfelDataService.getInstance().addButtonLoadLearnersByResource(this.dataEntity.getId(), this.plane);
         this.affiliatedTopButton = button;
 
-        console.log(this);
+        this.edges.forEach((e:EdgeAbstract) => {
+            if (e.constructor !== EdgeResourceTag)
+                return;
+            (<EdgeResourceTag>e).getTagNode().setIsVisible(true);
+
+        });
+
         super.select(render);
     }
 
@@ -45,7 +53,42 @@ export class NodeResource extends NodeSimple {
             UiService.getInstance().removeTopButton(this.affiliatedTopButton);
             this.affiliatedTopButton = null;
         }
+
+        this.edges.forEach((e:EdgeAbstract) => {
+            if (e.constructor !== EdgeResourceTag)
+                return;
+            (<EdgeResourceTag>e).getTagNode().setIsVisible(false);
+
+        });
+
         super.deSelect(render);
     }
 
+
+
+    public highlight(render=false) {
+        this.edges.forEach((e:EdgeAbstract) => {
+           if (e.constructor !== EdgeResourceTag)
+               return;
+            (<EdgeResourceTag>e).getTagNode().highlight(render);
+
+        });
+        super.highlight(render)
+    }
+
+
+    public deHighlight(render=false) {
+        this.edges.forEach((e:EdgeAbstract) => {
+            if (e.constructor !== EdgeResourceTag)
+                return;
+            (<EdgeResourceTag>e).getTagNode().deHighlight(render);
+        });
+        super.deHighlight(render)
+    }
+
+
+    public setIsVisible(val) {
+
+        super.setIsVisible(val);
+    }
 }

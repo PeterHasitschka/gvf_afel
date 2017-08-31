@@ -17,8 +17,12 @@ export class NodeTag extends NodeSimple {
     protected affiliatedTopButton = null;
 
 
-    constructor(x:number, y:number, protected dataEntity:AfelTagDataEntity, plane:Plane, options:Object) {
+    constructor(x:number, y:number, dataEntity:AfelTagDataEntity, plane:Plane, options:Object={}) {
+
         super(x, y, dataEntity, plane, options);
+
+        this.minSize = 8;
+        this.maxSize = 15;
 
         this.color = GraphVisConfig.graphelements['tagnode'].color;
         this.setColor(this.color);
