@@ -41,7 +41,7 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
     private dynNodeBelowTimelineYPos = -200;
     private resourceMetanodesRasterSize = 30;
     private resourceMetanodesX = -40;
-    private resourceNodeYMin = 550;
+    private resourceNodeYMin = -550;
     private resourceNodeRasterSize = 30;
 
     constructor(protected plane:Plane, nodes:NodeAbstract[], edges:EdgeAbstract[]) {
@@ -565,7 +565,7 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
                 usedPositions[posX] = 0;
             usedPositions[posX]++;
 
-            let posY = resNodePosY + (usedPositions[posX] - 1) * nodeGridWidth;
+            let posY = resNodePosY - (usedPositions[posX] - 1) * nodeGridWidth;
 
             n.setPosition(posX, posY);
         });

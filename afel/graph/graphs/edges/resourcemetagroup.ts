@@ -15,7 +15,7 @@ export class EdgeResourceMetaGroup extends EdgeColored {
                 spline: true,
                 splineOnLineOffset: 0.9,
                 splineNormalLengthFactor: 0.3,
-                left: false
+                left: true
             }
         };
 
