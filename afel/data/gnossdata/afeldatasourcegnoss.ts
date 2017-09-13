@@ -8,10 +8,11 @@ import {ResourceTagConnection} from "../../graph/data/connections/resourcetag";
 import {BasicEntity} from "../../../gvfcore/components/graphvis/data/databasicentity";
 import raw = require("core-js/fn/string/raw");
 import {ResourceResourceTransitionConnectionOfUserVisited} from "../../graph/data/connections/resresUserGenerated";
-import {ResourceResourceTransitionConnectionGeneral} from "../../graph/data/connections/resresGeneral";
+
 import {AfelDynActionDataEntity} from "../../graph/data/dynaction";
 import {DynActionResConnection} from "../../graph/data/connections/dynactionRes";
 import {DynActionDynActionConnection} from "../../graph/data/connections/dynactionDynAction";
+import {ResourceResourceTransitionConnectionGeneral} from "../../graph/data/connections/resresTransGeneral";
 
 
 export class AfelDataSourceGnoss implements AfelDataSourceInterace {
@@ -19,6 +20,7 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
 
     private http;
     private url = "http://localhost:8082";
+    // private url = "http://code.know-center.tugraz.at:8082";
     private urlPaths = {
         init: "/",
         resource: "/resource",
@@ -139,6 +141,17 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
 
         }.bind(this));
 
+    }
+
+    public loadContentBasedRecommendedResources(resourceId, cb) {
+        let postData = {
+            method: "getContentBasedResourceRecommendations",
+            data: {
+                resourceId: resourceId,
+                count: 10
+            }
+        };
+        this.makeCall(this.url + this.urlPaths.resource, postData, cb);
     }
 
     public loadUsersOfResource(resourceId, cb) {
@@ -330,8 +343,10 @@ export class AfelDataSourceGnoss implements AfelDataSourceInterace {
                     /*
                      If still no connection, skip (could be...)
                      */
-                    if (!e1 || !e2)
+                    if (!e1 || !e2) {
+                        // console.log("Could not find start/end to relation to add... skipping ", e1, e2);
                         return;
+                    }
 
                     switch (entityClass) {
 

@@ -34,7 +34,10 @@ export class NodeResource extends NodeSimple {
 
 
     public select(render = false) {
-        let button = AfelDataService.getInstance().addButtonLoadLearnersByResource(this.dataEntity.getId(), this.plane);
+        // let button = AfelDataService.getInstance().addButtonLoadLearnersByResource(this.dataEntity.getId(), this.plane);
+        // this.affiliatedTopButton = button;
+
+        let button = AfelDataService.getInstance().addButtonLoadResourcesContentBasedRecommended(this.dataEntity, this.plane);
         this.affiliatedTopButton = button;
 
         this.edges.forEach((e:EdgeAbstract) => {
@@ -65,11 +68,10 @@ export class NodeResource extends NodeSimple {
     }
 
 
-
-    public highlight(render=false) {
+    public highlight(render = false) {
         this.edges.forEach((e:EdgeAbstract) => {
-           if (e.constructor !== EdgeResourceTag)
-               return;
+            if (e.constructor !== EdgeResourceTag)
+                return;
             (<EdgeResourceTag>e).getTagNode().highlight(render);
 
         });
@@ -77,7 +79,7 @@ export class NodeResource extends NodeSimple {
     }
 
 
-    public deHighlight(render=false) {
+    public deHighlight(render = false) {
         this.edges.forEach((e:EdgeAbstract) => {
             if (e.constructor !== EdgeResourceTag)
                 return;

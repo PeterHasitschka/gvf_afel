@@ -19,7 +19,6 @@ import {DataAbstract} from "../../../gvfcore/components/graphvis/data/dataabstra
 import {UiService} from "../../../gvfcore/services/ui.service";
 import {ResourceResourceTransitionConnection} from "../data/connections/resres";
 import {ResourceResourceTransitionConnectionOfUserVisited} from "../data/connections/resresUserGenerated";
-import {ResourceResourceTransitionConnectionGeneral} from "../data/connections/resresGeneral";
 import {EdgeResourceResourceGeneral} from "./edges/resourceresourcegeneral";
 import {EdgeResourceResourceOfUserVisited} from "./edges/resourceresourceuservisit";
 import {ElementAbstract} from "../../../gvfcore/components/graphvis/graphs/graphelementabstract";
@@ -33,6 +32,9 @@ import {EdgeDynactionRes} from "./edges/dynactionres";
 import {DynActionDynActionConnection} from "../data/connections/dynactionDynAction";
 import {EdgeDynactionDynaction} from "./edges/dynactiondynaction";
 import {AfelMetanodeResources} from "./metanodes/resGroup";
+import {ResourceResourceTransitionConnectionGeneral} from "../data/connections/resresTransGeneral";
+import {ResourceResourceContentBasedSimilar} from "../data/connections/resresCbSimilar";
+import {EdgeResourceResourceCbSimilar} from "./edges/resourceresourcecbsimilar";
 
 export class AfelAutoCompleteGraph extends AutoGraph {
 
@@ -81,6 +83,11 @@ export class AfelAutoCompleteGraph extends AutoGraph {
                 type: AUTOGRAPH_EDGETYPES.BY_DATA,
                 dataConnection: ResourceResourceTransitionConnectionGeneral,
                 edge: EdgeResourceResourceGeneral
+            },
+            {
+                type: AUTOGRAPH_EDGETYPES.BY_DATA,
+                dataConnection: ResourceResourceContentBasedSimilar,
+                edge: EdgeResourceResourceCbSimilar
             },
             {
                 type: AUTOGRAPH_EDGETYPES.BY_DATA,

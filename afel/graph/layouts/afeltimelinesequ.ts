@@ -28,6 +28,11 @@ import {AfelMetanodeDynActions} from "../graphs/metanodes/dynActionGroup";
 import {EdgeDynActionMetaGroup} from "../graphs/edges/dynactionmetagroup";
 import {DynActionShadowNode} from "../graphs/nodes/dynactionshadownode";
 import {GraphLayoutFdlQuadtree} from "../../../gvfcore/components/graphvis/graphs/layouts/graphlayoutfdlquadtree";
+import {ButtonSimple} from "../../../gvfcore/components/graphvis/graphs/buttons/buttonsimple";
+import {ButtonShowAllResources} from "../graphs/buttons/buttonShowAllResources";
+import {ButtonHideAllResources} from "../graphs/buttons/buttonHideAllResources";
+import {ButtonHideAllDynActions} from "../graphs/buttons/buttonHideAllDynNodes";
+import {ButtonShowAllDynActions} from "../graphs/buttons/buttonShowAllDynNodes";
 export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
 
     private connectedEntityIdsOrderOnTimeline = null;
@@ -124,18 +129,41 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
         });
 
         if (!newNodes) {
+            console.log("CR SET RES METANODES");
             let mNs = this.createAndSetResourceMetanodePositions(tmpResourcesOnTimeline);
+            console.log("SET OTHER RES POS");
             this.setResourceOthersPositions(tmpResourcesOthers);
+            console.log("SET DYN ACTION POS");
             this.setDynActionNodesOnTimeline(tmpDynActionNodes);
+            console.log("CR SET DYN ACTION METANODES");
             this.createAndSetDynActionMetanodes(mNs);
+            console.log("SET RES POS");
             this.setResourceTimelinePositions(tmpResourcesOnTimeline);
+            console.log("SET TAG POS");
             this.setTagPositions(tmpTagNodes, tmpResourcesOnTimeline);
+            console.log("COLL RES METANODES");
             this.collapseResourceMetaNodes(mNs);
+            console.log("CR TIMELINE GRID");
             this.createTimelineGrid(mNs, tmpDynActionNodes);
+            console.log("CR BUTTONS");
+            this.createButtons(mNs.length);
         } else
             this.setResourceOthersPositions(tmpResourcesOthers);
 
 
+    }
+
+    private createButtons(numResMetaNodes) {
+        let buttY = this.timelineStartY - (this.timelineEndY -this.timelineStartY) / numResMetaNodes;
+        let bRExp = new ButtonShowAllResources(this.resourceMetanodesX - 30, buttY, this.plane, null);
+        let bRCol = new ButtonHideAllResources(this.resourceMetanodesX - 80, buttY, this.plane, null);
+
+        let bDCol = new ButtonHideAllDynActions(this.timelineEndX + 30, buttY, this.plane, null);
+        let bDExp = new ButtonShowAllDynActions(this.timelineEndX + 80, buttY, this.plane, null);
+        this.plane.getGraphScene().addObject(bRExp);
+        this.plane.getGraphScene().addObject(bRCol);
+        this.plane.getGraphScene().addObject(bDExp);
+        this.plane.getGraphScene().addObject(bDCol);
     }
 
     /**
@@ -437,11 +465,11 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
 
         let metaNodeScaleFct = this.resourceMetanodesRasterSize;
         let metaNodePosX = this.resourceMetanodesX;
-        // GROUP RESOURCE NODES (BY CATEGORY OR WHATEVER THE SERVER CALCULATED @todo: currently DUMMY!
+
         let rGroups = [];
         // Push resource nodes in a group array
         nodes.forEach((n:NodeResource) => {
-            let gId = n.getDataEntity().getData("calculatedResourceGroup");
+            let gId = n.getDataEntity().getData("clusterGroup");
             if (typeof rGroups[gId] === "undefined")
                 rGroups[gId] = [];
             rGroups[gId].push(n);
@@ -477,6 +505,7 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
         };
 
         rGroups.sort(rnGroupSortFct);
+        console.log(rGroups);
 
         // Create group nodes and connecting edges to their resources.
         // Resources get collapsed.
@@ -653,12 +682,17 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
      */
     private setTagPositions(nodes:NodeTag[], fixedResourceNodes:NodeResource[]) {
 
+        // nodes.forEach((nT:NodeTag) => {
+        //     nT.setIsVisible(false);
+        // });
+        // this.plane.getGraphScene().render();
+
         let nodesIncRes = [];
         nodes.forEach((nT:NodeTag) => {
             nodesIncRes.push(nT);
         });
         fixedResourceNodes.forEach((nR:NodeResource) => {
-           nodesIncRes.push(nR);
+            nodesIncRes.push(nR);
         });
 
 
@@ -669,7 +703,9 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
             tagEntityIdsToFix[dId] = dId;
         });
 
+        console.log("QUADTREE START");
         let qTCalculatedData = GraphLayoutFdlQuadtree.quadTreeLayout(nodesIncRes, tagEntityIdsToFix, null, true);
+        console.log("QUADTREE END");
         let rect = qTCalculatedData.rect;
 
         qTCalculatedData.nodeData.forEach(function (nData) {
@@ -677,7 +713,8 @@ export class GraphLayoutAfelTimelineSequence extends GraphLayoutAbstract {
             let node = nData.node;
             node.setPosition(pos.x, pos.y);
             node.setIsVisible(false);
-        });
+        }.bind(this));
+
 
         return;
     }

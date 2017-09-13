@@ -2,7 +2,7 @@ import {EdgeColored} from "../../../../gvfcore/components/graphvis/graphs/edges/
 import {Plane} from "../../../../gvfcore/components/plane/plane";
 import {NodeLearner} from "../nodes/learner";
 import {NodeResource} from "../nodes/resource";
-import {ResourceResourceTransitionConnectionGeneral} from "../../data/connections/resresGeneral";
+import {ResourceResourceTransitionConnectionGeneral} from "../../data/connections/resresTransGeneral";
 export class EdgeResourceResourceGeneral extends EdgeColored {
 
     protected static color = 0x999999;

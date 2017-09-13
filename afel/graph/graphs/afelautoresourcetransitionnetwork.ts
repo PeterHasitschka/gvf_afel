@@ -16,8 +16,8 @@ import {EdgeResourceResourceByLearner} from "./edges/resourceresourcebylearner";
 import {EdgeResourceResourceByTag} from "./edges/resourceresourcebytag";
 import {NodeTag} from "./nodes/tag";
 import {ResourceTagConnection} from "../data/connections/resourcetag";
-import {ResourceResourceTransitionConnectionGeneral} from "../data/connections/resresGeneral";
 import {EdgeResourceResourceGeneral} from "./edges/resourceresourcegeneral";
+import {ResourceResourceTransitionConnectionGeneral} from "../data/connections/resresTransGeneral";
 
 
 export class AfelAutoResourceTransitionNetworkGraph extends AutoGraph {

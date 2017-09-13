@@ -6,6 +6,9 @@ import {Plane} from "../../gvfcore/components/plane/plane";
 import {AfelResourceDataEntity} from "../graph/data/resource";
 import {UiService} from "../../gvfcore/services/ui.service";
 import {AfelLearnerDataEntity} from "../graph/data/learner";
+import {ResourceResourceContentBasedSimilar} from "../graph/data/connections/resresCbSimilar";
+import {GraphLayoutFdlQuadtreeCompleteAfelGraph} from "../graph/layouts/completegraphfdlquadtree";
+import {NodeAbstract} from "../../gvfcore/components/graphvis/graphs/nodes/nodeelementabstract";
 export class AfelDataService {
 
     static instance:AfelDataService;
@@ -72,9 +75,64 @@ export class AfelDataService {
         return button;
     }
 
+    addButtonLoadResourcesContentBasedRecommended(res:AfelResourceDataEntity, plane:Plane) {
+        let resourceHashId = res.getData("res_hash");
+        let callFct = function (onFinish) {
+            (<AfelDataSourceGnoss>AfelDataService.getInstance().getDataSource()).loadContentBasedRecommendedResources(resourceHashId, function (status, addedData) {
+
+                // plane.getGraph().addGraphElements(addedData);
+
+                let newResIds = [];
+                for (let dataKey in addedData) {
+                    let addedElement = <AfelResourceDataEntity>addedData[dataKey];
+                    if (!(addedElement instanceof AfelResourceDataEntity))
+                        continue;
+                    newResIds.push(addedElement.getId());
+
+                    let conn = new ResourceResourceContentBasedSimilar(null, res, addedElement, {});
+                    res.addConnection(conn);
+                    addedElement.addConnection(conn);
+                }
+
+
+                // plane.getGraph().getLayout().calculateLayout(function () {
+                // }, addedData);
+
+                (<AfelDataSourceGnoss>AfelDataService.getInstance().getDataSource()).loadResourcesConnectionsToResources(newResIds, function (statusC, addedConnections) {
+                    // console.log("After getting new resources", newResIds, " these are the connections to it after second call", addedConnections);
+                    // plane.getGraph().addExplicitListOfConnections(addedConnections);
+                    plane.getGraph().addGraphElements(addedData);
+                    let calcLayout = GraphLayoutFdlQuadtreeCompleteAfelGraph.quadTreeLayout(<NodeAbstract[]>plane.getGraph().getGraphElements(), addedData);
+                    calcLayout["nodeData"].forEach((d) => {
+                        // Calcuation also includes old nodes...
+                        if (newResIds.indexOf(d.node.getDataEntity().getId()) < 0)
+                            return;
+                        (<NodeAbstract>d.node).setPosition(d.pos['x'], d.pos['y']);
+                    });
+                    plane.getGraphScene().render();
+                    // plane.getGraph().getLayout().calculateLayout(function () {
+                    // }, addedConnections);
+                    if (onFinish) {
+                        onFinish();
+                    }
+                }.bind(this));
+            }.bind(this));
+        };
+
+        let button = {
+            id: "loadcbrecres_" + resourceHashId,
+            title: "Load further content-based recommended resources",
+            fct: function (onFinish) {
+                callFct(onFinish);
+            }
+        };
+
+        UiService.getInstance().topButtons.push(button);
+        return button;
+    }
 
     addButtonLoadLearnersByResource(resourceEntityId, plane:Plane) {
-        let callFct = function(onFinish){
+        let callFct = function (onFinish) {
             (<AfelDataSourceGnoss>AfelDataService.getInstance().getDataSource()).loadUsersOfResource(resourceEntityId, function (status, addedData) {
 
                 plane.getGraph().addGraphElements(addedData);
@@ -116,7 +174,7 @@ export class AfelDataService {
 
     addButtonLoadResourcesByTag(tagEntityId, plane:Plane) {
 
-        let callFct = function(onFinish){
+        let callFct = function (onFinish) {
             (<AfelDataSourceGnoss>AfelDataService.getInstance().getDataSource()).loadResourcesOfTag(tagEntityId, function (status, addedData) {
                 plane.getGraph().addGraphElements(addedData);
                 let newResIds = [];
